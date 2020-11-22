@@ -4,7 +4,7 @@
     /// Represents a Turing machine tape symbol.
     /// </summary>
     /// <typeparam name="T">Typeof of the symbolised data.</typeparam>
-    public class Symbol<T>
+    public sealed class Symbol<T>
     {
         /// <summary>
         /// Gets the blank symbol tape value.
