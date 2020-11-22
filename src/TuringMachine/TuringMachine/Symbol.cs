@@ -8,6 +8,8 @@ namespace TuringMachine
     /// <typeparam name="T">Typeof of the symbolised data.</typeparam>
     public sealed class Symbol<T>
     {
+        private const int HashCodeIfValueIsNull = 0;
+        
         /// <summary>
         /// Gets the blank symbol tape value.
         /// </summary>
@@ -82,5 +84,24 @@ namespace TuringMachine
         /// <param name="right">The second symbol to compare.</param>
         /// <returns>true if the value of left is different from the value of right; otherwise, false.</returns>
         public static bool operator !=(Symbol<T>? left, Symbol<T>? right) => !(left == right);
+
+        /// <summary>
+        /// Returns the hash code for this symbol.
+        /// </summary>
+        public override int GetHashCode()
+        {
+            if (ReferenceEquals(Blank, this))
+            {
+                return base.GetHashCode();
+            }
+            else if (Value == null)
+            {
+                return HashCodeIfValueIsNull;
+            }
+            else
+            {
+                return Value.GetHashCode();
+            }
+        }
     }
 }
