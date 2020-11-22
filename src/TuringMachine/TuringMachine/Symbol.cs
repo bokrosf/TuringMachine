@@ -1,4 +1,6 @@
-﻿namespace TuringMachine
+﻿using System.Collections.Generic;
+
+namespace TuringMachine
 {
     /// <summary>
     /// Represents a Turing machine tape symbol.
@@ -38,5 +40,47 @@
             Value = value;
 #pragma warning restore CS8601 // Possible null reference assignment.
         }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(obj, Blank))
+            {
+                return true;
+            }
+
+            Symbol<T> symbol = (Symbol<T>)obj;
+
+            return (symbol.Value == null && Value == null) || EqualityComparer<T>.Default.Equals(symbol.Value, Value);
+        }
+
+        /// <summary>
+        /// Determines whether two specified symbols have the same value.
+        /// </summary>
+        /// <param name="left">The first symbol to compare.</param>
+        /// <param name="right">The second symbol to compare.</param>
+        /// <returns>true if the value of left is the same as the value of right; otherwise, false.</returns>
+        public static bool operator ==(Symbol<T>? left, Symbol<T>? right)
+        {
+            return (left, right) switch
+            {
+                (null, null) => true,
+                (_, null) => false,
+                (null, _) => false,
+                (Symbol<T> l, _) => l.Equals(right)
+            };
+        }
+
+        /// <summary>
+        /// Determines whether two specified symbols have different value.
+        /// </summary>
+        /// <param name="left">The first symbol to compare.</param>
+        /// <param name="right">The second symbol to compare.</param>
+        /// <returns>true if the value of left is different from the value of right; otherwise, false.</returns>
+        public static bool operator !=(Symbol<T>? left, Symbol<T>? right) => !(left == right);
     }
 }
