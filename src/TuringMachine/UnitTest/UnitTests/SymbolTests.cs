@@ -4,6 +4,36 @@ namespace TuringMachine.Tests.UnitTests
 {
     public class SymbolTests
     {
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(645)]
+        [InlineData(478)]
+        [InlineData(21)]
+        public void Constructor_ValuePropertySetted_Success(int value)
+        {
+            var symbol = new Symbol<int>(value);
+
+            int actualValue = symbol.Value;
+
+            Assert.Equal(value, actualValue);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(null)]
+        [InlineData(478)]
+        [InlineData(21)]
+        public void Constructor_NullableValuePropertySetted_Success(int? value)
+        {
+            var symbol = new Symbol<int?>(value);
+
+            int? actualValue = symbol.Value;
+
+            Assert.Equal(value, actualValue);
+        }
+
         [Fact]
         public void Equals_Reflexive_ReturnsTrue()
         {
