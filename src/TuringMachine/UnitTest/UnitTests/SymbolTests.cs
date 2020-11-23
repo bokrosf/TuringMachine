@@ -273,5 +273,72 @@ namespace TuringMachine.Tests.UnitTests
 
             Assert.Equal(first.GetHashCode(), actual);
         }
+
+        [Fact]
+        public void EqualityOperator_BothNull_ReturnsTrue()
+        {
+            Symbol<int>? left = null;
+            Symbol<int>? right = null;
+
+            bool areEqual = left == right;
+
+            Assert.True(areEqual);
+        }
+
+        [Fact]
+        public void EqualityOperator_OnlyLeftNull_ReturnsFalse()
+        {
+            Symbol<int>? left = null;
+            Symbol<int>? right = new Symbol<int>(5);
+
+            bool areEqual = left == right;
+
+            Assert.False(areEqual);
+        }
+
+        [Fact]
+        public void EqualityOperator_OnlyRightNull_ReturnsFalse()
+        {
+            Symbol<int>? left = new Symbol<int>(5);
+            Symbol<int>? right = null;
+
+            bool areEqual = left == right;
+
+            Assert.False(areEqual);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(56)]
+        [InlineData(54)]
+        [InlineData(678)]
+        public void EqualityOperator_SameValue_ReturnsFalse(int sameValue)
+        {
+            Symbol<int> left = new Symbol<int>(sameValue);
+            Symbol<int> right = new Symbol<int>(sameValue);
+
+            bool areEqual = left == right;
+
+            Assert.True(areEqual);
+        }
+
+        [Theory]
+        [InlineData(0, 1)]
+        [InlineData(1, 2)]
+        [InlineData(2, 89)]
+        [InlineData(56, 3)]
+        [InlineData(54, 93)]
+        [InlineData(678, 35)]
+        public void EqualityOperator_DifferentValue_ReturnsFalse(int leftValue, int rightValue)
+        {
+            Symbol<int> left = new Symbol<int>(leftValue);
+            Symbol<int> right = new Symbol<int>(rightValue);
+
+            bool areEqual = left == right;
+
+            Assert.False(areEqual);
+        }
     }
 }

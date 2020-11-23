@@ -55,11 +55,11 @@ namespace TuringMachine
         /// <returns>true if the value of left is the same as the value of right; otherwise, false.</returns>
         public static bool operator ==(Symbol<T>? left, Symbol<T>? right)
         {
-            if (left == null && right == null)
+            if (left is null && right is null)
             {
                 return true;
             }
-            else if (left == null ^ right == null)
+            else if (left is null ^ right is null)
             {
                 return false;
             }
