@@ -6,6 +6,5 @@
     /// <typeparam name="T">Type of the symbols' data.</typeparam>
     internal sealed class Tape<T>
     {
-
     }
 }
