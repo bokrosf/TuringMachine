@@ -35,14 +35,16 @@ namespace TuringMachine
                 return false;
             }
 
-            if (ReferenceEquals(obj, Blank))
+            if (ReferenceEquals(obj, Blank) && ReferenceEquals(this, Blank))
             {
                 return true;
             }
 
             Symbol<T> symbol = (Symbol<T>)obj;
+            bool oneOfThemIsBlank = ReferenceEquals(obj, Blank) || ReferenceEquals(this, Blank);
 
-            return (symbol.Value == null && Value == null) || EqualityComparer<T>.Default.Equals(symbol.Value, Value);
+            return !oneOfThemIsBlank &&
+                ((symbol.Value == null && Value == null) || EqualityComparer<T>.Default.Equals(symbol.Value, Value));
         }
 
         /// <summary>

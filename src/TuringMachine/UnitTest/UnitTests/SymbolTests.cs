@@ -44,6 +44,16 @@ namespace TuringMachine.Tests.UnitTests
             Assert.True(areEqual);
         }
 
+        [Fact]
+        public void Equals_BlankReflexive_ReturnsTrue()
+        {
+            var symbol = Symbol<int>.Blank;
+
+            bool areEqual = symbol.Equals(Symbol<int>.Blank);
+
+            Assert.True(areEqual);
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -134,6 +144,42 @@ namespace TuringMachine.Tests.UnitTests
             Assert.False(secondEqualsWithFirst);
         }
 
+        [Theory]
+        [InlineData(default(int))]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(55)]
+        [InlineData(32)]
+        public void Equals_BlankComparedWithNormalSymmetric_ReturnsFalse(int value)
+        {
+            var blank = Symbol<int>.Blank;
+            var normal = new Symbol<int>(value);
+
+            bool blankEqualsWithNormal = blank.Equals(normal);
+            bool normalEqualsWithBlank = normal.Equals(blank);
+
+            Assert.False(blankEqualsWithNormal);
+            Assert.False(normalEqualsWithBlank);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(55)]
+        [InlineData(32)]
+        public void Equals_BlankComparedWithNullableNormalSymmetric_ReturnsFalse(int? value)
+        {
+            var blank = Symbol<int?>.Blank;
+            var normal = new Symbol<int?>(value);
+
+            bool blankEqualsWithNormal = blank.Equals(normal);
+            bool normalEqualsWithBlank = normal.Equals(blank);
+
+            Assert.False(blankEqualsWithNormal);
+            Assert.False(normalEqualsWithBlank);
+        }
+
         [Fact]
         public void Equals_Transitive_ReturnsTrue()
         {
@@ -168,6 +214,16 @@ namespace TuringMachine.Tests.UnitTests
             string comparedWith = string.Empty;
 
             bool areEqual = symbol.Equals(comparedWith);
+
+            Assert.False(areEqual);
+        }
+
+        [Fact]
+        public void Equals_BlankComparedWithNull_ReturnsFalse()
+        {
+            var blank = Symbol<int>.Blank;
+
+            bool areEqual = blank.Equals(null);
 
             Assert.False(areEqual);
         }
