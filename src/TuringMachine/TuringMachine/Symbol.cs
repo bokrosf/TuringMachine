@@ -43,8 +43,7 @@ namespace TuringMachine
             Symbol<T> symbol = (Symbol<T>)obj;
             bool oneOfThemIsBlank = ReferenceEquals(symbol, Blank) || ReferenceEquals(this, Blank);
 
-            return !oneOfThemIsBlank &&
-                ((symbol.Value == null && Value == null) || EqualityComparer<T>.Default.Equals(symbol.Value, Value));
+            return !oneOfThemIsBlank && EqualityComparer<T>.Default.Equals(symbol.Value, Value);
         }
 
         /// <summary>
