@@ -227,5 +227,51 @@ namespace TuringMachine.Tests.UnitTests
 
             Assert.False(areEqual);
         }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(56)]
+        [InlineData(54)]
+        [InlineData(678)]
+        public void GetHashCode_SameHashCode_ReturnsTrue(int sameValue)
+        {
+            var first = new Symbol<int>(sameValue);
+            var second = new Symbol<int>(sameValue);
+
+            int actual = second.GetHashCode();
+
+            Assert.Equal(first.GetHashCode(), actual);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(56)]
+        [InlineData(54)]
+        [InlineData(678)]
+        public void GetHashCode_NullableSameHashCode_ReturnsTrue(int? sameValue)
+        {
+            var first = new Symbol<int?>(sameValue);
+            var second = new Symbol<int?>(sameValue);
+
+            int? actual = second.GetHashCode();
+
+            Assert.Equal(first.GetHashCode(), actual);
+        }
+
+        [Fact]
+        public void GetHashCode_BlankSameHashCode_ReturnsTrue()
+        {
+            var first = Symbol<int?>.Blank;
+            var second = Symbol<int?>.Blank;
+
+            int? actual = second.GetHashCode();
+
+            Assert.Equal(first.GetHashCode(), actual);
+        }
     }
 }
