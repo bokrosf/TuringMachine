@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TuringMachine", "TuringMachine\TuringMachine.csproj", "{864AFE67-70D1-4382-9828-7FEC2B3F34FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{76E0F3E9-AD5D-4561-93E3-6AFAE92288A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TuringMachine.Tests", "UnitTest\TuringMachine.Tests.csproj", "{76E0F3E9-AD5D-4561-93E3-6AFAE92288A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
