@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace TuringMachine
@@ -9,7 +10,10 @@ namespace TuringMachine
     /// <typeparam name="T">Type of the symbols' data.</typeparam>
     internal sealed class Tape<T>
     {
-        public Symbol<T> CurrentSymbol 
+        /// <summary>
+        /// Gets or set the symbol that is pointed by head.
+        /// </summary>
+        public Symbol<T> PointedByHead 
         {
             get => head.Value;
             set => head.Value = value;
@@ -39,6 +43,44 @@ namespace TuringMachine
             {
                 this.symbols.AddFirst(head);
             }
+        }
+
+        /// <summary>
+        /// Moves head one step in the given direction and returns the symbol pointed by head after the operation.
+        /// </summary>
+        /// <param name="direction">Movement direction.</param>
+        /// <returns>The symbol pointed by head after the operation.</returns>
+        /// <exception cref="ArgumentException">Thrown is the specified direction is part of type <see cref="TapeHeadDirection"/>.</exception>
+        public Symbol<T> MoveHeadInDirection(TapeHeadDirection direction) => direction switch
+        {
+            TapeHeadDirection.Stay => PointedByHead,
+            TapeHeadDirection.Left => MoveHeadToTheLeft(),
+            TapeHeadDirection.Right => MoveHeadToTheRight(),
+            _ => throw new ArgumentException($"{direction} value is not part of type {typeof(TapeHeadDirection).AssemblyQualifiedName}", nameof(direction))
+        };
+
+        private Symbol<T> MoveHeadToTheLeft()
+        {
+            if (head.Previous == null)
+            {
+                symbols.AddBefore(head, new LinkedListNode<Symbol<T>>(Symbol<T>.Blank));
+            }
+
+            head = head.Previous!;
+
+            return PointedByHead;
+        }
+
+        private Symbol<T> MoveHeadToTheRight()
+        {
+            if (head.Next == null)
+            {
+                symbols.AddAfter(head, new LinkedListNode<Symbol<T>>(Symbol<T>.Blank));
+            }
+
+            head = head.Next!;
+
+            return PointedByHead;
         }
     }
 }
