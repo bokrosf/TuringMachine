@@ -14,7 +14,7 @@ namespace TuringMachine
         /// <summary>
         /// Gets or set the symbol that is pointed by head.
         /// </summary>
-        public Symbol<T> PointedByHead 
+        public Symbol<T> CurrentSymbol 
         {
             get => head.Value;
             set => head.Value = value;
@@ -54,7 +54,7 @@ namespace TuringMachine
         /// <exception cref="ArgumentException">Thrown is the specified direction is part of type <see cref="TapeHeadDirection"/>.</exception>
         public Symbol<T> MoveHeadInDirection(TapeHeadDirection direction) => direction switch
         {
-            TapeHeadDirection.Stay => PointedByHead,
+            TapeHeadDirection.Stay => CurrentSymbol,
             TapeHeadDirection.Left => MoveHeadToTheLeft(),
             TapeHeadDirection.Right => MoveHeadToTheRight(),
             _ => throw new ArgumentException($"{direction} value is not part of type {typeof(TapeHeadDirection).AssemblyQualifiedName}", nameof(direction))
@@ -94,7 +94,7 @@ namespace TuringMachine
 
             head = head.Previous!;
 
-            return PointedByHead;
+            return CurrentSymbol;
         }
 
         private Symbol<T> MoveHeadToTheRight()
@@ -106,7 +106,7 @@ namespace TuringMachine
 
             head = head.Next!;
 
-            return PointedByHead;
+            return CurrentSymbol;
         }
     }
 }
