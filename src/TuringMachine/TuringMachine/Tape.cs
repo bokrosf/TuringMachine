@@ -70,7 +70,6 @@ namespace TuringMachine
             symbols.AddFirst(head);
         }
 
-
         /// <summary>
         /// Returns an enumerator that iterates through the <see cref="Tape{T}"/>.
         /// </summary>
