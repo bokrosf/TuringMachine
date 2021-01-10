@@ -54,18 +54,12 @@ namespace TuringMachine
         /// <returns>true if the value of left is the same as the value of right; otherwise, false.</returns>
         public static bool operator ==(Symbol<T>? left, Symbol<T>? right)
         {
-            if (left is null && right is null)
+            return (left is null, right is null) switch
             {
-                return true;
-            }
-            else if (left is null ^ right is null)
-            {
-                return false;
-            }
-            else
-            {
-                return left!.Equals(right);
-            }
+                (true, true) => true,
+                (false, _) => left!.Equals(right),
+                _ => false
+            };
         }
 
         /// <summary>
