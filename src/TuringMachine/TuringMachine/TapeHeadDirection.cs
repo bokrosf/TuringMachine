@@ -3,7 +3,7 @@
     /// <summary>
     /// Movement direction of the tape's head.
     /// </summary>
-    internal enum TapeHeadDirection
+    public enum TapeHeadDirection
     {
         /// <summary>
         /// Not moves anywhere.
