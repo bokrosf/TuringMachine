@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,7 +9,7 @@ namespace TuringMachine
     /// Represents a Turing machine tape that reads and modifies the stored symbols.
     /// </summary>
     /// <typeparam name="T">Type of the symbols' data.</typeparam>
-    internal sealed class Tape<T>
+    internal sealed class Tape<T> : IEnumerable<Symbol<T>>
     {
         /// <summary>
         /// Gets or set the symbol that is pointed by head.
@@ -68,6 +69,21 @@ namespace TuringMachine
             head = new LinkedListNode<Symbol<T>>(Symbol<T>.Blank);
             symbols.AddFirst(head);
         }
+
+
+        /// <summary>
+        /// Returns an enumerator that iterates through the <see cref="Tape{T}"/>.
+        /// </summary>
+        /// <returns>An enumerator for the <see cref="Tape{T}"</returns>
+        public IEnumerator<Symbol<T>> GetEnumerator()
+        {
+            foreach (var s in symbols)
+            {
+                yield return s;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private Symbol<T> MoveHeadToTheLeft()
         {
