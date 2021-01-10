@@ -19,7 +19,7 @@ namespace TuringMachine
             set => head.Value = value;
         }
 
-        private LinkedList<Symbol<T>> symbols;
+        private readonly LinkedList<Symbol<T>> symbols;
         private LinkedListNode<Symbol<T>> head;
 
         /// <summary>
