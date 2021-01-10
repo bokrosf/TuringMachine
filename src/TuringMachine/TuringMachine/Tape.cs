@@ -59,6 +59,16 @@ namespace TuringMachine
             _ => throw new ArgumentException($"{direction} value is not part of type {typeof(TapeHeadDirection).AssemblyQualifiedName}", nameof(direction))
         };
 
+        /// <summary>
+        /// Clears symbols and stores only a blank symbol that is pointed by head.
+        /// </summary>
+        public void Clear()
+        {
+            symbols.Clear();
+            head = new LinkedListNode<Symbol<T>>(Symbol<T>.Blank);
+            symbols.AddFirst(head);
+        }
+
         private Symbol<T> MoveHeadToTheLeft()
         {
             if (head.Previous == null)
