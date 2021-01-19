@@ -35,10 +35,8 @@ namespace TuringMachine
         /// Initializes a new instance of <see cref="Tape{T}"/> class with the given symbols and the first symbol is pointed by head.
         /// </summary>
         /// <param name="symbols">Symbols to be stored on the tape.</param>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="symbols"/> parameter is null.</exception>
         public Tape(IEnumerable<Symbol<T>> symbols)
         {
-            _ = symbols ?? throw new ArgumentNullException(nameof(symbols));
             this.symbols = new LinkedList<Symbol<T>>(symbols);
             head = this.symbols.First ?? new LinkedListNode<Symbol<T>>(Symbol<T>.Blank);
 
