@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -64,6 +65,49 @@ namespace TuringMachine.Tests.UnitTests
 
             Assert.True(hasSameElementCount);
             Assert.True(elementsAreEqual);
+        }
+
+        [Theory]
+        [InlineData(new int[] { })]
+        [InlineData(new int[] { 0, 1 })]
+        [InlineData(new int[] { 488, 4786, -21, 8934 })]
+        [InlineData(new int[] { 438, 0, 48839, 982723, 894, 3728 })]
+        public void Clear_SingleCall_OnlyOneBlankSymbolContained(IEnumerable<int> symbolValues)
+        {
+            var tape = new Tape<int>(symbolValues.Select(sv => new Symbol<int>(sv)));
+
+            tape.Clear();
+            bool isOneSymbolOnly = tape.Count() == 1;
+            bool hasBlankSymbol = tape.Any(s => s == Symbol<int>.Blank);
+
+            Assert.True(isOneSymbolOnly);
+            Assert.True(hasBlankSymbol);
+        }
+
+        [Theory]
+        [InlineData(1, new int[] { })]
+        [InlineData(2, new int[] { 0, 1 })]
+        [InlineData(5, new int[] { 488, 4786, -21, 8934 })]
+        [InlineData(100, new int[] { 438, 0, 48839, 982723, 894, 3728 })]
+        public void Clear_MultipleCall_OnlyOneBlankSymbolContained(int callCount, IEnumerable<int> symbolValues)
+        {
+            if (callCount < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(callCount), "Call count can not be less then one.");
+            }
+
+            var tape = new Tape<int>(symbolValues.Select(sv => new Symbol<int>(sv)));
+
+            for (int i = 0; i < callCount; i++)
+            {
+                tape.Clear();
+            }
+
+            bool isOneSymbolOnly = tape.Count() == 1;
+            bool hasBlankSymbol = tape.Any(s => s == Symbol<int>.Blank);
+
+            Assert.True(isOneSymbolOnly);
+            Assert.True(hasBlankSymbol);
         }
     }
 }
