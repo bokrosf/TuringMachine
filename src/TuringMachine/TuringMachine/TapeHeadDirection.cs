@@ -8,7 +8,7 @@
         /// <summary>
         /// Not moves anywhere.
         /// </summary>
-        Stay = 1,
+        Stay,
 
         /// <summary>
         /// Movement in the left direction.
