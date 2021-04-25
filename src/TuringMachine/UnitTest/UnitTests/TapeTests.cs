@@ -109,5 +109,104 @@ namespace TuringMachine.Tests.UnitTests
             Assert.True(isOneSymbolOnly);
             Assert.True(hasBlankSymbol);
         }
+
+        [Fact]
+        public void MoveHeadInDirection_Stay_MatchesOriginalSymbol()
+        {
+            Symbol<int>[] symbols = Enumerable.Range(1, 2).Select(i => new Symbol<int>(i)).ToArray();
+            var tape = new Tape<int>(symbols);
+
+            Symbol<int> originalSymbol = tape.MoveHeadInDirection(TapeHeadDirection.Stay);
+
+            Assert.Equal(symbols[0], originalSymbol);
+        }
+
+        [Fact]
+        public void MoveHeadInDirection_ToTheLeft_MatchesLeftSymbol()
+        {
+            Symbol<int>[] symbols = Enumerable.Range(1, 2).Select(i => new Symbol<int>(i)).ToArray();
+            var tape = new Tape<int>(symbols);
+
+            Symbol<int> previousSymbol = tape.CurrentSymbol;
+            tape.MoveHeadInDirection(TapeHeadDirection.Right);
+            Symbol<int> leftSymbol = tape.MoveHeadInDirection(TapeHeadDirection.Left);
+
+            Assert.Equal(previousSymbol, leftSymbol);
+        }
+
+        [Fact]
+        public void MoveHeadInDirection_ToTheRight_MatchesRightSymbol()
+        {
+            Symbol<int>[] symbols = Enumerable.Range(1, 2).Select(i => new Symbol<int>(i)).ToArray();
+            var tape = new Tape<int>(symbols);
+
+            Symbol<int> rightSymbol = tape.MoveHeadInDirection(TapeHeadDirection.Right);
+
+            Assert.Equal(symbols[1], rightSymbol);
+        }
+
+        [Fact]
+        public void MoveHeadInDirection_ToTheLeft_MatchesAllTillTheLast()
+        {
+            Symbol<int>[] symbols = Enumerable.Range(1, 10).Select(i => new Symbol<int>(i)).ToArray();
+            var tape = new Tape<int>(symbols);
+
+            for (int i = 0; i < symbols.Length - 1; i++)
+            {
+                tape.MoveHeadInDirection(TapeHeadDirection.Right);
+            }
+
+            bool allSymbolsMatched = true;
+
+            for (int i = symbols.Length - 1; i >= 0; i--)
+            {
+                allSymbolsMatched &= symbols[i] == tape.CurrentSymbol;
+                tape.MoveHeadInDirection(TapeHeadDirection.Left);
+            }
+
+            Assert.True(allSymbolsMatched);
+        }
+
+        [Fact]
+        public void MoveHeadInDirection_ToTheRight_MatchesAllTillTheLast()
+        {
+            Symbol<int>[] symbols = Enumerable.Range(1, 10).Select(i => new Symbol<int>(i)).ToArray();
+            var tape = new Tape<int>(symbols);
+
+            bool allSymbolsMatched = true;
+
+            for (int i = 0; i < symbols.Length; i++)
+            {
+                allSymbolsMatched &= symbols[i] == tape.CurrentSymbol;
+                tape.MoveHeadInDirection(TapeHeadDirection.Right);
+            }
+
+            Assert.True(allSymbolsMatched);
+        }
+
+        [Fact]
+        public void MoveHeadInDirection_ToTheLeft_BlankSymbolCreatedAfterLast()
+        {
+            Symbol<int>[] symbols = Enumerable.Range(1, 10).Select(i => new Symbol<int>(i)).ToArray();
+            var tape = new Tape<int>(symbols);
+
+            tape.MoveHeadInDirection(TapeHeadDirection.Left);
+            
+            Assert.Equal(Symbol<int>.Blank, tape.CurrentSymbol);
+        }
+
+        [Fact]
+        public void MoveHeadInDirection_ToTheRight_BlankSymbolCreatedAfterLast()
+        {
+            Symbol<int>[] symbols = Enumerable.Range(1, 10).Select(i => new Symbol<int>(i)).ToArray();
+            var tape = new Tape<int>(symbols);
+
+            for (int i = 0; i < symbols.Length; i++)
+            {
+                tape.MoveHeadInDirection(TapeHeadDirection.Right);
+            }
+
+            Assert.Equal(Symbol<int>.Blank, tape.CurrentSymbol);
+        }
     }
 }
