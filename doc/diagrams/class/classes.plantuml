@@ -4,9 +4,8 @@ hide interface empty members
 hide enum empty members
 
 class Symbol<T> {
-    --
-    +{static} Symbol<T> Blank {query}
-    +T Value {query}
+    +{method} {static} Symbol<T> Blank {query}
+    +{method} T Value {query}
     {static} Symbol()
     +Symbol(T value)
     +bool Equals(object? obj)
