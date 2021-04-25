@@ -57,7 +57,7 @@ namespace TuringMachine
             TapeHeadDirection.Stay => CurrentSymbol,
             TapeHeadDirection.Left => MoveHeadToTheLeft(),
             TapeHeadDirection.Right => MoveHeadToTheRight(),
-            _ => throw new ArgumentException($"{direction} value is not part of type {typeof(TapeHeadDirection).AssemblyQualifiedName}", nameof(direction))
+            _ => throw new ArgumentException($"{direction} value is not part of type {typeof(TapeHeadDirection).AssemblyQualifiedName}.", nameof(direction))
         };
 
         /// <summary>
