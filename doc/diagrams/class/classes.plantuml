@@ -4,6 +4,7 @@ hide interface empty members
 hide enum empty members
 
 class Symbol<T> {
+    -{static} int NullValueHashCode = 0 {query}
     +{method} {static} Symbol<T> Blank {query}
     +{method} T Value {query}
     {static} Symbol()
