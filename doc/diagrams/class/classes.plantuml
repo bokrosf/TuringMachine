@@ -3,7 +3,7 @@
 hide interface empty members
 hide enum empty members
 
-class "Symbol<T>" as Symbol_T {
+class "Symbol<T>" as Symbol {
     -{static} NullValueHashCode: int = 0 {query}
     +{method} {static} Blank: Symbol<T> {query}
     +{method} Value: T {query}
@@ -21,7 +21,7 @@ enum TapeHeadDirection {
     Right
 }
 
-class "Tape<T>" as Tape_T {
+class "Tape<T>" as Tape {
     -symbols: LinkedList<Symbol<T>>
     -head: LinkedListNode<Symbol<T>>
     +{method} CurrentSymbol: Symbol<T> {query}
@@ -33,9 +33,9 @@ class "Tape<T>" as Tape_T {
     -MoveHeadToTheRight(): Symbol<T>
 }
 
-Tape_T "*" o-left- "1..*" Symbol_T
-interface "IEnumerable<T>" as IEnumerable_T
-IEnumerable_T <|.. Tape_T
-Tape_T --> TapeHeadDirection
+Tape "*" o-left- "1..*" Symbol
+interface "IEnumerable<T>" as IEnumerable
+IEnumerable <|.. Tape
+Tape --> TapeHeadDirection
 
 @enduml
