@@ -1,5 +1,8 @@
 @startuml classes
 
+hide interface empty members
+hide enum empty members
+
 class Symbol<T> {
     --
     +{static} Symbol<T> Blank {query}
