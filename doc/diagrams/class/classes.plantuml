@@ -18,4 +18,20 @@ enum TapeHeadDirection {
     Right
 }
 
+class "Tape<T>" as Tape_T {
+    -LinkedList<Symbol<T>> symbols
+    -LinkedListNode<Symbol<T>> head
+    +{method} Symbol<T> CurrentSymbol {query}
+    +Tape()
+    +Tape(IEnumerable<Symbol<T>> symbols)
+    +Symbol<T> MoveHeadInDirection(TapeHeadDirection direction)
+    +void Clear()
+    -Symbol<T> MoveHeadToTheLeft()
+    -Symbol<T> MoveHeadToTheRight()
+}
+
+interface "IEnumerable<T>" as IEnumerable_T
+Tape_T <|.. IEnumerable_T
+Tape_T --> TapeHeadDirection
+
 @enduml
