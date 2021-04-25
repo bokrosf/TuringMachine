@@ -12,4 +12,10 @@ class Symbol<T> {
     +int GetHashCode()
 }
 
+enum TapeHeadDirection {
+    Stay
+    Left
+    Right
+}
+
 @enduml
