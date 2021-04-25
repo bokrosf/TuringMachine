@@ -4,15 +4,15 @@ hide interface empty members
 hide enum empty members
 
 class Symbol<T> {
-    -{static} int NullValueHashCode = 0 {query}
-    +{method} {static} Symbol<T> Blank {query}
-    +{method} T Value {query}
+    -{static} NullValueHashCode: int = 0 {query}
+    +{method} {static} Blank: Symbol<T> {query}
+    +{method} Value: T {query}
     {static} Symbol()
-    +Symbol(T value)
-    +bool Equals(object? obj)
-    +{static} bool ==(Symbol<T>? left, Symbol<T> right)
-    +{static} bool !=(Symbol<T>? left, Symbol<T> right)
-    +int GetHashCode()
+    +Symbol(value: T)
+    +Equals(obj: object?): bool
+    +{static} Equality(left: Symbol<T>?, right: Symbol<T>): bool
+    +{static} Inequality(left: Symbol<T>?, right: Symbol<T>): bool
+    +GetHashCode(): int
 }
 
 enum TapeHeadDirection {
@@ -22,15 +22,15 @@ enum TapeHeadDirection {
 }
 
 class "Tape<T>" as Tape_T {
-    -LinkedList<Symbol<T>> symbols
-    -LinkedListNode<Symbol<T>> head
-    +{method} Symbol<T> CurrentSymbol {query}
+    -symbols: LinkedList<Symbol<T>>
+    -head: LinkedListNode<Symbol<T>>
+    +{method} CurrentSymbol: Symbol<T> {query}
     +Tape()
-    +Tape(IEnumerable<Symbol<T>> symbols)
-    +Symbol<T> MoveHeadInDirection(TapeHeadDirection direction)
-    +void Clear()
-    -Symbol<T> MoveHeadToTheLeft()
-    -Symbol<T> MoveHeadToTheRight()
+    +Tape(symbols: IEnumerable<Symbol<T>>)
+    +MoveHeadInDirection(direction: TapeHeadDirection): Symbol<T>
+    +Clear(): void
+    -MoveHeadToTheLeft(): Symbol<T>
+    -MoveHeadToTheRight(): Symbol<T>
 }
 
 interface "IEnumerable<T>" as IEnumerable_T
