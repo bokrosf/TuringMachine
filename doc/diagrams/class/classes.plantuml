@@ -1,3 +1,15 @@
 @startuml classes
 
+class Symbol<T> {
+    --
+    +{static} Symbol<T> Blank {query}
+    +T Value {query}
+    {static} Symbol()
+    +Symbol(T value)
+    +bool Equals(object? obj)
+    +{static} bool ==(Symbol<T>? left, Symbol<T> right)
+    +{static} bool !=(Symbol<T>? left, Symbol<T> right)
+    +int GetHashCode()
+}
+
 @enduml
