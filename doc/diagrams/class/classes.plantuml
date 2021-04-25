@@ -38,4 +38,48 @@ interface "IEnumerable<T>" as IEnumerable
 IEnumerable <|.. Tape
 Tape --> TapeHeadDirection
 
+
+class "TransitionDomain<TState, TValue>" as TransitionDomain {
+    +{method} State: TState {query}
+    +{method} Symbol: Symbol<TValue> {query}
+    +Equals(obj: object?): bool
+    +{static} Equality(left: TransitionDomain?, right: TransitionDomain?): bool
+    +{static} Inequality(left: TransitionDomain?, right: TransitionDomain?): bool
+    +GetHashCode(): int
+}
+
+class "TransitionRange<TState, TValue>" as TransitionRange {
+    +{method} HeadDirection: TapeHeadDirection
+}
+
+interface "ISingleTapeConfigurationTable<TState, TValue>" as ISingleTapeConfigurationTable {
+    +AddTransition(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): ISingleTapeConfigurationTable
+    +GetTransitionRange(domain: TransitionDomain<TState, TValue>): TransitionRange<TState, TValue>
+}
+
+interface "IMultiTapeConfigurationTable<TState, TValue>" as IMultiTapeConfigurationTable {
+    +AddTransition(tapeId: int, domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): IMultiTapeConfigurationTable
+    +GetTransitionRange(tapeId: int, domain: TransitionDomain<TState, TValue>): TransitionRange<TState, TValue>
+}
+
+~class "ConfigurationTable<TState, TValue>" as ConfigurationTable {
+    -transitionsPerTapes: Dictionary<int, TransitionTable<TState, TValue>>
+    ConfigurationTable(tapeCount: int)
+}
+
+class "TransitionTable<TState, TValue>" as TransitionTable {
+    -transitions: Dictionary<TransitionDomain<TState, TValue>, TransitionRange<TState, TValue>
+    +{method} Item[TransitionDomain<TState, TValue>]: TransitionRange<TState, TValue>
+}
+
+class "ConfigurationTableFactory<TState, TValue>" as ConfigurationTableFactory {
+    +ConfigurationTableFactory()
+    +CreateSingleTapeTable(): ISingleTapeConfigurationTable
+    +CreateMultiTapeTable(): IMultiTapeConfigurationTable
+}
+
+TransitionDomain <|-- TransitionRange
+ISingleTapeConfigurationTable <|.. ConfigurationTable
+IMultiTapeConfigurationTable <|..ConfigurationTable
+
 @enduml
