@@ -43,11 +43,13 @@ class "TransitionDomain<TState, TValue>" as TransitionDomain << record >> {
     +{method} State: TState {query}
     +{method} Symbol: Symbol<TValue> {query}
     +Implicit(state: TState, value: TValue): TransitionDomain<TState, TValue>
+    +Implicit(state: TState, symbol: Symbol<TValue>): TransitionDomain<TState, TValue>
 }
 
 class "TransitionRange<TState, TValue>" as TransitionRange << record >> {
     +{method} HeadDirection: TapeHeadDirection {query}
     +Implicit(state: TState, value: TValue, headDirection: TapeHeadDirection): TransitionRange<TState, TValue>
+    +Implicit(state: TState, symbol: Symbol<TValue>, headDirection: TapeHeadDirection): TransitionRange<TState, TValue>
 }
 
 class "Transition<TState, TValue>" as Transition << record >> {
