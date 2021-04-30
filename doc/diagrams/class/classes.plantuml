@@ -63,7 +63,7 @@ interface "IReadOnlySingleTapeTransitionTable<TState, TValue>" as IReadOnlySingl
 }
 
 interface "IReadOnlyMultiTapeTransitionTable<TState, TValue>" as IReadOnlyMultiTapeTransitionTable {
-    GetTransitionRange(tapeId: int, domain: TransitionDomain<TState, TValue>): TransitionRange<TState, TValue>
+    GetTransitionRangeAtTape(tapeId: int, domain: TransitionDomain<TState, TValue>): TransitionRange<TState, TValue>
 }
 
 ~abstract class "ReadOnlyTransactionTable<TState, TValue>" as ReadOnlyTransactionTable {
