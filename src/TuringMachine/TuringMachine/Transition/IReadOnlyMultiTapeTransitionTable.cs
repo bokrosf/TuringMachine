@@ -13,6 +13,6 @@
         /// <param name="tapeId">Identifier of the tape.</param>
         /// <param name="domain">Domain of a multi tape machine transition.</param>
         /// <returns><see cref="TransitionRange{TState, TValue}"/> that belongs to the given transition domain.</returns>
-        TransitionRange<TState, TValue> GetTransitionRangeAtTape(int tapeId, TransitionDomain<TState, TValue> domain);
+        TransitionRange<TState, TValue> GetRangeAtTape(int tapeId, TransitionDomain<TState, TValue> domain);
     }
 }

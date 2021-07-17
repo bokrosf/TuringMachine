@@ -12,6 +12,6 @@
         /// </summary>
         /// <param name="domain">Domain of a single tape machine transition.</param>
         /// <returns><see cref="TransitionRange{TState, TValue}"/> that belongs to the given transition domain.</returns>
-        TransitionRange<TState, TValue> GetTransitionRange(TransitionDomain<TState, TValue> domain);
+        TransitionRange<TState, TValue> GetRange(TransitionDomain<TState, TValue> domain);
     }
 }
