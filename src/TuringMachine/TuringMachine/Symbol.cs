@@ -28,6 +28,25 @@ namespace TuringMachine
         /// <param name="value">The value to be stored on the tape.</param>
         public Symbol(T value) => Value = value;
 
+        /// <summary>
+        /// Converts the value of this instance to a <see cref="string"/>.
+        /// </summary>
+        /// <returns>
+        /// <see cref="string"/> whose value is the same as the string representation of <see cref="Value"/>. If it's the <see cref="Blank"/>
+        /// symbol then it returns "&lt;BLANK&gt;".
+        /// </returns>
+        public override string ToString()
+        {
+            if (ReferenceEquals(this, Blank))
+            {
+                return "<BLANK>";
+            }
+
+            System.Text.StringBuilder x;
+
+            return $"<{Value}>";
+        }
+
         public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType())

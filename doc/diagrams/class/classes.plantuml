@@ -7,6 +7,7 @@ class "Symbol<T>" as Symbol {
     -{static} NullValueHashCode: int = 0 {query}    
     {static} Symbol()
     +Symbol(value: T)
+    +ToString(): string
     +Equals(obj: object?): bool
     +{static} Equality(left: Symbol<T>?, right: Symbol<T>): bool
     +{static} Inequality(left: Symbol<T>?, right: Symbol<T>): bool
