@@ -42,8 +42,6 @@ namespace TuringMachine
                 return "<BLANK>";
             }
 
-            System.Text.StringBuilder x;
-
             return $"<{Value}>";
         }
 
