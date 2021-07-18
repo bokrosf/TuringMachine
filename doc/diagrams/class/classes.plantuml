@@ -98,12 +98,12 @@ class SpecialTransitionStates {
 ~class "TransitionTable<TState, TValue>" as TransitionTable {
     -{static} SingleTapeIndex: int = 0 {query}
     -transitionsPerTapes: TapeTransitionTable<TState, TValue>[]
-    +TransitionTable(IEnumerable<Transition<TState, TValue> transitions)
-    +TransitionTable(IEnumerable<Transition<TState, TValue>[] transitions)
-    +AddTransition(transition: Transition<TState, TValue>): void
-    +AddTransition(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): void
-    +AddTransition(tapeIndex: int, transition: Transition<TState, TValue>): void
-    +AddTransition(tapeIndex: int, domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): void
+    +TransitionTable(IEnumerable<Transition<TState, TValue>> transitions)
+    +TransitionTable(IEnumerable<Transition<TState, TValue>>[] transitions)
+    -CheckSpecialTransitionsOfTape(IEnumerable<Transition<TState, TValue>> transitions): void    
+    -CheckEverySpecialTransitions(IEnumerable<Transition<TState, TValue>>[] transitions): void
+    -CheckMissingTransitions(IEnumerable<Transition<TState, TValue>>[] transitions): void
+    -CreateTapeTransitionTable(IEnumerable<Transition<TState, TValue>> transitions): TapeTransitionTable<TState, TValue>
 }
 
 ~class "TapeTransitionTable<TState, TValue>" as TapeTransitionTable {
