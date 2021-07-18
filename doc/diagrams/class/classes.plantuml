@@ -64,7 +64,7 @@ interface "IReadOnlySingleTapeTransitionTable<TState, TValue>" as IReadOnlySingl
 }
 
 interface "IReadOnlyMultiTapeTransitionTable<TState, TValue>" as IReadOnlyMultiTapeTransitionTable {
-    GetRangeAtTape(tapeId: int, domain: TransitionDomain<TState, TValue>): TransitionRange<TState, TValue>
+    GetRangeAtTape(tapeIndex: int, domain: TransitionDomain<TState, TValue>): TransitionRange<TState, TValue>
 }
 
 ~abstract class "ReadOnlyTransitionTable<TState, TValue>" as ReadOnlyTransitionTable {
@@ -74,32 +74,36 @@ interface "IReadOnlyMultiTapeTransitionTable<TState, TValue>" as IReadOnlyMultiT
 class "ReadOnlySingleTapeTransitionTable<TState, TValue>" as ReadOnlySingleTapeTransitionTable
 class "ReadOnlyMultiTapeTransitionTable<TState, TValue>" as ReadOnlyMultiTapeTransitionTable
 
-abstract class "TransitionTableBuilder<TState, TValue>" as TransitionTableBuilder {
-    #transitionTable: TransitionTable<TState, TValue>
-}
-
 class "SingleTapeTransitionTableBuilder<TState, TValue>" as SingleTapeTransitionTableBuilder {
-    AddTransition(transition: Transition<TState, TValue>): SingleTapeTransitionTableBuilder<TState, TValue>
-    AddTransition(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): SingleTapeTransitionTableBuilder<TState, TValue>
-    Build(): IReadOnlySingleTapeTransitionTable<TState, TValue>
+    -transitions: List<TState, TValue>
+    +AddTransition(transition: Transition<TState, TValue>): SingleTapeTransitionTableBuilder<TState, TValue>
+    +AddTransition(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): SingleTapeTransitionTableBuilder<TState, TValue>
+    +Build(): IReadOnlySingleTapeTransitionTable<TState, TValue>
 }
 
 class "MultiTapeTransitionTableBuilder<TState, TValue>" as MultiTapeTransitionTableBuilder {
-    AddTransition(tapeId: int, transition: Transition<TState, TValue>): MultiTapeTransitionTableBuilder<TState, TValue>
-    AddTransition(tapeId: int, domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): MultiTapeTransitionTableBuilder<TState, TValue>
-    Build(): IReadOnlyMultiTapeTransitionTable<TState, TValue>
+    -transitions: List<Transition<TState, TValue>>[]
+    +MultiTapeTransitionTableBuilder(int tapeCount)
+    +AddTransition(tapeIndex: int, transition: Transition<TState, TValue>): MultiTapeTransitionTableBuilder<TState, TValue>
+    +AddTransition(tapeIndex: int, domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): MultiTapeTransitionTableBuilder<TState, TValue>
+    +Build(): IReadOnlyMultiTapeTransitionTable<TState, TValue>
 }
 
-+class "TransitionTable<TState, TValue>" as TransitionTable {
-    -transitionsPerTapes: Dictionary<int, TapeTransitionTable<TState, TValue>>
-    ~TransitionTable(tapeCount: int)
-    ~AddTransition(transition: Transition<TState, TValue>): void
-    ~AddTransition(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): void
-    ~AddTransition(tapeId: int, transition: Transition<TState, TValue>): void
-    ~AddTransition(tapeId: int, domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): void
+class SpecialTransitionStates {
     +{method} {static} InitialState: TState {query}
     +{method} {static} EndState: TState {query}
     +{method} {static} FailureState: TState {query}
+}
+
+~class "TransitionTable<TState, TValue>" as TransitionTable {
+    -{static} SingleTapeIndex: int = 0 {query}
+    -transitionsPerTapes: TapeTransitionTable<TState, TValue>[]
+    +TransitionTable(IEnumerable<Transition<TState, TValue> transitions)
+    +TransitionTable(IEnumerable<Transition<TState, TValue>[] transitions)
+    +AddTransition(transition: Transition<TState, TValue>): void
+    +AddTransition(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): void
+    +AddTransition(tapeIndex: int, transition: Transition<TState, TValue>): void
+    +AddTransition(tapeIndex: int, domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): void
 }
 
 ~class "TapeTransitionTable<TState, TValue>" as TapeTransitionTable {
@@ -115,8 +119,6 @@ ReadOnlyTransitionTable <|-down- ReadOnlySingleTapeTransitionTable
 ReadOnlyTransitionTable <|-down- ReadOnlyMultiTapeTransitionTable
 IReadOnlySingleTapeTransitionTable <|.down. ReadOnlySingleTapeTransitionTable
 IReadOnlyMultiTapeTransitionTable <|.down. ReadOnlyMultiTapeTransitionTable
-TransitionTableBuilder <|-- SingleTapeTransitionTableBuilder
-TransitionTableBuilder <|-- MultiTapeTransitionTableBuilder
 TransitionDomain <|-- TransitionRange
 Transition "*" o-- "1" TransitionDomain
 Transition "*" o-- "1" TransitionRange
@@ -125,6 +127,7 @@ TapeTransitionTable "*" o-- "1..*" TransitionDomain
 TapeTransitionTable "*" o-- "1..*" TransitionRange
 
 TransitionTable -[hidden]right- SingleTapeTransitionTableBuilder
+SingleTapeTransitionTableBuilder -[hidden]down- MultiTapeTransitionTableBuilder
 Tape -[hidden]right- Transition
 
 @enduml
