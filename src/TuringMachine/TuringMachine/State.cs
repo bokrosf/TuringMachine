@@ -10,9 +10,9 @@ namespace TuringMachine
     public class State<T>
     {
         private const int NullValueHashCode = 0;
-        private const int InitialHashCode = 1;
-        private const int EndHashCode = 2;
-        private const int FailureHashCode = 3;
+        private const int InitialHashCode = 100003;
+        private const int EndHashCode = 500009;
+        private const int FailureHashCode = 900007;
 
         /// <summary>
         /// Initial state of the machine, when computation has not started.
