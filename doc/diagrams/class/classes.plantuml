@@ -1,5 +1,4 @@
 @startuml classes
-
 hide interface empty members
 hide enum empty members
 
@@ -21,11 +20,11 @@ class "State<T>" as State {
     -{static} InitialHashCode: int = 1 {query}
     -{static} EndHashCode: int = 2 {query}
     -{static} FailureHashCode: int = 3 {query}
-    {static} Symbol()
-    +Symbol(value: T)
+    {static} State()
+    +State(value: T)
     +Equals(obj: object?): bool
-    +{static} Equality(left: Symbol<T>?, right: Symbol<T>): bool
-    +{static} Inequality(left: Symbol<T>?, right: Symbol<T>): bool
+    +{static} Equality(left: State<T>?, right: State<T>): bool
+    +{static} Inequality(left: State<T>?, right: State<T>): bool
     +GetHashCode(): int
     +{method} {static} Initial: T {query}
     +{method} {static} End: T {query}
