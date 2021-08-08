@@ -5,7 +5,7 @@
     /// </summary>
     /// <typeparam name="TState">Type of the machine's state.</typeparam>
     /// <typeparam name="TValue">Type of the symbolised data.</typeparam>
-    public record TransitionDomain<TState, TValue>(TState State, Symbol<TValue> Symbol)
+    public record TransitionDomain<TState, TValue>(State<TState> State, Symbol<TValue> Symbol)
     {
         /// <summary>
         /// Converts the given touple of state and value into a <see cref="TransitionDomain{TState, TValue}"/> instance.
@@ -13,14 +13,16 @@
         /// <param name="domain">Domain of a machine transition.</param>
         public static implicit operator TransitionDomain<TState, TValue>((TState State, TValue Value) domain)
         {
-            return new TransitionDomain<TState, TValue>(domain.State, new Symbol<TValue>(domain.Value));
+            return new TransitionDomain<TState, TValue>(
+                new State<TState>(domain.State),
+                new Symbol<TValue>(domain.Value));
         }
 
         /// <summary>
         /// Converts the given touple of state and symbol into a <see cref="TransitionDomain{TState, TValue}"/> instance.
         /// </summary>
         /// <param name="domain">Domain of a machine transition.</param>
-        public static implicit operator TransitionDomain<TState, TValue>((TState State, Symbol<TValue> Symbol) domain)
+        public static implicit operator TransitionDomain<TState, TValue>((State<TState> State, Symbol<TValue> Symbol) domain)
         {
             return new TransitionDomain<TState, TValue>(domain.State, domain.Symbol);
         }
@@ -31,7 +33,7 @@
     /// </summary>
     /// <typeparam name="TState">Type of the machine's state.</typeparam>
     /// <typeparam name="TValue">Type of the symbolised data.</typeparam>
-    public record TransitionRange<TState, TValue>(TState State, Symbol<TValue> Symbol, TapeHeadDirection HeadDirection)
+    public record TransitionRange<TState, TValue>(State<TState> State, Symbol<TValue> Symbol, TapeHeadDirection HeadDirection)
         : TransitionDomain<TState, TValue>(State, Symbol)
     {
         /// <summary>
@@ -40,14 +42,17 @@
         /// <param name="range">Range of a machine transition.</param>
         public static implicit operator TransitionRange<TState, TValue>((TState State, TValue Value, TapeHeadDirection HeadDirection) range)
         {
-            return new TransitionRange<TState, TValue>(range.State, new Symbol<TValue>(range.Value), range.HeadDirection);
+            return new TransitionRange<TState, TValue>(
+                new State<TState>(range.State),
+                new Symbol<TValue>(range.Value),
+                range.HeadDirection);
         }
 
         /// <summary>
         /// Converts the given touple of state, symbol and head direction into a <see cref="TransitionRange{TState, TValue}{TState, TValue}"/> instance.
         /// </summary>
         /// <param name="range">Range of a machine transition.</param>
-        public static implicit operator TransitionRange<TState, TValue>((TState State, Symbol<TValue> Symbol, TapeHeadDirection HeadDirection) range)
+        public static implicit operator TransitionRange<TState, TValue>((State<TState> State, Symbol<TValue> Symbol, TapeHeadDirection HeadDirection) range)
         {
             return new TransitionRange<TState, TValue>(range.State, range.Symbol, range.HeadDirection);
         }

@@ -59,16 +59,16 @@ Tape --> TapeHeadDirection
 
 
 class "TransitionDomain<TState, TValue>" as TransitionDomain << record >> {
-    +{method} State: TState {query}
+    +{method} State: State<TState> {query}
     +{method} Symbol: Symbol<TValue> {query}
     +Implicit(state: TState, value: TValue): TransitionDomain<TState, TValue>
-    +Implicit(state: TState, symbol: Symbol<TValue>): TransitionDomain<TState, TValue>
+    +Implicit(state: State<TState>, symbol: Symbol<TValue>): TransitionDomain<TState, TValue>
 }
 
 class "TransitionRange<TState, TValue>" as TransitionRange << record >> {
     +{method} HeadDirection: TapeHeadDirection {query}
     +Implicit(state: TState, value: TValue, headDirection: TapeHeadDirection): TransitionRange<TState, TValue>
-    +Implicit(state: TState, symbol: Symbol<TValue>, headDirection: TapeHeadDirection): TransitionRange<TState, TValue>
+    +Implicit(state: State<TState>, symbol: Symbol<TValue>, headDirection: TapeHeadDirection): TransitionRange<TState, TValue>
 }
 
 class "Transition<TState, TValue>" as Transition << record >> {
@@ -93,7 +93,7 @@ class "ReadOnlySingleTapeTransitionTable<TState, TValue>" as ReadOnlySingleTapeT
 class "ReadOnlyMultiTapeTransitionTable<TState, TValue>" as ReadOnlyMultiTapeTransitionTable
 
 class "SingleTapeTransitionTableBuilder<TState, TValue>" as SingleTapeTransitionTableBuilder {
-    -transitions: List<TState, TValue>
+    -transitions: List<Transition<TState, TValue>>
     +AddTransition(transition: Transition<TState, TValue>): SingleTapeTransitionTableBuilder<TState, TValue>
     +AddTransition(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): SingleTapeTransitionTableBuilder<TState, TValue>
     +Build(): IReadOnlySingleTapeTransitionTable<TState, TValue>
