@@ -16,6 +16,25 @@ class "Symbol<T>" as Symbol {
     +{method} Value: T {query}
 }
 
+class "State<T>" as State {
+    -{static} NullValueHashCode: int = 0 {query}
+    -{static} InitialHashCode: int = 1 {query}
+    -{static} EndHashCode: int = 2 {query}
+    -{static} FailureHashCode: int = 3 {query}
+    {static} Symbol()
+    +Symbol(value: T)
+    +Equals(obj: object?): bool
+    +{static} Equality(left: Symbol<T>?, right: Symbol<T>): bool
+    +{static} Inequality(left: Symbol<T>?, right: Symbol<T>): bool
+    +GetHashCode(): int
+    +{method} {static} Initial: T {query}
+    +{method} {static} End: T {query}
+    +{method} {static} Failure: T {query}
+    +{method} Value: T {query}
+}
+
+Symbol -[hidden]- State
+
 enum TapeHeadDirection {
     Stay
     Left
@@ -87,12 +106,6 @@ class "MultiTapeTransitionTableBuilder<TState, TValue>" as MultiTapeTransitionTa
     +AddTransition(tapeIndex: int, transition: Transition<TState, TValue>): MultiTapeTransitionTableBuilder<TState, TValue>
     +AddTransition(tapeIndex: int, domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): MultiTapeTransitionTableBuilder<TState, TValue>
     +Build(): IReadOnlyMultiTapeTransitionTable<TState, TValue>
-}
-
-class SpecialTransitionStates {
-    +{method} {static} InitialState: TState {query}
-    +{method} {static} EndState: TState {query}
-    +{method} {static} FailureState: TState {query}
 }
 
 ~class "TransitionTable<TState, TValue>" as TransitionTable {
