@@ -82,16 +82,23 @@ class "TransitionTable<TState, TValue>" as TransitionTable {
     -transitions: ReadOnlyDictionary<TState, TValue>
     +TransitionTable(transitions: IEnumerable<Transition<TState, TValue>>)
     ~[](TransitionDomain<TState, TValue> domain): TransitionRange
-    -CheckDuplicateTransitions(transitions: IEnumerable<Transition<TState, TValue>>): ReadOnlyDictionary<TState, TValue>
-    -CheckStates(transitions: IEnumerable<Transition<TState, TValue>>): void
 }
 
+class "TransitionCollectionValidator<TState, TValue>" as TransitionCollectionValidator {
+    +Validate(transitions: IEnumerable<Transition<TState, TValue>>): void
+    -CheckDuplications(transitions: IEnumerable<Transition<TState, TValue>>): void
+    -CheckDeterminism(transitions: IEnumerable<Transition<TState, TValue>>): void
+    -CheckStates(transitions: IEnumerable<Transition<TState, TValue>>): void
+    -CheckStateOfDomain(transition: Transition<TState, TValue>): void
+    -CheckStateOfRange(transition: Transition<TState, TValue>): void
+}
 
 TransitionDomain <|-- TransitionRange
 Transition "*" o-- "1" TransitionDomain
 Transition "*" o-- "1" TransitionRange
 TransitionTable "*" o-- "1..*" TransitionDomain
 TransitionTable "*" o-- "1..*" TransitionRange
+TransitionTable --> "Validate()" TransitionCollectionValidator
 
 Tape -[hidden]right- Transition
 
