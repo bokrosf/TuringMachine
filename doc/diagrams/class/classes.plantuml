@@ -77,69 +77,22 @@ class "Transition<TState, TValue>" as Transition << record >> {
     +Implicit(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): Transition<TState, TValue>
 }
 
-interface "IReadOnlySingleTapeTransitionTable<TState, TValue>" as IReadOnlySingleTapeTransitionTable {
-    GetRange(domain: TransitionDomain<TState, TValue>): TransitionRange<TState, TValue>
+
+class "TransitionTable<TState, TValue>" as TransitionTable {
+    -transitions: ReadOnlyDictionary<TState, TValue>
+    +TransitionTable(transitions: IEnumerable<Transition<TState, TValue>>)
+    ~[](TransitionDomain<TState, TValue> domain): TransitionRange
+    -CheckDuplicateTransitions(transitions: IEnumerable<Transition<TState, TValue>>): ReadOnlyDictionary<TState, TValue>
+    -CheckStates(transitions: IEnumerable<Transition<TState, TValue>>): void
 }
 
-interface "IReadOnlyMultiTapeTransitionTable<TState, TValue>" as IReadOnlyMultiTapeTransitionTable {
-    GetRangeAtTape(tapeIndex: int, domain: TransitionDomain<TState, TValue>): TransitionRange<TState, TValue>
-}
 
-~abstract class "ReadOnlyTransitionTable<TState, TValue>" as ReadOnlyTransitionTable {
-    #transitionTable: TransitionTable<TState, TValue>
-}
-
-class "ReadOnlySingleTapeTransitionTable<TState, TValue>" as ReadOnlySingleTapeTransitionTable
-class "ReadOnlyMultiTapeTransitionTable<TState, TValue>" as ReadOnlyMultiTapeTransitionTable
-
-class "SingleTapeTransitionTableBuilder<TState, TValue>" as SingleTapeTransitionTableBuilder {
-    -transitions: List<Transition<TState, TValue>>
-    +AddTransition(transition: Transition<TState, TValue>): SingleTapeTransitionTableBuilder<TState, TValue>
-    +AddTransition(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): SingleTapeTransitionTableBuilder<TState, TValue>
-    +Build(): IReadOnlySingleTapeTransitionTable<TState, TValue>
-}
-
-class "MultiTapeTransitionTableBuilder<TState, TValue>" as MultiTapeTransitionTableBuilder {
-    -transitions: List<Transition<TState, TValue>>[]
-    +MultiTapeTransitionTableBuilder(int tapeCount)
-    +AddTransition(tapeIndex: int, transition: Transition<TState, TValue>): MultiTapeTransitionTableBuilder<TState, TValue>
-    +AddTransition(tapeIndex: int, domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): MultiTapeTransitionTableBuilder<TState, TValue>
-    +Build(): IReadOnlyMultiTapeTransitionTable<TState, TValue>
-}
-
-~class "TransitionTable<TState, TValue>" as TransitionTable {
-    -{static} SingleTapeIndex: int = 0 {query}
-    -transitionsPerTapes: TapeTransitionTable<TState, TValue>[]
-    +TransitionTable(IEnumerable<Transition<TState, TValue>> transitions)
-    +TransitionTable(IEnumerable<Transition<TState, TValue>>[] transitions)
-    -CheckSpecialTransitionsOfTape(IEnumerable<Transition<TState, TValue>> transitions): void    
-    -CheckEverySpecialTransitions(IEnumerable<Transition<TState, TValue>>[] transitions): void
-    -CheckMissingTransitions(IEnumerable<Transition<TState, TValue>>[] transitions): void
-    -CreateTapeTransitionTable(IEnumerable<Transition<TState, TValue>> transitions): TapeTransitionTable<TState, TValue>
-}
-
-~class "TapeTransitionTable<TState, TValue>" as TapeTransitionTable {
-    -transitions: Dictionary<TransitionDomain<TState, TValue>, TransitionRange<TState, TValue>
-    +{method} Item[TransitionDomain<TState, TValue>]: TransitionRange<TState, TValue>
-}
-
-IReadOnlySingleTapeTransitionTable <|.down. TransitionTable
-IReadOnlyMultiTapeTransitionTable <|.down. TransitionTable
-TransitionTable -[hidden]up- ReadOnlySingleTapeTransitionTable
-TransitionTable -[hidden]up- ReadOnlyMultiTapeTransitionTable
-ReadOnlyTransitionTable <|-down- ReadOnlySingleTapeTransitionTable
-ReadOnlyTransitionTable <|-down- ReadOnlyMultiTapeTransitionTable
-IReadOnlySingleTapeTransitionTable <|.down. ReadOnlySingleTapeTransitionTable
-IReadOnlyMultiTapeTransitionTable <|.down. ReadOnlyMultiTapeTransitionTable
 TransitionDomain <|-- TransitionRange
 Transition "*" o-- "1" TransitionDomain
 Transition "*" o-- "1" TransitionRange
-TransitionTable "1" *-- "1..*" TapeTransitionTable
-TapeTransitionTable "*" o-- "1..*" TransitionDomain
-TapeTransitionTable "*" o-- "1..*" TransitionRange
+TransitionTable "*" o-- "1..*" TransitionDomain
+TransitionTable "*" o-- "1..*" TransitionRange
 
-TransitionTable -[hidden]right- SingleTapeTransitionTableBuilder
-SingleTapeTransitionTableBuilder -[hidden]down- MultiTapeTransitionTableBuilder
 Tape -[hidden]right- Transition
 
 @enduml
