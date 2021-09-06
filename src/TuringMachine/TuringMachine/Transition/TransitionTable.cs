@@ -9,7 +9,7 @@ namespace TuringMachine.Transition
     /// </summary>
     /// <typeparam name="TState">Type of the machine's state.</typeparam>
     /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-    public class TransitionTable<TState, TSymbol>
+    public sealed class TransitionTable<TState, TSymbol>
     {
         private readonly ReadOnlyDictionary<TransitionDomain<TState, TSymbol>, TransitionRange<TState, TSymbol>> transitions;
 
