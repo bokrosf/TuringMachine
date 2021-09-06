@@ -71,22 +71,13 @@ namespace TuringMachine
         /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
         {
-            if (ReferenceEquals(this, Initial))
+            return this switch
             {
-                return InitialHashCode;
-            }
-            else if (ReferenceEquals(this, Accept))
-            {
-                return AcceptHashCode;
-            }
-            else if (ReferenceEquals(this, Failure))
-            {
-                return FailureHashCode;
-            }
-            else
-            {
-                return Value?.GetHashCode() ?? NullValueHashCode;
-            }
+                _ when ReferenceEquals(this, Initial) => InitialHashCode,
+                _ when ReferenceEquals(this, Accept) => AcceptHashCode,
+                _ when ReferenceEquals(this, Failure) => FailureHashCode,
+                _ => Value?.GetHashCode() ?? NullValueHashCode
+            };
         }
 
         /// <summary>
