@@ -18,7 +18,7 @@ namespace TuringMachine.Transition
         /// </summary>
         /// <param name="domain">Domain of a transitions.</param>
         /// <returns><see cref="TransitionRange{TState, TValue}"/> that belongs to the given transition domain.</returns>
-        internal TransitionRange<TState, TValue> this[TransitionRange<TState, TValue> domain]
+        internal TransitionRange<TState, TValue> this[TransitionDomain<TState, TValue> domain]
         {
             get
             {

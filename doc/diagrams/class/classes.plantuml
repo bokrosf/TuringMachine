@@ -17,17 +17,18 @@ class "Symbol<T>" as Symbol {
 
 class "State<T>" as State {
     -{static} NullValueHashCode: int = 0 {query}
-    -{static} InitialHashCode: int = 1 {query}
-    -{static} EndHashCode: int = 2 {query}
-    -{static} FailureHashCode: int = 3 {query}
+    -{static} InitialHashCode: int = 100003 {query}
+    -{static} AcceptHashCode: int = 500009 {query}
+    -{static} FailureHashCode: int = 900007 {query}
     {static} State()
     +State(value: T)
+    +ToString(): string
     +Equals(obj: object?): bool
     +{static} Equality(left: State<T>?, right: State<T>): bool
     +{static} Inequality(left: State<T>?, right: State<T>): bool
     +GetHashCode(): int
     +{method} {static} Initial: T {query}
-    +{method} {static} End: T {query}
+    +{method} {static} Accept: T {query}
     +{method} {static} Failure: T {query}
     +{method} Value: T {query}
 }

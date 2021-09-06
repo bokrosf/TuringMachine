@@ -57,9 +57,9 @@ namespace TuringMachine.Tests.UnitTests
         [Fact]
         public void Equals_EndReflexive_ReturnsTrue()
         {
-            var state = State<int>.End;
+            var state = State<int>.Accept;
 
-            bool areEqual = state.Equals(State<int>.End);
+            bool areEqual = state.Equals(State<int>.Accept);
 
             Assert.True(areEqual);
         }
@@ -190,7 +190,7 @@ namespace TuringMachine.Tests.UnitTests
         [InlineData(32)]
         public void Equals_EndComparedWithNormalSymmetric_ReturnsFalse(int value)
         {
-            var end = State<int>.End;
+            var end = State<int>.Accept;
             var normal = new State<int>(value);
 
             bool endEqualsWithNormal = end.Equals(normal);
@@ -244,7 +244,7 @@ namespace TuringMachine.Tests.UnitTests
         [InlineData(32)]
         public void Equals_EndComparedWithNullableNormalSymmetric_ReturnsFalse(int? value)
         {
-            var end = State<int?>.End;
+            var end = State<int?>.Accept;
             var normal = new State<int?>(value);
 
             bool endEqualsWithNormal = end.Equals(normal);
@@ -323,7 +323,7 @@ namespace TuringMachine.Tests.UnitTests
         [Fact]
         public void Equals_EndComparedWithNull_ReturnsFalse()
         {
-            var end = State<int>.End;
+            var end = State<int>.Accept;
 
             bool areEqual = end.Equals(null);
 
@@ -389,8 +389,8 @@ namespace TuringMachine.Tests.UnitTests
         [Fact]
         public void GetHashCode_EndSameHashCode_ReturnsTrue()
         {
-            var first = State<int?>.End;
-            var second = State<int?>.End;
+            var first = State<int?>.Accept;
+            var second = State<int?>.Accept;
 
             int? actual = second.GetHashCode();
 

@@ -62,6 +62,16 @@ namespace TuringMachine.Transition
 
         private void CheckStates(IEnumerable<Transition<TState, TValue>> transitions)
         {
+            if (!transitions.Any(t => t.Domain.State == State<TState>.Initial))
+            {
+                throw new InitialStateMissingException($"At least one transition's domain must contain {nameof(State<TState>.Initial)} state.");
+            }
+
+            if (!transitions.Any(t => t.Range.State == State<TState>.Accept))
+            {
+                throw new AcceptStateMissingException($"At least one transition's range must contain {nameof(State<TState>.Accept)} state.");
+            }
+            
             foreach (var t in transitions)
             {
                 CheckStateOfDomain(t);
@@ -71,11 +81,10 @@ namespace TuringMachine.Transition
 
         private void CheckStateOfDomain(Transition<TState, TValue> transition)
         {
-            if (transition.Domain.State != State<TState>.Initial)
+            if (GetInvalidStatesOfDomain().Contains(transition.Domain.State))
             {
                 throw new InvalidStateInTransitionException(
-                    $"Only {nameof(State<TState>.Initial)} special state can appear in a transitions's {nameof(transition.Domain)}. " +
-                    $"Transition={transition}.");
+                    $"Only {nameof(State<TState>.Initial)} special state can appear in a transitions' domain. Transition={transition}.");
             }
         }
 
@@ -84,8 +93,14 @@ namespace TuringMachine.Transition
             if (transition.Range.State == State<TState>.Initial)
             {
                 throw new InvalidStateInTransitionException(
-                    $"No {nameof(State<TState>.Initial)} state can appear in a transitions's {nameof(transition.Range)}. Transition={transition}.");
+                    $"{nameof(State<TState>.Initial)} state must not appear in a transitions's {nameof(transition.Range)}. Transition={transition}.");
             }
+        }
+
+        private IEnumerable<State<TState>> GetInvalidStatesOfDomain()
+        {
+            yield return State<TState>.Accept;
+            yield return State<TState>.Failure;
         }
     }
 }

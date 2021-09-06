@@ -11,7 +11,7 @@ namespace TuringMachine
     {
         private const int NullValueHashCode = 0;
         private const int InitialHashCode = 100003;
-        private const int EndHashCode = 500009;
+        private const int AcceptHashCode = 500009;
         private const int FailureHashCode = 900007;
 
         /// <summary>
@@ -20,9 +20,9 @@ namespace TuringMachine
         public static State<T> Initial { get; }
         
         /// <summary>
-        /// End state of the machine, when computation terminated normally.
+        /// Accept state of the machine, when computation terminated normally.
         /// </summary>
-        public static State<T> End { get; }
+        public static State<T> Accept { get; }
 
         /// <summary>
         /// Failure state of the machine, when there is no valid transition from the current state of the machine.
@@ -37,7 +37,7 @@ namespace TuringMachine
         static State()
         {
             Initial = new State<T>(default!);
-            End = new State<T>(default!);
+            Accept = new State<T>(default!);
             Failure = new State<T>(default!);
         }
 
@@ -75,9 +75,9 @@ namespace TuringMachine
             {
                 return InitialHashCode;
             }
-            else if (ReferenceEquals(this, End))
+            else if (ReferenceEquals(this, Accept))
             {
-                return EndHashCode;
+                return AcceptHashCode;
             }
             else if (ReferenceEquals(this, Failure))
             {
@@ -114,6 +114,24 @@ namespace TuringMachine
         /// <returns>true if the value of left is different from the value of right; otherwise, false.</returns>
         public static bool operator !=(State<T>? left, State<T>? right) => !(left == right);
 
+        /// <summary>
+        /// Converts the value of this instance to a <see cref="string"/>.
+        /// </summary>
+        /// <returns>
+        /// <see cref="string"/> whose value is the same as the string representation of <see cref="Value"/>. If it's a special state then
+        /// it returns the special state's name.
+        /// </returns>
+        public override string ToString()
+        {
+            return this switch
+            {
+                _ when ReferenceEquals(this, Initial) => nameof(Initial),
+                _ when ReferenceEquals(this, Accept) => nameof(Accept),
+                _ when ReferenceEquals(this, Failure) => nameof(Failure),
+                _ => $"{Value}"
+            };
+        }
+
         private bool AreBothSpecialState(object first, object second)
         {
             return GetSpecialStates().Any(special => ReferenceEquals(first, special) && ReferenceEquals(second, special));
@@ -127,7 +145,7 @@ namespace TuringMachine
         private IEnumerable<State<T>> GetSpecialStates()
         {
             yield return Initial;
-            yield return End;
+            yield return Accept;
             yield return Failure;
         }
     }
