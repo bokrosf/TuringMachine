@@ -59,39 +59,39 @@ IEnumerable <|.. Tape
 Tape --> TapeHeadDirection
 
 
-class "TransitionDomain<TState, TValue>" as TransitionDomain << record >> {
+class "TransitionDomain<TState, TSymbol>" as TransitionDomain << record >> {
     +{method} State: State<TState> {query}
-    +{method} Symbol: Symbol<TValue> {query}
-    +Implicit(state: TState, value: TValue): TransitionDomain<TState, TValue>
-    +Implicit(state: State<TState>, symbol: Symbol<TValue>): TransitionDomain<TState, TValue>
+    +{method} Symbol: Symbol<TSymbol> {query}
+    +Implicit(state: TState, value: TSymbol): TransitionDomain<TState, TSymbol>
+    +Implicit(state: State<TState>, symbol: Symbol<TSymbol>): TransitionDomain<TState, TSymbol>
 }
 
-class "TransitionRange<TState, TValue>" as TransitionRange << record >> {
+class "TransitionRange<TState, TSymbol>" as TransitionRange << record >> {
     +{method} HeadDirection: TapeHeadDirection {query}
-    +Implicit(state: TState, value: TValue, headDirection: TapeHeadDirection): TransitionRange<TState, TValue>
-    +Implicit(state: State<TState>, symbol: Symbol<TValue>, headDirection: TapeHeadDirection): TransitionRange<TState, TValue>
+    +Implicit(state: TState, value: TSymbol, headDirection: TapeHeadDirection): TransitionRange<TState, TSymbol>
+    +Implicit(state: State<TState>, symbol: Symbol<TSymbol>, headDirection: TapeHeadDirection): TransitionRange<TState, TSymbol>
 }
 
-class "Transition<TState, TValue>" as Transition << record >> {
-    +{method} Domain: TransitionDomain<TState, TValue> {query}
-    +{method} Range: TransitionRange<TState, TValue> {query}
-    +Implicit(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): Transition<TState, TValue>
+class "Transition<TState, TSymbol>" as Transition << record >> {
+    +{method} Domain: TransitionDomain<TState, TSymbol> {query}
+    +{method} Range: TransitionRange<TState, TSymbol> {query}
+    +Implicit(domain: TransitionDomain<TState, TSymbol>, range: TransitionRange<TState, TSymbol>): Transition<TState, TSymbol>
 }
 
 
-class "TransitionTable<TState, TValue>" as TransitionTable {
-    -transitions: ReadOnlyDictionary<TState, TValue>
-    +TransitionTable(transitions: IEnumerable<Transition<TState, TValue>>)
-    ~[](TransitionDomain<TState, TValue> domain): TransitionRange
+class "TransitionTable<TState, TSymbol>" as TransitionTable {
+    -transitions: ReadOnlyDictionary<TState, TSymbol>
+    +TransitionTable(transitions: IEnumerable<Transition<TState, TSymbol>>)
+    ~[](TransitionDomain<TState, TSymbol> domain): TransitionRange
 }
 
-class "TransitionCollectionValidator<TState, TValue>" as TransitionCollectionValidator {
-    +Validate(transitions: IEnumerable<Transition<TState, TValue>>): void
-    -CheckDuplications(transitions: IEnumerable<Transition<TState, TValue>>): void
-    -CheckDeterminism(transitions: IEnumerable<Transition<TState, TValue>>): void
-    -CheckStates(transitions: IEnumerable<Transition<TState, TValue>>): void
-    -CheckStateOfDomain(transition: Transition<TState, TValue>): void
-    -CheckStateOfRange(transition: Transition<TState, TValue>): void
+class "TransitionCollectionValidator<TState, TSymbol>" as TransitionCollectionValidator {
+    +Validate(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+    -CheckDuplications(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+    -CheckDeterminism(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+    -CheckStates(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+    -CheckStateOfDomain(transition: Transition<TState, TSymbol>): void
+    -CheckStateOfRange(transition: Transition<TState, TSymbol>): void
 }
 
 TransitionDomain <|-- TransitionRange

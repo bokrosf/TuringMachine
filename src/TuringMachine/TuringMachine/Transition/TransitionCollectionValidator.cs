@@ -7,8 +7,8 @@ namespace TuringMachine.Transition
     /// Check validity of transaction collections.
     /// </summary>
     /// <typeparam name="TState">Type of the machine's state.</typeparam>
-    /// <typeparam name="TValue">Type of the symbolised data.</typeparam>
-    internal class TransitionCollectionValidator<TState, TValue>
+    /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
+    internal class TransitionCollectionValidator<TState, TSymbol>
     {
         /// <summary>
         /// Validates the given transition collection.
@@ -18,7 +18,7 @@ namespace TuringMachine.Transition
         /// <exception cref="DuplicateTransitionException">Thrown when the collection contains a duplicate transition.</exception>
         /// <exception cref="NonDeterministicTransitionException">Thrown when the collection contains a transition domain more than once.</exception>
         /// <exception cref="InvalidStateInTransitionException">Thrown when the collection contains a transition with an invalid state.</exception>
-        public void Validate(IEnumerable<Transition<TState, TValue>> transitions)
+        public void Validate(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
             if (!transitions.Any())
             {
@@ -30,9 +30,9 @@ namespace TuringMachine.Transition
             CheckStates(transitions);
         }
 
-        private void CheckDuplications(IEnumerable<Transition<TState, TValue>> transitions)
+        private void CheckDuplications(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
-            var items = new HashSet<Transition<TState, TValue>>();
+            var items = new HashSet<Transition<TState, TSymbol>>();
 
             foreach (var t in transitions)
             {
@@ -45,9 +45,9 @@ namespace TuringMachine.Transition
             }
         }
 
-        private void CheckDeterminism(IEnumerable<Transition<TState, TValue>> transitions)
+        private void CheckDeterminism(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
-            var domains = new HashSet<TransitionDomain<TState, TValue>>();
+            var domains = new HashSet<TransitionDomain<TState, TSymbol>>();
 
             foreach (var t in transitions)
             {
@@ -60,7 +60,7 @@ namespace TuringMachine.Transition
             }
         }
 
-        private void CheckStates(IEnumerable<Transition<TState, TValue>> transitions)
+        private void CheckStates(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
             if (!transitions.Any(t => t.Domain.State == State<TState>.Initial))
             {
@@ -79,7 +79,7 @@ namespace TuringMachine.Transition
             }
         }
 
-        private void CheckStateOfDomain(Transition<TState, TValue> transition)
+        private void CheckStateOfDomain(Transition<TState, TSymbol> transition)
         {
             if (GetInvalidStatesOfDomain().Contains(transition.Domain.State))
             {
@@ -88,7 +88,7 @@ namespace TuringMachine.Transition
             }
         }
 
-        private void CheckStateOfRange(Transition<TState, TValue> transition)
+        private void CheckStateOfRange(Transition<TState, TSymbol> transition)
         {
             if (transition.Range.State == State<TState>.Initial)
             {
