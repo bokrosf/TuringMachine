@@ -96,14 +96,8 @@ namespace TuringMachine
             {
                 return base.GetHashCode();
             }
-            else if (Value == null)
-            {
-                return NullValueHashCode;
-            }
-            else
-            {
-                return Value.GetHashCode();
-            }
+
+            return Value?.GetHashCode() ?? NullValueHashCode;
         }
     }
 }
