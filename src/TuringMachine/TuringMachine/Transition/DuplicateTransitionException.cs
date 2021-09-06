@@ -3,7 +3,7 @@
 namespace TuringMachine.Transition
 {
     /// <summary>
-    /// The exception that is thrown when a machine transition duplication detected.
+    /// Exception that is thrown when a machine transition duplication detected.
     /// </summary>
     public class DuplicateTransitionException : InvalidTransitionCollectionException
     {

@@ -3,7 +3,7 @@
 namespace TuringMachine.Transition
 {
     /// <summary>
-    /// The exception that is thrown when a machine transition contains an invalid state.
+    /// Exception that is thrown when a machine transition contains an invalid state.
     /// </summary>
     public class InvalidStateInTransitionException : InvalidTransitionCollectionException
     {

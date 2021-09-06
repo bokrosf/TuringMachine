@@ -3,7 +3,7 @@
 namespace TuringMachine.Transition
 {
     /// <summary>
-    /// The exception that is thrown when no machine transition has been provided.
+    /// Exception that is thrown when no machine transition has been provided.
     /// </summary>
     public class NoTransitionProvidedException : InvalidTransitionCollectionException
     {

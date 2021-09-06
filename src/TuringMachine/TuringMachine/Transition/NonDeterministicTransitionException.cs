@@ -3,7 +3,7 @@
 namespace TuringMachine.Transition
 {
     /// <summary>
-    /// The exception that is thrown when a non deterministic machine transition detected.
+    /// Exception that is thrown when a non deterministic machine transition detected.
     /// </summary>
     public class NonDeterministicTransitionException : InvalidTransitionCollectionException
     {
