@@ -17,17 +17,18 @@ class "Symbol<T>" as Symbol {
 
 class "State<T>" as State {
     -{static} NullValueHashCode: int = 0 {query}
-    -{static} InitialHashCode: int = 1 {query}
-    -{static} EndHashCode: int = 2 {query}
-    -{static} FailureHashCode: int = 3 {query}
+    -{static} InitialHashCode: int = 100003 {query}
+    -{static} AcceptHashCode: int = 500009 {query}
+    -{static} FailureHashCode: int = 900007 {query}
     {static} State()
     +State(value: T)
+    +ToString(): string
     +Equals(obj: object?): bool
     +{static} Equality(left: State<T>?, right: State<T>): bool
     +{static} Inequality(left: State<T>?, right: State<T>): bool
     +GetHashCode(): int
     +{method} {static} Initial: T {query}
-    +{method} {static} End: T {query}
+    +{method} {static} Accept: T {query}
     +{method} {static} Failure: T {query}
     +{method} Value: T {query}
 }
@@ -58,88 +59,48 @@ IEnumerable <|.. Tape
 Tape --> TapeHeadDirection
 
 
-class "TransitionDomain<TState, TValue>" as TransitionDomain << record >> {
-    +{method} State: TState {query}
-    +{method} Symbol: Symbol<TValue> {query}
-    +Implicit(state: TState, value: TValue): TransitionDomain<TState, TValue>
-    +Implicit(state: TState, symbol: Symbol<TValue>): TransitionDomain<TState, TValue>
+class "TransitionDomain<TState, TSymbol>" as TransitionDomain << record >> {
+    +{method} State: State<TState> {query}
+    +{method} Symbol: Symbol<TSymbol> {query}
+    +Implicit(state: TState, value: TSymbol): TransitionDomain<TState, TSymbol>
+    +Implicit(state: State<TState>, symbol: Symbol<TSymbol>): TransitionDomain<TState, TSymbol>
 }
 
-class "TransitionRange<TState, TValue>" as TransitionRange << record >> {
+class "TransitionRange<TState, TSymbol>" as TransitionRange << record >> {
     +{method} HeadDirection: TapeHeadDirection {query}
-    +Implicit(state: TState, value: TValue, headDirection: TapeHeadDirection): TransitionRange<TState, TValue>
-    +Implicit(state: TState, symbol: Symbol<TValue>, headDirection: TapeHeadDirection): TransitionRange<TState, TValue>
+    +Implicit(state: TState, value: TSymbol, headDirection: TapeHeadDirection): TransitionRange<TState, TSymbol>
+    +Implicit(state: State<TState>, symbol: Symbol<TSymbol>, headDirection: TapeHeadDirection): TransitionRange<TState, TSymbol>
 }
 
-class "Transition<TState, TValue>" as Transition << record >> {
-    +{method} Domain: TransitionDomain<TState, TValue> {query}
-    +{method} Range: TransitionRange<TState, TValue> {query}
-    +Implicit(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): Transition<TState, TValue>
+class "Transition<TState, TSymbol>" as Transition << record >> {
+    +{method} Domain: TransitionDomain<TState, TSymbol> {query}
+    +{method} Range: TransitionRange<TState, TSymbol> {query}
+    +Implicit(domain: TransitionDomain<TState, TSymbol>, range: TransitionRange<TState, TSymbol>): Transition<TState, TSymbol>
 }
 
-interface "IReadOnlySingleTapeTransitionTable<TState, TValue>" as IReadOnlySingleTapeTransitionTable {
-    GetRange(domain: TransitionDomain<TState, TValue>): TransitionRange<TState, TValue>
+
+class "TransitionTable<TState, TSymbol>" as TransitionTable {
+    -transitions: ReadOnlyDictionary<TState, TSymbol>
+    +TransitionTable(transitions: IEnumerable<Transition<TState, TSymbol>>)
+    ~[](TransitionDomain<TState, TSymbol> domain): TransitionRange
 }
 
-interface "IReadOnlyMultiTapeTransitionTable<TState, TValue>" as IReadOnlyMultiTapeTransitionTable {
-    GetRangeAtTape(tapeIndex: int, domain: TransitionDomain<TState, TValue>): TransitionRange<TState, TValue>
+class "TransitionCollectionValidator<TState, TSymbol>" as TransitionCollectionValidator {
+    +Validate(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+    -CheckDuplications(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+    -CheckDeterminism(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+    -CheckStates(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+    -CheckStateOfDomain(transition: Transition<TState, TSymbol>): void
+    -CheckStateOfRange(transition: Transition<TState, TSymbol>): void
 }
 
-~abstract class "ReadOnlyTransitionTable<TState, TValue>" as ReadOnlyTransitionTable {
-    #transitionTable: TransitionTable<TState, TValue>
-}
-
-class "ReadOnlySingleTapeTransitionTable<TState, TValue>" as ReadOnlySingleTapeTransitionTable
-class "ReadOnlyMultiTapeTransitionTable<TState, TValue>" as ReadOnlyMultiTapeTransitionTable
-
-class "SingleTapeTransitionTableBuilder<TState, TValue>" as SingleTapeTransitionTableBuilder {
-    -transitions: List<TState, TValue>
-    +AddTransition(transition: Transition<TState, TValue>): SingleTapeTransitionTableBuilder<TState, TValue>
-    +AddTransition(domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): SingleTapeTransitionTableBuilder<TState, TValue>
-    +Build(): IReadOnlySingleTapeTransitionTable<TState, TValue>
-}
-
-class "MultiTapeTransitionTableBuilder<TState, TValue>" as MultiTapeTransitionTableBuilder {
-    -transitions: List<Transition<TState, TValue>>[]
-    +MultiTapeTransitionTableBuilder(int tapeCount)
-    +AddTransition(tapeIndex: int, transition: Transition<TState, TValue>): MultiTapeTransitionTableBuilder<TState, TValue>
-    +AddTransition(tapeIndex: int, domain: TransitionDomain<TState, TValue>, range: TransitionRange<TState, TValue>): MultiTapeTransitionTableBuilder<TState, TValue>
-    +Build(): IReadOnlyMultiTapeTransitionTable<TState, TValue>
-}
-
-~class "TransitionTable<TState, TValue>" as TransitionTable {
-    -{static} SingleTapeIndex: int = 0 {query}
-    -transitionsPerTapes: TapeTransitionTable<TState, TValue>[]
-    +TransitionTable(IEnumerable<Transition<TState, TValue>> transitions)
-    +TransitionTable(IEnumerable<Transition<TState, TValue>>[] transitions)
-    -CheckSpecialTransitionsOfTape(IEnumerable<Transition<TState, TValue>> transitions): void    
-    -CheckEverySpecialTransitions(IEnumerable<Transition<TState, TValue>>[] transitions): void
-    -CheckMissingTransitions(IEnumerable<Transition<TState, TValue>>[] transitions): void
-    -CreateTapeTransitionTable(IEnumerable<Transition<TState, TValue>> transitions): TapeTransitionTable<TState, TValue>
-}
-
-~class "TapeTransitionTable<TState, TValue>" as TapeTransitionTable {
-    -transitions: Dictionary<TransitionDomain<TState, TValue>, TransitionRange<TState, TValue>
-    +{method} Item[TransitionDomain<TState, TValue>]: TransitionRange<TState, TValue>
-}
-
-IReadOnlySingleTapeTransitionTable <|.down. TransitionTable
-IReadOnlyMultiTapeTransitionTable <|.down. TransitionTable
-TransitionTable -[hidden]up- ReadOnlySingleTapeTransitionTable
-TransitionTable -[hidden]up- ReadOnlyMultiTapeTransitionTable
-ReadOnlyTransitionTable <|-down- ReadOnlySingleTapeTransitionTable
-ReadOnlyTransitionTable <|-down- ReadOnlyMultiTapeTransitionTable
-IReadOnlySingleTapeTransitionTable <|.down. ReadOnlySingleTapeTransitionTable
-IReadOnlyMultiTapeTransitionTable <|.down. ReadOnlyMultiTapeTransitionTable
 TransitionDomain <|-- TransitionRange
 Transition "*" o-- "1" TransitionDomain
 Transition "*" o-- "1" TransitionRange
-TransitionTable "1" *-- "1..*" TapeTransitionTable
-TapeTransitionTable "*" o-- "1..*" TransitionDomain
-TapeTransitionTable "*" o-- "1..*" TransitionRange
+TransitionTable "*" o-- "1..*" TransitionDomain
+TransitionTable "*" o-- "1..*" TransitionRange
+TransitionTable --> "Validate()" TransitionCollectionValidator
 
-TransitionTable -[hidden]right- SingleTapeTransitionTableBuilder
-SingleTapeTransitionTableBuilder -[hidden]down- MultiTapeTransitionTableBuilder
 Tape -[hidden]right- Transition
 
 @enduml

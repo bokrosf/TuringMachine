@@ -3,7 +3,7 @@
 namespace TuringMachine.Transition
 {
     /// <summary>
-    /// The exception that is thrown when a machine transition domain is not found.
+    /// Exception that is thrown when a machine transition domain is not found.
     /// </summary>
     public class TransitionDomainNotFoundException : Exception
     {
