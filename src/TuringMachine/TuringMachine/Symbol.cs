@@ -76,7 +76,7 @@ namespace TuringMachine
             {
                 (null, null) => true,
                 (null, _) => false,
-                (_, _) => left.Equals(right)
+                _ => left.Equals(right)
             };
         }
 
