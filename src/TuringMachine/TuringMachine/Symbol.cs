@@ -52,15 +52,16 @@ namespace TuringMachine
                 return false;
             }
 
-            if (ReferenceEquals(obj, Blank) && ReferenceEquals(this, Blank))
+            Symbol<T> other = (Symbol<T>)obj;
+            bool otherIsBlank = ReferenceEquals(other, Blank);
+            bool thisIsBlank = ReferenceEquals(this, Blank);
+
+            if (otherIsBlank && thisIsBlank)
             {
                 return true;
             }
 
-            Symbol<T> symbol = (Symbol<T>)obj;
-            bool oneOfThemIsBlank = ReferenceEquals(symbol, Blank) || ReferenceEquals(this, Blank);
-
-            return !oneOfThemIsBlank && EqualityComparer<T>.Default.Equals(symbol.Value, Value);
+            return !otherIsBlank && !thisIsBlank && EqualityComparer<T>.Default.Equals(other.Value, Value);
         }
 
         /// <summary>
