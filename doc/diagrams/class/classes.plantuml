@@ -56,7 +56,7 @@ class "Tape<T>" as Tape {
 Tape "*" o-left- "1..*" Symbol
 interface "IEnumerable<T>" as IEnumerable
 IEnumerable <|.. Tape
-Tape --> TapeHeadDirection
+Tape ..> TapeHeadDirection
 
 
 class "TransitionDomain<TState, TSymbol>" as TransitionDomain << record >> {
@@ -94,6 +94,63 @@ class "TransitionCollectionValidator<TState, TSymbol>" as TransitionCollectionVa
     -CheckStateOfRange(transition: Transition<TState, TSymbol>): void
 }
 
+interface "IAutomaticComputation<TSymbol>" as IAutomaticComputation {
+    StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>): Task
+    StartComputation(input: IEnumerable<Symbol<TSymbol>>, maxStepCount: int): void
+    StartComputation(input: IEnumerable<Symbol<TSymbol>>, TimeSpan: timeout): void
+    StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, cancellationToken: CancellationToken): Task
+    StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, maxStepCount: int): Task
+    StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, TimeSpan: timeout): Task
+}
+
+interface "IManualComputation<TSymbol>" as IManualComputation {
+    StartComputation(input: IEnumerable<Symbol<TSymbol>>): void
+    StartComputation(input: IEnumerable<Symbol<TSymbol>>, maxStepCount: int): void
+    Step(): bool
+    Abort(): void
+}
+
+interface "IComputationTracking<TState, TSymbol>" as IComputationTracking {
+    Stepped: EventHandler<SteppedEventArgs<TState, TSymbol>>
+    ComputationEnded: EventHandler<ComputationEndedEventArgs<TState>>
+}
+
+abstract class ComputationStateChangedEventArgs {
+    +{method} StepCount: int {query}
+    +{method} Duration: TimeSpan {query}
+}
+
+class "SteppedEventArgs<TState, TSymbol>" as SteppedEventArgs {
+    +{method} Transition: Transition<TState, TSymbol> {query}
+}
+
+class "ComputationTerminatedEventArgs<TState, TSymbol>" as ComputationTerminatedEventArgs {
+    +{method} State: TState {query}
+    +{method} Result: IReadOnlyCollection<Symbol<TSymbol>>
+}
+
+enum ComputationMode {
+    Automatic,
+    Manual
+}
+
+class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
+    -computationLock: object
+    -computationMode: ComputationMode?
+    -stepCount: int
+    -tape: Tape<TSymbol>
+    -configuration: TransitionDomain<TState, TSymbol>?
+    -transitionTable: TransitionTable<TState, TSymbol>
+    +SingleTapeMachine(transitionTable: TransitionTable<TState, TSymbol>)
+    -ResetToComputation(input: IEnumerable<Symbol<TSymbol>>): void
+    -ComputeAsync(cancellationToken: CancellationToken?, maxStepCount: int?): Task
+    -TransitToNextConfiguration(): void
+    -CanTerminate(): void
+    -Terminate(): void
+    -OnStepped(): void
+    -OnComputationTerminated(): void
+}
+
 TransitionDomain <|-- TransitionRange
 Transition "*" o-- "1" TransitionDomain
 Transition "*" o-- "1" TransitionRange
@@ -102,5 +159,15 @@ TransitionTable "*" o-- "1..*" TransitionRange
 TransitionTable --> "Validate()" TransitionCollectionValidator
 
 Tape -[hidden]right- Transition
+
+ComputationStateChangedEventArgs <|-- SteppedEventArgs
+ComputationStateChangedEventArgs <|-- ComputationTerminatedEventArgs
+
+IAutomaticComputation <|.. SingleTapeMachine
+IManualComputation <|.. SingleTapeMachine
+IComputationTracking <|.. SingleTapeMachine
+SingleTapeMachine *-- Tape
+SingleTapeMachine "*" o-- "1" TransitionTable
+SingleTapeMachine "1..*" *-- "0..1" ComputationMode   
 
 @enduml
