@@ -112,7 +112,7 @@ interface "IManualComputation<TSymbol>" as IManualComputation {
 
 interface "IComputationTracking<TState, TSymbol>" as IComputationTracking {
     Stepped: EventHandler<SteppedEventArgs<TState, TSymbol>>
-    ComputationEnded: EventHandler<ComputationEndedEventArgs<TState>>
+    ComputationTerminated: EventHandler<ComputationTerminatedEventArgs<TState>>
 }
 
 abstract class ComputationStateChangedEventArgs {
