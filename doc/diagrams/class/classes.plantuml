@@ -126,7 +126,7 @@ class "SteppedEventArgs<TState, TSymbol>" as SteppedEventArgs {
 
 class "ComputationTerminatedEventArgs<TState, TSymbol>" as ComputationTerminatedEventArgs {
     +{method} State: TState {query}
-    +{method} Result: IReadOnlyCollection<Symbol<TSymbol>>
+    +{method} Result: IReadOnlyList<Symbol<TSymbol>> {query}
 }
 
 enum ComputationMode {
