@@ -15,12 +15,12 @@ namespace TuringMachine
         private const int FailureHashCode = 900007;
 
         /// <summary>
-        /// Initial state of the machine, when computation has not started.
+        /// Initial state of the machine, from where the first symbol is read.
         /// </summary>
         public static State<T> Initial { get; }
         
         /// <summary>
-        /// Accept state of the machine, when computation terminated normally.
+        /// Accept state of the machine, when computation terminated by accepting the input.
         /// </summary>
         public static State<T> Accept { get; }
 
@@ -57,7 +57,7 @@ namespace TuringMachine
 
             State<T> other = (State<T>)obj;
 
-            if (AreBothSpecialState(other, this))
+            if (AreSameSpecialStates(other, this))
             {
                 return true;
             }
@@ -122,7 +122,7 @@ namespace TuringMachine
             };
         }
 
-        private bool AreBothSpecialState(object first, object second)
+        private bool AreSameSpecialStates(object first, object second)
         {
             return GetSpecialStates().Any(special => ReferenceEquals(first, special) && ReferenceEquals(second, special));
         }

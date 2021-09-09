@@ -11,7 +11,7 @@ namespace TuringMachine
         private const int NullValueHashCode = 0;
         
         /// <summary>
-        /// Gets the blank symbol tape value.
+        /// Gets the blank symbol.
         /// </summary>
         public static Symbol<T> Blank { get; }
 
@@ -37,14 +37,10 @@ namespace TuringMachine
         /// </returns>
         public override string ToString()
         {
-            if (ReferenceEquals(this, Blank))
-            {
-                return "<BLANK>";
-            }
-
-            return $"<{Value}>";
+            return ReferenceEquals(this, Blank) ? "<BLANK>" : $"<{Value}>";
         }
 
+        /// <inheritdoc/>
         public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType())
