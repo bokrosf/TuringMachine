@@ -18,13 +18,14 @@ namespace TuringMachine.Transition
         /// </summary>
         /// <param name="domain">Domain of a transitions.</param>
         /// <returns><see cref="TransitionRange{TState, TSymbol}"/> that belongs to the given transition domain.</returns>
+        /// <exception cref="TransitionDomainNotFoundException">Thrown when the table does not contain any range belonging the given domain.</exception>
         internal TransitionRange<TState, TSymbol> this[TransitionDomain<TState, TSymbol> domain]
         {
             get
             {
                 return transitions.TryGetValue(domain, out var range)
                     ? range
-                    : throw new TransitionDomainNotFoundException($"Not found Domain={domain}.");
+                    : throw new TransitionDomainNotFoundException($"Not found domain={domain}.");
             }
         }
 
@@ -36,6 +37,8 @@ namespace TuringMachine.Transition
         /// <exception cref="DuplicateTransitionException">Thrown when the collection contains a duplicate transition.</exception>
         /// <exception cref="NonDeterministicTransitionException">Thrown when the collection contains a transition domain more than once.</exception>
         /// <exception cref="InvalidStateInTransitionException">Thrown when the collection contains a transition with an invalid state.</exception>
+        /// <exception cref="InitialStateMissingException">Throw when the collection does not contain Initial state.</exception>
+        /// <exception cref="AcceptStateMissingException">Throw when the collection does not contain Accept state.</exception>
         public TransitionTable(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
             new TransitionCollectionValidator<TState, TSymbol>().Validate(transitions);
