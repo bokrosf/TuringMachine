@@ -18,6 +18,8 @@ namespace TuringMachine.Transition
         /// <exception cref="DuplicateTransitionException">Thrown when the collection contains a duplicate transition.</exception>
         /// <exception cref="NonDeterministicTransitionException">Thrown when the collection contains a transition domain more than once.</exception>
         /// <exception cref="InvalidStateInTransitionException">Thrown when the collection contains a transition with an invalid state.</exception>
+        /// <exception cref="InitialStateMissingException">Throw when the collection does not contain Initial state.</exception>
+        /// <exception cref="AcceptStateMissingException">Throw when the collection does not contain Accept state.</exception>
         public void Validate(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
             if (!transitions.Any())
@@ -32,45 +34,38 @@ namespace TuringMachine.Transition
 
         private void CheckDuplications(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
-            var items = new HashSet<Transition<TState, TSymbol>>();
+            var distinctTransitions = new HashSet<Transition<TState, TSymbol>>();
 
             foreach (var t in transitions)
             {
-                if (items.Contains(t))
+                if (distinctTransitions.Contains(t))
                 {
-                    throw new DuplicateTransitionException($"No duplicate transitions allowed in the table. Transition={t}.");
+                    throw new DuplicateTransitionException($"Transitions must be unique. Transition={t}.");
                 }
 
-                items.Add(t);
+                distinctTransitions.Add(t);
             }
         }
 
         private void CheckDeterminism(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
-            var domains = new HashSet<TransitionDomain<TState, TSymbol>>();
+            var distinctDomains = new HashSet<TransitionDomain<TState, TSymbol>>();
 
             foreach (var t in transitions)
             {
-                if (domains.Contains(t.Domain))
+                if (distinctDomains.Contains(t.Domain))
                 {
                     throw new NonDeterministicTransitionException($"Transition domains must be unique. Transition={t}.");
                 }
 
-                domains.Add(t.Domain);
+                distinctDomains.Add(t.Domain);
             }
         }
 
         private void CheckStates(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
-            if (!transitions.Any(t => t.Domain.State == State<TState>.Initial))
-            {
-                throw new InitialStateMissingException($"At least one transition's domain must contain {nameof(State<TState>.Initial)} state.");
-            }
-
-            if (!transitions.Any(t => t.Range.State == State<TState>.Accept))
-            {
-                throw new AcceptStateMissingException($"At least one transition's range must contain {nameof(State<TState>.Accept)} state.");
-            }
+            CheckInitialStatePresence(transitions);
+            CheckAcceptStatePresence(transitions);
             
             foreach (var t in transitions)
             {
@@ -79,12 +74,28 @@ namespace TuringMachine.Transition
             }
         }
 
+        private void CheckInitialStatePresence(IEnumerable<Transition<TState, TSymbol>> transitions)
+        {
+            if (!transitions.Any(t => t.Domain.State == State<TState>.Initial))
+            {
+                throw new InitialStateMissingException($"At least one transition domain must contain {nameof(State<TState>.Initial)} state.");
+            }
+        }
+
+        private void CheckAcceptStatePresence(IEnumerable<Transition<TState, TSymbol>> transitions)
+        {
+            if (!transitions.Any(t => t.Range.State == State<TState>.Accept))
+            {
+                throw new AcceptStateMissingException($"At least one transition range must contain {nameof(State<TState>.Accept)} state.");
+            }
+        }
+
         private void CheckStateOfDomain(Transition<TState, TSymbol> transition)
         {
             if (GetInvalidStatesOfDomain().Contains(transition.Domain.State))
             {
                 throw new InvalidStateInTransitionException(
-                    $"Only {nameof(State<TState>.Initial)} special state can appear in a transitions' domain. Transition={transition}.");
+                    $"Only {nameof(State<TState>.Initial)} special state can appear in transition domain. Transition={transition}.");
             }
         }
 
@@ -93,7 +104,7 @@ namespace TuringMachine.Transition
             if (transition.Range.State == State<TState>.Initial)
             {
                 throw new InvalidStateInTransitionException(
-                    $"{nameof(State<TState>.Initial)} state must not appear in a transitions's {nameof(transition.Range)}. Transition={transition}.");
+                    $"{nameof(State<TState>.Initial)} state must not appear in transition range. Transition={transition}.");
             }
         }
 
