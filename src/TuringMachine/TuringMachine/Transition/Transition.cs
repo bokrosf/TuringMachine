@@ -8,7 +8,7 @@
     public record TransitionDomain<TState, TSymbol>(State<TState> State, Symbol<TSymbol> Symbol)
     {
         /// <summary>
-        /// Converts the given touple of state and value into a <see cref="TransitionDomain{TState, TSymbol}"/> instance.
+        /// Converts the given tuple of state and symbol into a <see cref="TransitionDomain{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="domain">Domain of a machine transition.</param>
         public static implicit operator TransitionDomain<TState, TSymbol>((TState State, TSymbol Value) domain)
@@ -19,7 +19,7 @@
         }
 
         /// <summary>
-        /// Converts the given touple of state and symbol into a <see cref="TransitionDomain{TState, TSymbol}"/> instance.
+        /// Converts the given tuple of state and symbol into a <see cref="TransitionDomain{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="domain">Domain of a machine transition.</param>
         public static implicit operator TransitionDomain<TState, TSymbol>((State<TState> State, Symbol<TSymbol> Symbol) domain)
@@ -28,7 +28,7 @@
         }
 
         /// <summary>
-        /// Converts the given touple of state and value into a <see cref="TransitionDomain{TState, TSymbol}"/> instance.
+        /// Converts the given tuple of state and symbol into a <see cref="TransitionDomain{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="domain">Domain of a machine transition.</param>
         public static implicit operator TransitionDomain<TState, TSymbol>((TState State, Symbol<TSymbol> Symbol) domain)
@@ -39,7 +39,7 @@
         }
 
         /// <summary>
-        /// Converts the given touple of state and value into a <see cref="TransitionDomain{TState, TSymbol}"/> instance.
+        /// Converts the given tuple of state and symbol into a <see cref="TransitionDomain{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="domain">Domain of a machine transition.</param>
         public static implicit operator TransitionDomain<TState, TSymbol>((State<TState> State, TSymbol Symbol) domain)
@@ -58,7 +58,7 @@
     public record TransitionRange<TState, TSymbol>(State<TState> State, Symbol<TSymbol> Symbol, TapeHeadDirection HeadDirection)
     {
         /// <summary>
-        /// Converts the given touple of state, value and head direction into a <see cref="TransitionRange{TState, TSymbol}{TState, TSymbol}"/> instance.
+        /// Converts the given tuple of state, symbol and head direction into a <see cref="TransitionRange{TState, TSymbol}{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="range">Range of a machine transition.</param>
         public static implicit operator TransitionRange<TState, TSymbol>((TState State, TSymbol Value, TapeHeadDirection HeadDirection) range)
@@ -70,7 +70,7 @@
         }
 
         /// <summary>
-        /// Converts the given touple of state, symbol and head direction into a <see cref="TransitionRange{TState, TSymbol}{TState, TSymbol}"/> instance.
+        /// Converts the given tuple of state, symbol and head direction into a <see cref="TransitionRange{TState, TSymbol}{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="range">Range of a machine transition.</param>
         public static implicit operator TransitionRange<TState, TSymbol>((State<TState> State, Symbol<TSymbol> Symbol, TapeHeadDirection HeadDirection) range)
@@ -79,7 +79,7 @@
         }
 
         /// <summary>
-        /// Converts the given touple of state, symbol and head direction into a <see cref="TransitionRange{TState, TSymbol}{TState, TSymbol}"/> instance.
+        /// Converts the given tuple of state, symbol and head direction into a <see cref="TransitionRange{TState, TSymbol}{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="range">Range of a machine transition.</param>
         public static implicit operator TransitionRange<TState, TSymbol>((TState State, Symbol<TSymbol> Symbol, TapeHeadDirection HeadDirection) range)
@@ -91,7 +91,7 @@
         }
 
         /// <summary>
-        /// Converts the given touple of state, symbol and head direction into a <see cref="TransitionRange{TState, TSymbol}{TState, TSymbol}"/> instance.
+        /// Converts the given tuple of state, symbol and head direction into a <see cref="TransitionRange{TState, TSymbol}{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="range">Range of a machine transition.</param>
         public static implicit operator TransitionRange<TState, TSymbol>((State<TState> State, TSymbol Symbol, TapeHeadDirection HeadDirection) range)
@@ -111,7 +111,7 @@
     public record Transition<TState, TSymbol>(TransitionDomain<TState, TSymbol> Domain, TransitionRange<TState, TSymbol> Range)
     {
         /// <summary>
-        /// Converts the given touple of a transition's domain and range into a <see cref="Transition{TState, TSymbol}{TState, TSymbol}"/> instance.
+        /// Converts the given tuple of a transition's domain and range into a <see cref="Transition{TState, TSymbol}{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="transition">Machine transition.</param>
         public static implicit operator Transition<TState, TSymbol>(
