@@ -3,32 +3,32 @@
 namespace TuringMachine.Transition
 {
     /// <summary>
-    /// Exception that is thrown when no machine transition has been provided.
+    /// Exception that is thrown when a machine state is missing.
     /// </summary>
-    public class NoTransitionProvidedException : InvalidTransitionCollectionException
+    public class MissingStateException : InvalidTransitionCollectionException
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="NoTransitionProvidedException"/> class.
+        /// Initializes a new instance of <see cref="MissingStateException"/> class.
         /// </summary>
-        public NoTransitionProvidedException()
+        public MissingStateException()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="NoTransitionProvidedException"/> class with a specified error message.
+        /// Initializes a new instance of <see cref="MissingStateException"/> class with a specified error message.
         /// <param name="message">The message that describes the error.</param>
-        public NoTransitionProvidedException(string? message)
+        public MissingStateException(string? message)
             : base(message)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="NoTransitionProvidedException"/> class with a specified error message
+        /// Initializes a new instance of <see cref="MissingStateException"/> class with a specified error message
         /// and a reference to the inner exception that is the cause of this exception.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
-        public NoTransitionProvidedException(string? message, Exception? innerException)
+        public MissingStateException(string? message, Exception? innerException)
             : base(message, innerException)
         {
         }

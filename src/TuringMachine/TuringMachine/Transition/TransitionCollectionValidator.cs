@@ -14,19 +14,12 @@ namespace TuringMachine.Transition
         /// Validates the given transition collection.
         /// </summary>
         /// <param name="transitions">Transition collection to be validated.</param>
-        /// <exception cref="NoTransitionProvidedException">Thrown when no machine transition has been provided.</exception>
         /// <exception cref="DuplicateTransitionException">Thrown when the collection contains a duplicate transition.</exception>
         /// <exception cref="NonDeterministicTransitionException">Thrown when the collection contains a transition domain more than once.</exception>
         /// <exception cref="InvalidStateInTransitionException">Thrown when the collection contains a transition with an invalid state.</exception>
-        /// <exception cref="InitialStateMissingException">Throw when the collection does not contain Initial state.</exception>
-        /// <exception cref="AcceptStateMissingException">Throw when the collection does not contain Accept state.</exception>
+        /// <exception cref="MissingStateException">Thrown when the collection does not contain an obligatory state.</exception>
         public void Validate(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
-            if (!transitions.Any())
-            {
-                throw new NoTransitionProvidedException($"At least one transition must be provided.");
-            }
-
             CheckDuplications(transitions);
             CheckDeterminism(transitions);
             CheckStates(transitions);
@@ -78,7 +71,7 @@ namespace TuringMachine.Transition
         {
             if (!transitions.Any(t => t.Domain.State == State<TState>.Initial))
             {
-                throw new InitialStateMissingException($"At least one transition domain must contain {nameof(State<TState>.Initial)} state.");
+                throw new MissingStateException($"At least one transition domain must contain {nameof(State<TState>.Initial)} state.");
             }
         }
 
@@ -86,7 +79,7 @@ namespace TuringMachine.Transition
         {
             if (!transitions.Any(t => t.Range.State == State<TState>.Accept))
             {
-                throw new AcceptStateMissingException($"At least one transition range must contain {nameof(State<TState>.Accept)} state.");
+                throw new MissingStateException($"At least one transition range must contain {nameof(State<TState>.Accept)} state.");
             }
         }
 
