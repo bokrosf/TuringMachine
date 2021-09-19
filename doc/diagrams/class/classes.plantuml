@@ -99,6 +99,7 @@ interface "IAutomaticComputation<TSymbol>" as IAutomaticComputation {
     StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, cancellationToken: CancellationToken): Task
     StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, maxStepCount: int): Task
     StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, TimeSpan: timeout): Task
+    StartComputation(input: IEnumerable<Symbol<TSymbol>>): void
     StartComputation(input: IEnumerable<Symbol<TSymbol>>, maxStepCount: int): void
     StartComputation(input: IEnumerable<Symbol<TSymbol>>, TimeSpan: timeout): void
 }
