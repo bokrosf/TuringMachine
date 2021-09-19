@@ -96,11 +96,11 @@ class "TransitionCollectionValidator<TState, TSymbol>" as TransitionCollectionVa
 
 interface "IAutomaticComputation<TSymbol>" as IAutomaticComputation {
     StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>): Task
-    StartComputation(input: IEnumerable<Symbol<TSymbol>>, maxStepCount: int): void
-    StartComputation(input: IEnumerable<Symbol<TSymbol>>, TimeSpan: timeout): void
     StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, cancellationToken: CancellationToken): Task
     StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, maxStepCount: int): Task
     StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, TimeSpan: timeout): Task
+    StartComputation(input: IEnumerable<Symbol<TSymbol>>, maxStepCount: int): void
+    StartComputation(input: IEnumerable<Symbol<TSymbol>>, TimeSpan: timeout): void
 }
 
 interface "IManualComputation<TSymbol>" as IManualComputation {
