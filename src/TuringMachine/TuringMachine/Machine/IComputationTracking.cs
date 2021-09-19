@@ -12,11 +12,11 @@ namespace TuringMachine.Machine
         /// <summary>
         /// Occures when a machine transitions from one state to another.
         /// </summary>
-        event EventHandler<SteppedEventArgs<TState, TSymbol>> Stepped;
+        event EventHandler<SteppedEventArgs<TState, TSymbol>>? Stepped;
 
         /// <summary>
         /// Occures when a computation terminated.
         /// </summary>
-        event EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>> ComputationTerminated;
+        event EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>? ComputationTerminated;
     }
 }
