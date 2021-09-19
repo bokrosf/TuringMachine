@@ -1,4 +1,5 @@
-﻿using TuringMachine.Transition;
+﻿using TuringMachine.Machine;
+using TuringMachine.Transition;
 using Xunit;
 
 namespace TuringMachine.Tests.UnitTests
