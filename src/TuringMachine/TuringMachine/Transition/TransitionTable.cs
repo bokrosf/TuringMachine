@@ -42,8 +42,7 @@ namespace TuringMachine.Transition
         public TransitionTable(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
             new TransitionCollectionValidator<TState, TSymbol>().Validate(transitions);
-            var mapping = transitions.ToDictionary(t => t.Domain, t => t.Range);
-            this.transitions = new ReadOnlyDictionary<TransitionDomain<TState, TSymbol>, TransitionRange<TState, TSymbol>>(mapping);
+            this.transitions = new(transitions.ToDictionary(t => t.Domain, t => t.Range));
         }
     }
 }
