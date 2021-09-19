@@ -12,22 +12,22 @@ namespace TuringMachine
         private const int NullValueHashCode = 0;
         private const int InitialHashCode = 100003;
         private const int AcceptHashCode = 500009;
-        private const int FailureHashCode = 900007;
+        private const int RejectHashCode = 900007;
 
         /// <summary>
-        /// Initial state of the machine, when computation has not started.
+        /// Initial state of the machine, from where the first symbol is read.
         /// </summary>
         public static State<T> Initial { get; }
         
         /// <summary>
-        /// Accept state of the machine, when computation terminated normally.
+        /// Accept state of the machine, when computation terminated by accepting the input.
         /// </summary>
         public static State<T> Accept { get; }
 
         /// <summary>
-        /// Failure state of the machine, when there is no valid transition from the current state of the machine.
+        /// Reject state of the machine, when there is no valid transition from the current state of the machine.
         /// </summary>
-        public static State<T> Failure { get; }
+        public static State<T> Reject { get; }
 
         /// <summary>
         /// Gets the value that represents the state.
@@ -38,7 +38,7 @@ namespace TuringMachine
         {
             Initial = new State<T>(default!);
             Accept = new State<T>(default!);
-            Failure = new State<T>(default!);
+            Reject = new State<T>(default!);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace TuringMachine
 
             State<T> other = (State<T>)obj;
 
-            if (AreBothSpecialState(other, this))
+            if (AreSameSpecialStates(other, this))
             {
                 return true;
             }
@@ -75,7 +75,7 @@ namespace TuringMachine
             {
                 _ when ReferenceEquals(this, Initial) => InitialHashCode,
                 _ when ReferenceEquals(this, Accept) => AcceptHashCode,
-                _ when ReferenceEquals(this, Failure) => FailureHashCode,
+                _ when ReferenceEquals(this, Reject) => RejectHashCode,
                 _ => Value?.GetHashCode() ?? NullValueHashCode
             };
         }
@@ -117,12 +117,12 @@ namespace TuringMachine
             {
                 _ when ReferenceEquals(this, Initial) => nameof(Initial),
                 _ when ReferenceEquals(this, Accept) => nameof(Accept),
-                _ when ReferenceEquals(this, Failure) => nameof(Failure),
+                _ when ReferenceEquals(this, Reject) => nameof(Reject),
                 _ => $"{Value}"
             };
         }
 
-        private bool AreBothSpecialState(object first, object second)
+        private bool AreSameSpecialStates(object first, object second)
         {
             return GetSpecialStates().Any(special => ReferenceEquals(first, special) && ReferenceEquals(second, special));
         }
@@ -136,7 +136,7 @@ namespace TuringMachine
         {
             yield return Initial;
             yield return Accept;
-            yield return Failure;
+            yield return Reject;
         }
     }
 }

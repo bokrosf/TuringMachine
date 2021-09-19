@@ -29,15 +29,50 @@ namespace TuringMachine.Tests.UnitTests
         }
 
         [Fact]
-        public void Validate_EmptyCollection_NotValid()
+        public void Validate_EmptyCollection_Invalid()
         {
             var transitions = Enumerable.Empty<Transition<string, int>>();
 
-            Assert.Throws<NoTransitionProvidedException>(() => validator.Validate(transitions));
+            Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
         }
 
         [Fact]
-        public void Validate_DuplicateTransition_NotValid()
+        public void Validate_MissingInitialState_Invalid()
+        {
+            var transitions = new Transition<string, int>[]
+            {
+                (("q1", 2), ("q2", 3, TapeHeadDirection.Stay)),
+                (("q2", 3), (State<string>.Accept, 3, TapeHeadDirection.Stay))
+            };
+
+            Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
+        }
+
+        [Fact]
+        public void Validate_MissingAcceptState_Invalid()
+        {
+            var transitions = new Transition<string, int>[]
+            {
+                ((State<string>.Initial, 3), ("q2", 3, TapeHeadDirection.Stay)),
+                (("q2", 3), ("q2", 3, TapeHeadDirection.Stay))
+            };
+
+            Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
+        }
+
+        [Fact]
+        public void Validate_MissingAllSpecialStates_Invalid()
+        {
+            var transitions = new Transition<string, int>[]
+            {
+                (("q2", 3), ("q2", 3, TapeHeadDirection.Stay))
+            };
+
+            Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
+        }
+
+        [Fact]
+        public void Validate_DuplicateTransition_Invalid()
         {
             var duplicateTransition = (("q0", 1), ("q1", 2, TapeHeadDirection.Right));
 
@@ -52,7 +87,7 @@ namespace TuringMachine.Tests.UnitTests
         }
 
         [Fact]
-        public void Validate_NonDeterministic_NotValid()
+        public void Validate_NonDeterministic_Invalid()
         {
             var domain = ("q0", 1);
 
@@ -67,7 +102,7 @@ namespace TuringMachine.Tests.UnitTests
 
         [Theory]
         [ClassData(typeof(InvalidDomainStateTestData<string>))]
-        public void Validate_InvalidDomainState_NotValid(State<string> invalidDomainState)
+        public void Validate_InvalidDomainState_Invalid(State<string> invalidDomainState)
         {
             var transition = new Transition<string, int>(
                 (invalidDomainState, new Symbol<int>(2)),
@@ -85,7 +120,7 @@ namespace TuringMachine.Tests.UnitTests
 
         [Theory]
         [ClassData(typeof(InvalidRangeStateTestData<string>))]
-        public void Validate_InvalidRangeState_NotValid(State<string> invalidRangeState)
+        public void Validate_InvalidRangeState_Invalid(State<string> invalidRangeState)
         {
             var transition = new Transition<string, int>(
                 ("q1", 1),
@@ -107,7 +142,7 @@ namespace TuringMachine.Tests.UnitTests
         public IEnumerator<object[]> GetEnumerator()
         {
             yield return new object[] { State<TState>.Accept };
-            yield return new object[] { State<TState>.Failure };
+            yield return new object[] { State<TState>.Reject };
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -65,11 +65,11 @@ namespace TuringMachine.Tests.UnitTests
         }
 
         [Fact]
-        public void Equals_FailureReflexive_ReturnsTrue()
+        public void Equals_RejectReflexive_ReturnsTrue()
         {
-            var state = State<int>.Failure;
+            var state = State<int>.Reject;
 
-            bool areEqual = state.Equals(State<int>.Failure);
+            bool areEqual = state.Equals(State<int>.Reject);
 
             Assert.True(areEqual);
         }
@@ -206,13 +206,13 @@ namespace TuringMachine.Tests.UnitTests
         [InlineData(2)]
         [InlineData(55)]
         [InlineData(32)]
-        public void Equals_FailureComparedWithNormalSymmetric_ReturnsFalse(int value)
+        public void Equals_RejectComparedWithNormalSymmetric_ReturnsFalse(int value)
         {
-            var failure = State<int>.Failure;
+            var reject = State<int>.Reject;
             var normal = new State<int>(value);
 
-            bool failureEqualsWithNormal = failure.Equals(normal);
-            bool normalEqualsWitFailure = normal.Equals(failure);
+            bool failureEqualsWithNormal = reject.Equals(normal);
+            bool normalEqualsWitFailure = normal.Equals(reject);
 
             Assert.False(failureEqualsWithNormal);
             Assert.False(normalEqualsWitFailure);
@@ -260,13 +260,13 @@ namespace TuringMachine.Tests.UnitTests
         [InlineData(2)]
         [InlineData(55)]
         [InlineData(32)]
-        public void Equals_FailureComparedWithNullableNormalSymmetric_ReturnsFalse(int? value)
+        public void Equals_RejectComparedWithNullableNormalSymmetric_ReturnsFalse(int? value)
         {
-            var failure = State<int?>.Failure;
+            var reject = State<int?>.Reject;
             var normal = new State<int?>(value);
 
-            bool failureEqualsWithNormal = failure.Equals(normal);
-            bool normalEqualsWitFailure = normal.Equals(failure);
+            bool failureEqualsWithNormal = reject.Equals(normal);
+            bool normalEqualsWitFailure = normal.Equals(reject);
 
             Assert.False(failureEqualsWithNormal);
             Assert.False(normalEqualsWitFailure);
@@ -331,11 +331,11 @@ namespace TuringMachine.Tests.UnitTests
         }
 
         [Fact]
-        public void Equals_FailureComparedWithNull_ReturnsFalse()
+        public void Equals_RejectComparedWithNull_ReturnsFalse()
         {
-            var failure = State<int>.Failure;
+            var reject = State<int>.Reject;
 
-            bool areEqual = failure.Equals(null);
+            bool areEqual = reject.Equals(null);
 
             Assert.False(areEqual);
         }
@@ -398,10 +398,10 @@ namespace TuringMachine.Tests.UnitTests
         }
 
         [Fact]
-        public void GetHashCode_FailureSameHashCode_ReturnsTrue()
+        public void GetHashCode_RejectSameHashCode_ReturnsTrue()
         {
-            var first = State<int?>.Failure;
-            var second = State<int?>.Failure;
+            var first = State<int?>.Reject;
+            var second = State<int?>.Reject;
 
             int? actual = second.GetHashCode();
 

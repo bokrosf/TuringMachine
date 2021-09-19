@@ -18,13 +18,14 @@ namespace TuringMachine.Transition
         /// </summary>
         /// <param name="domain">Domain of a transitions.</param>
         /// <returns><see cref="TransitionRange{TState, TSymbol}"/> that belongs to the given transition domain.</returns>
+        /// <exception cref="TransitionDomainNotFoundException">Thrown when the table does not contain any range belonging the given domain.</exception>
         internal TransitionRange<TState, TSymbol> this[TransitionDomain<TState, TSymbol> domain]
         {
             get
             {
                 return transitions.TryGetValue(domain, out var range)
                     ? range
-                    : throw new TransitionDomainNotFoundException($"Not found Domain={domain}.");
+                    : throw new TransitionDomainNotFoundException($"Not found domain={domain}.");
             }
         }
 
@@ -32,15 +33,14 @@ namespace TuringMachine.Transition
         /// Initializes a new instance of <see cref="TransitionTable{TState, TSymbol}"/> class with the given collection of transitions.
         /// </summary>
         /// <param name="transitions">Transitions.</param>
-        /// <exception cref="NoTransitionProvidedException">Thrown when no machine transition has been provided.</exception>
         /// <exception cref="DuplicateTransitionException">Thrown when the collection contains a duplicate transition.</exception>
         /// <exception cref="NonDeterministicTransitionException">Thrown when the collection contains a transition domain more than once.</exception>
         /// <exception cref="InvalidStateInTransitionException">Thrown when the collection contains a transition with an invalid state.</exception>
+        /// <exception cref="MissingStateException">Thrown when the collection does not contain an obligatory state.</exception>
         public TransitionTable(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
             new TransitionCollectionValidator<TState, TSymbol>().Validate(transitions);
-            var mapping = transitions.ToDictionary(t => t.Domain, t => t.Range);
-            this.transitions = new ReadOnlyDictionary<TransitionDomain<TState, TSymbol>, TransitionRange<TState, TSymbol>>(mapping);
+            this.transitions = new(transitions.ToDictionary(t => t.Domain, t => t.Range));
         }
     }
 }
