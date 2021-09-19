@@ -142,7 +142,7 @@ namespace TuringMachine.Tests.UnitTests
         public IEnumerator<object[]> GetEnumerator()
         {
             yield return new object[] { State<TState>.Accept };
-            yield return new object[] { State<TState>.Failure };
+            yield return new object[] { State<TState>.Reject };
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

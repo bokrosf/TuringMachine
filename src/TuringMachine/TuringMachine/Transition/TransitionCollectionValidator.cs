@@ -104,7 +104,7 @@ namespace TuringMachine.Transition
         private IEnumerable<State<TState>> GetInvalidStatesOfDomain()
         {
             yield return State<TState>.Accept;
-            yield return State<TState>.Failure;
+            yield return State<TState>.Reject;
         }
     }
 }

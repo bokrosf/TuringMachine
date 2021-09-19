@@ -19,7 +19,7 @@ class "State<T>" as State {
     -{static} NullValueHashCode: int = 0 {query}
     -{static} InitialHashCode: int = 100003 {query}
     -{static} AcceptHashCode: int = 500009 {query}
-    -{static} FailureHashCode: int = 900007 {query}
+    -{static} RejectHashCode: int = 900007 {query}
     {static} State()
     +State(value: T)
     +ToString(): string
@@ -29,7 +29,7 @@ class "State<T>" as State {
     +GetHashCode(): int
     +{method} {static} Initial: T {query}
     +{method} {static} Accept: T {query}
-    +{method} {static} Failure: T {query}
+    +{method} {static} Reject: T {query}
     +{method} Value: T {query}
 }
 
