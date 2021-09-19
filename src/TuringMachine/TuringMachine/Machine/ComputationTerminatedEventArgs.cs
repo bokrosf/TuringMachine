@@ -22,7 +22,8 @@ namespace TuringMachine.Machine
         public IReadOnlyList<Symbol<TSymbol>> Result { get; }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="ComputationTerminatedEventArgs"/> class with the given step count, duration state and the resulting symbols of the computation.
+        /// Initializes a new instance of <see cref="ComputationTerminatedEventArgs"/> class with the given step count, duration state 
+        /// and the resulting symbols of the computation.
         /// </summary>
         /// <param name="stepCount">The number of steps have taken since the start of the computation.</param>
         /// <param name="duration">The elapsed time since the start of the computation.</param>
