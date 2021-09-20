@@ -18,5 +18,10 @@ namespace TuringMachine.Machine
         /// Occures when a computation terminated.
         /// </summary>
         event EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>? ComputationTerminated;
+
+        /// <summary>
+        /// Occures when a computation aborted.
+        /// </summary>
+        event EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>? ComputationAborted;
     }
 }

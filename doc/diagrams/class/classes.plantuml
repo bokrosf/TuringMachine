@@ -114,6 +114,7 @@ interface "IManualComputation<TSymbol>" as IManualComputation {
 interface "IComputationTracking<TState, TSymbol>" as IComputationTracking {
     Stepped: EventHandler<SteppedEventArgs<TState, TSymbol>>?
     ComputationTerminated: EventHandler<ComputationTerminatedEventArgs<TState>>?
+    ComputationAborted: EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>?
 }
 
 abstract class ComputationStateChangedEventArgs {
@@ -130,6 +131,10 @@ class "ComputationTerminatedEventArgs<TState, TSymbol>" as ComputationTerminated
     +{method} Result: IReadOnlyList<Symbol<TSymbol>> {query}
 }
 
+class "ComputationAbortedEventArgs<TState, TSymbol>" as ComputationAbortedEventArgs {
+    +{method} Exception: ComputationAbortedException {query}
+}
+
 enum ComputationMode {
     Automatic,
     Manual
@@ -139,14 +144,15 @@ class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -computationLock: object
     -computationMode: ComputationMode?
     -stepCount: int
+    -elapsedTime: Stopwatch
     -tape: Tape<TSymbol>
     -configuration: TransitionDomain<TState, TSymbol>?
     -transitionTable: TransitionTable<TState, TSymbol>
     +SingleTapeMachine(transitionTable: TransitionTable<TState, TSymbol>)
-    -ResetToComputation(input: IEnumerable<Symbol<TSymbol>>): void
+    -ResetToComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
     -ComputeAsync(cancellationToken: CancellationToken?, maxStepCount: int?): Task
     -TransitToNextConfiguration(): void
-    -CanTerminate(): void
+    -CanTerminate(): bool
     -Terminate(): void
     -OnStepped(): void
     -OnComputationTerminated(): void
@@ -163,6 +169,7 @@ Tape -[hidden]right- Transition
 
 ComputationStateChangedEventArgs <|-- SteppedEventArgs
 ComputationStateChangedEventArgs <|-- ComputationTerminatedEventArgs
+ComputationTerminatedEventArgs <|-- ComputationAbortedEventArgs
 
 IAutomaticComputation <|.. SingleTapeMachine
 IManualComputation <|.. SingleTapeMachine
