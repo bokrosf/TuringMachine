@@ -96,14 +96,14 @@ class "TransitionCollectionValidator<TState, TSymbol>" as TransitionCollectionVa
 
 interface "IAutomaticComputation<TState, TSymbol>" as IAutomaticComputation {
     StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>): Task
-    StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<TState, TValue>): Task
+    StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): Task
     StartComputation(input: IEnumerable<Symbol<TSymbol>>): void
-    StartComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<TState, TValue>): void
+    StartComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): void
 }
 
 interface "IManualComputation<TState, TSymbol>" as IManualComputation {
     StartComputation(input: IEnumerable<Symbol<TSymbol>>): void
-    StartComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<TState, TValue>): void
+    StartComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): void
     Step(): bool
     Abort(): void
 }
@@ -146,7 +146,7 @@ class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -transitionTable: TransitionTable<TState, TSymbol>
     +SingleTapeMachine(transitionTable: TransitionTable<TState, TSymbol>)
     -ResetToComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
-    -ComputeAsync(constraint: IComputationConstraint<TState, TValue>?): Task
+    -ComputeAsync(constraint: ComputationConstraint<TState, TSymbol>?): Task
     -TransitToNextConfiguration(): void
     -CanTerminate(): bool
     -Terminate(): void
@@ -154,27 +154,27 @@ class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -OnComputationTerminated(): void
 }
 
-class "ComputationState<TState, TValue>" as ComputationState << record >> {
+class "ComputationState<TState, TSymbol>" as ComputationState << record >> {
     +{method} Configuration: TransitionDomain<TState, TSymbol>
     +{method} StepCount: int
     +{method} ElapsedTime: TimeSpan
 }
 
-interface "IComputationConstraint<TState, TValue>" as IComputationConstraint {
-    Enforce(ComputationState<TState, TSymbol> computationState): void
+abstract class "ComputationConstraint<TState, TSymbol>" as ComputationConstraint {
+    +{abstract} Enforce(ComputationState<TState, TSymbol> computationState): void
 }
 
-class "CancellationConstraint<TState, TValue>" as CancellationConstraint {
+class "CancellationConstraint<TState, TSymbol>" as CancellationConstraint {
     -cancellationToken: CancellationToken
     +CancellationConstraint(cancellationToken: CancellationToken)
 }
 
-class "StepLimitConstraint<TState, TValue>" as StepLimitConstraint {
+class "StepLimitConstraint<TState, TSymbol>" as StepLimitConstraint {
     -stepLimit: int
     +StepLimitConstraint(stepLimit: int)
 }
 
-class "TimeoutConstraint<TState, TValue>" as TimeoutConstraint {
+class "TimeoutConstraint<TState, TSymbol>" as TimeoutConstraint {
     -timeout: TimeSpan
     +TimeoutConstraint(timeout: TimeSpan)
 }
@@ -199,8 +199,8 @@ SingleTapeMachine *-- Tape
 SingleTapeMachine "*" o-- "1" TransitionTable
 SingleTapeMachine "1..*" *-- "0..1" ComputationMode   
 
-IComputationConstraint <|.. CancellationConstraint
-IComputationConstraint <|.. StepLimitConstraint
-IComputationConstraint <|.. TimeoutConstraint
+ComputationConstraint <|-- CancellationConstraint
+ComputationConstraint <|-- StepLimitConstraint
+ComputationConstraint <|-- TimeoutConstraint
 
 @enduml

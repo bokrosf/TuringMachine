@@ -154,7 +154,7 @@ namespace TuringMachine.Machine
         {
             if (cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
             {
-                throw new ComputationAbortionRequestedException();
+                throw new ComputationCancellationRequestedException();
             }
         }
 
