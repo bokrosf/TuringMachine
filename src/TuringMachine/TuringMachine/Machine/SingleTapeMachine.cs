@@ -71,7 +71,7 @@ namespace TuringMachine.Machine
             {
                 if (this.computationMode.HasValue)
                 {
-                    throw new InvalidOperationException();
+                    throw new InvalidOperationException($"A(n) {this.computationMode} computation is already in progress.");
                 }
 
                 this.computationMode = computationMode;
