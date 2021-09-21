@@ -174,9 +174,9 @@ class "StepLimitConstraint<TState, TSymbol>" as StepLimitConstraint {
     +StepLimitConstraint(stepLimit: int)
 }
 
-class "TimeoutConstraint<TState, TSymbol>" as TimeoutConstraint {
-    -timeout: TimeSpan
-    +TimeoutConstraint(timeout: TimeSpan)
+class "TimeLimitConstraint<TState, TSymbol>" as TimeLimitConstraint {
+    -timeLimit: TimeSpan
+    +TimeLimitConstraint(timeout: TimeSpan)
 }
 
 TransitionDomain <|-- TransitionRange
@@ -201,6 +201,6 @@ SingleTapeMachine "1..*" *-- "0..1" ComputationMode
 
 ComputationConstraint <|-- CancellationConstraint
 ComputationConstraint <|-- StepLimitConstraint
-ComputationConstraint <|-- TimeoutConstraint
+ComputationConstraint <|-- TimeLimitConstraint
 
 @enduml
