@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace TuringMachine.Machine
+namespace TuringMachine.Machine.ComputationConstraint
 {
     /// <summary>
     /// Exception that is thrown when a computation should have not taken longer then the specified time duration.

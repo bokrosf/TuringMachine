@@ -1,26 +1,27 @@
 ﻿using System.Collections.Generic;
+using TuringMachine.Machine.ComputationConstraint;
 
 namespace TuringMachine.Machine
 {
     /// <summary>
     /// Defines methods for controlling manual computations.
     /// </summary>
+    /// <typeparam name="TState">Type of the machine's state.</typeparam>
     /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-    public interface IManualComputation<TSymbol>
+    public interface IManualComputation<TState, TSymbol>
     {
         /// <summary>
-        /// Starts a manually steppable computation process with the given symbols.
+        /// Starts a manually steppable computation process with the specified symbols.
         /// </summary>
         /// <param name="input">Symbols that the tape is initialized with.</param>
         void StartComputation(IEnumerable<Symbol<TSymbol>> input);
 
         /// <summary>
-        /// Starts a manually steppable computation process, with the given symbols, that can not take more steps 
-        /// than the given maximum number of steps.
+        /// Starts a manually steppable computation process, with the specified symbols and a constraint.
         /// </summary>
         /// <param name="input">Symbols that the tape is initialized with.</param>
-        /// <param name="maxStepCount">Maximum number of steps the process can take before terminated.</param>
-        void StartComputation(IEnumerable<Symbol<TSymbol>> input, int maxStepCount);
+        /// <param name="constraint">A constraint that must be enforced during the computation process.</param>
+        void StartComputation(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint);
         
         /// <summary>
         /// Transitions the machine from it's current state to the next.

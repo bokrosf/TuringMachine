@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TuringMachine.Machine
+namespace TuringMachine.Machine.ComputationConstraint
 {
     /// <summary>
     /// Exception that is thrown when a computation has been aborted because it has not finished in the given number of steps.

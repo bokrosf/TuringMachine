@@ -154,14 +154,24 @@ class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -OnComputationTerminated(): void
 }
 
-class "ComputationState<TState, TSymbol>" as ComputationState << record >> {
+class "ComputationState<TState, TSymbol>" as ComputationState {
     +{method} Configuration: TransitionDomain<TState, TSymbol>
     +{method} StepCount: int
     +{method} ElapsedTime: TimeSpan
+    +AsReadOnly(): ReadOnlyComputationState<TState, TValue>
+}
+
+ReadOnlyComputationState -[hidden]up- ComputationState
+
+class "ReadOnlyComputationState<TState, TSymbol>" as ReadOnlyComputationState {
+    -computationState: ComputationState<TState, TSymbol>
+    +{method} Configuration: TransitionDomain<TState, TSymbol> {query}
+    +{method} StepCount: int {query}
+    +{method} ElapsedTime: TimeSpan {query}
 }
 
 abstract class "ComputationConstraint<TState, TSymbol>" as ComputationConstraint {
-    +{abstract} Enforce(ComputationState<TState, TSymbol> computationState): void
+    +{abstract} Enforce(ReadOnlyComputationState<TState, TSymbol> computationState): void
 }
 
 class "CancellationConstraint<TState, TSymbol>" as CancellationConstraint {

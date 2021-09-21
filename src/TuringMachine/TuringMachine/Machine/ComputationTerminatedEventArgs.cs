@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace TuringMachine.Machine
@@ -22,17 +21,15 @@ namespace TuringMachine.Machine
         public IReadOnlyList<Symbol<TSymbol>> Result { get; }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="ComputationTerminatedEventArgs"/> class with the given step count, duration, state 
+        /// Initializes a new instance of <see cref="ComputationTerminatedEventArgs{TState, TSymbol}"/> class with the specified computation state
         /// and the resulting symbols of the computation.
         /// </summary>
-        /// <param name="stepCount">The number of steps have taken since the start of the computation.</param>
-        /// <param name="duration">The elapsed time since the start of the computation.</param>
-        /// <param name="state">The state that the machine terminated at.</param>
+        /// <param name="computationState">State of the computation.</param>
         /// <param name="result">Symbols from the machine's tape after the computation has terminated.</param>
-        public ComputationTerminatedEventArgs(int stepCount, TimeSpan duration, State<TState> state, IEnumerable<Symbol<TSymbol>> result)
-            : base(stepCount, duration)
+        public ComputationTerminatedEventArgs(ReadOnlyComputationState<TState, TSymbol> computationState, IEnumerable<Symbol<TSymbol>> result)
+            : base(computationState.StepCount, computationState.ElapsedTime)
         {
-            State = state;
+            State = computationState.Configuration.State;
             Result = result.ToList().AsReadOnly();
         }
     }

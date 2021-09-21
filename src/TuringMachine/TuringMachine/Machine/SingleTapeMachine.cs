@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
+using TuringMachine.Machine.ComputationConstraint;
 using TuringMachine.Transition;
 
 namespace TuringMachine.Machine
 {
+    /// <summary>
+    /// Represents a single-tape turing machine.
+    /// </summary>
+    /// <typeparam name="TState">Type of the machine's state.</typeparam>
+    /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
     public class SingleTapeMachine<TState, TSymbol> :
-        IAutomaticComputation<TSymbol>,
+        IAutomaticComputation<TState, TSymbol>,
         IComputationTracking<TState, TSymbol>
     {
         public event EventHandler<SteppedEventArgs<TState, TSymbol>>? Stepped;
@@ -17,10 +22,9 @@ namespace TuringMachine.Machine
 
         private object computationLock;
         private ComputationMode? computationMode;
-        private int stepCount;
-        private Stopwatch elapsedTime;
+        private ComputationState<TState, TSymbol>? computationState;
+        private Stopwatch elapsedTimeWatch;
         private Tape<TSymbol> tape;
-        private TransitionDomain<TState, TSymbol>? configuration;
         private TransitionTable<TState, TSymbol> transitionTable;
 
         /// <summary>
@@ -30,7 +34,7 @@ namespace TuringMachine.Machine
         public SingleTapeMachine(TransitionTable<TState, TSymbol> transitionTable)
         {
             computationLock = new object();
-            elapsedTime = new Stopwatch();
+            elapsedTimeWatch = new Stopwatch();
             tape = new Tape<TSymbol>();
             this.transitionTable = transitionTable;
         }
@@ -39,79 +43,26 @@ namespace TuringMachine.Machine
         {
             ResetToComputation(ComputationMode.Automatic, input);
 
-            return Task.Run(() => Compute(cancellationToken: null, maxStepCount: null, timeout: null));
+            return Task.Run(() => Compute(constraint: null));
         }
 
-        public Task StartComputationAsync(IEnumerable<Symbol<TSymbol>> input, CancellationToken cancellationToken)
+        public Task StartComputationAsync(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
         {
             ResetToComputation(ComputationMode.Automatic, input);
 
-            return Task.Run(() => Compute(cancellationToken, maxStepCount: null, timeout: null));
-        }
-
-        /// <inheritdoc/>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="maxStepCount"/> is less than 1.</exception>
-        public Task StartComputationAsync(IEnumerable<Symbol<TSymbol>> input, int maxStepCount)
-        {
-            ThrowIfInvalidMaxStepCount(maxStepCount);
-            ResetToComputation(ComputationMode.Automatic, input);
-
-            return Task.Run(() => Compute(cancellationToken: null, maxStepCount: maxStepCount, timeout: null));
-        }
-
-        /// <inheritdoc/>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown when <paramref name="timeout"/> is less than or equal to <see cref="TimeSpan.Zero"/>.
-        /// </exception>
-        public Task StartComputationAsync(IEnumerable<Symbol<TSymbol>> input, TimeSpan timeout)
-        {
-            ThrowIfInvalidTimeout(timeout);
-            ResetToComputation(ComputationMode.Automatic, input);
-
-            return Task.Run(() => Compute(cancellationToken: null, maxStepCount: null, timeout: timeout));
+            return Task.Run(() => Compute(constraint));
         }
 
         public void StartComputation(IEnumerable<Symbol<TSymbol>> input)
         {
             ResetToComputation(ComputationMode.Automatic, input);
-            Compute(cancellationToken: null, maxStepCount: null, timeout: null);
+            Compute(constraint: null);
         }
 
-        /// <inheritdoc/>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="maxStepCount"/> is less than 1.</exception>
-        public void StartComputation(IEnumerable<Symbol<TSymbol>> input, int maxStepCount)
+        public void StartComputation(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
         {
-            ThrowIfInvalidMaxStepCount(maxStepCount);
             ResetToComputation(ComputationMode.Automatic, input);
-            Compute(cancellationToken: null, maxStepCount: maxStepCount, timeout: null);
-        }
-
-        /// <inheritdoc/>
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown when <paramref name="timeout"/> is less than or equal to <see cref="TimeSpan.Zero"/>.
-        /// </exception>
-        public void StartComputation(IEnumerable<Symbol<TSymbol>> input, TimeSpan timeout)
-        {
-            ThrowIfInvalidTimeout(timeout);
-            ResetToComputation(ComputationMode.Automatic, input);
-            Compute(cancellationToken: null, maxStepCount: null, timeout: timeout);
-        }
-
-        private void ThrowIfInvalidMaxStepCount(int maxStepCount)
-        {
-            if (maxStepCount < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(maxStepCount), maxStepCount, "Maximum step count must be greater than 0.");
-            }
-        }
-
-        private void ThrowIfInvalidTimeout(TimeSpan timeout)
-        {
-            if (timeout <= TimeSpan.Zero)
-            {
-                string message = $"Timeout must be greater than {nameof(TimeSpan)}.{nameof(TimeSpan.Zero)}.";
-                throw new ArgumentOutOfRangeException(nameof(timeout), timeout, message);
-            }
+            Compute(constraint);
         }
 
         private void ResetToComputation(ComputationMode computationMode, IEnumerable<Symbol<TSymbol>> input)
@@ -124,22 +75,21 @@ namespace TuringMachine.Machine
                 }
 
                 this.computationMode = computationMode;
-                stepCount = 0;
                 tape = new Tape<TSymbol>(input);
-                configuration = new TransitionDomain<TState, TSymbol>(State<TState>.Initial, tape.CurrentSymbol);
-                elapsedTime.Restart();
+                TransitionDomain<TState, TSymbol> initialConfiguration = (State<TState>.Initial, tape.CurrentSymbol);
+                computationState = new ComputationState<TState, TSymbol>(initialConfiguration, 0, TimeSpan.Zero);
+                elapsedTimeWatch.Restart();
             }
         }
 
-        private void Compute(CancellationToken? cancellationToken, int? maxStepCount, TimeSpan? timeout)
+        private void Compute(ComputationConstraint<TState, TSymbol>? constraint)
         {
             try
             {
                 do
                 {
-                    AbortComputationIfRequested(cancellationToken);
-                    CheckThresholdConditions(maxStepCount, timeout);
                     TransitToNextState();
+                    constraint?.Enforce(computationState!.AsReadOnly());
                 } while (!CanTerminate());
             }
             catch (ComputationAbortedException ex)
@@ -150,62 +100,48 @@ namespace TuringMachine.Machine
             Terminate();
         }
 
-        private void AbortComputationIfRequested(CancellationToken? cancellationToken)
-        {
-            if (cancellationToken.HasValue && cancellationToken.Value.IsCancellationRequested)
-            {
-                throw new ComputationCancellationRequestedException();
-            }
-        }
-
         private void TransitToNextState()
         {
-            TransitionDomain<TState, TSymbol> domainBeforeTransition = configuration!;
+            TransitionDomain<TState, TSymbol> domainBeforeTransition = computationState!.Configuration;
 
             try
             {
-                TransitionRange<TState, TSymbol> range = transitionTable[configuration!];
+                TransitionRange<TState, TSymbol> range = transitionTable[domainBeforeTransition];
                 tape.CurrentSymbol = range.Symbol;
                 tape.MoveHeadInDirection(range.HeadDirection);
-                configuration = (range.State, range.Symbol);
+                UpdateComputationState((range.State, range.Symbol));
                 Transition<TState, TSymbol> transition = (domainBeforeTransition, range);
-                ++stepCount;
-                OnStepped(new(stepCount, elapsedTime.Elapsed, transition));
+                OnStepped(new(computationState.StepCount, elapsedTimeWatch.Elapsed, transition));
             }
             catch (TransitionDomainNotFoundException)
             {
-                configuration = (State<TState>.Reject, domainBeforeTransition.Symbol);
-            }
+                UpdateComputationState((State<TState>.Reject, domainBeforeTransition.Symbol));
+            }            
         }
 
-        private void CheckThresholdConditions(int? maxStepCount, TimeSpan? timeout)
+        private void UpdateComputationState(TransitionDomain<TState, TSymbol> newConfiguration)
         {
-            if (stepCount > maxStepCount)
-            {
-                throw new StepLimitReachedException(maxStepCount.Value);
-            }
-
-            if (elapsedTime.Elapsed > timeout)
-            {
-                throw new TimeLimitReachedException(timeout.Value);
-            }
+            computationState!.Configuration = newConfiguration;
+            ++computationState.StepCount;
+            computationState.ElapsedTime = elapsedTimeWatch.Elapsed;
         }
 
         private bool CanTerminate()
         {
-            return configuration != null
-                && (configuration.State == State<TState>.Accept || configuration.State == State<TState>.Reject);
+            if (computationState == null)
+            {
+                return false;
+            }
+
+            State<TState> state = computationState.Configuration.State;
+
+            return state == State<TState>.Accept || state == State<TState>.Reject;
         }
 
         private void HandleAbortedComputation(ComputationAbortedException exception)
         {
-            elapsedTime.Stop();
-            ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(
-                stepCount,
-                elapsedTime.Elapsed,
-                configuration!.State,
-                tape,
-                exception);
+            elapsedTimeWatch.Stop();
+            ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(computationState!.AsReadOnly(), tape, exception);
 
             lock (computationLock)
             {
@@ -217,8 +153,8 @@ namespace TuringMachine.Machine
 
         private void Terminate()
         {
-            elapsedTime.Stop();
-            ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = new(stepCount, elapsedTime.Elapsed, configuration!.State, tape);
+            elapsedTimeWatch.Stop();
+            ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = new(computationState!.AsReadOnly(), tape);
 
             lock (computationLock)
             {
