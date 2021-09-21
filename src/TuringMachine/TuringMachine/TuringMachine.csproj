@@ -6,8 +6,4 @@
     <WarningsAsErrors>CS8618,CS8602,CS8601,CS8600,CS8629</WarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Machine\ComputationConstraint\" />
-  </ItemGroup>
-
 </Project>

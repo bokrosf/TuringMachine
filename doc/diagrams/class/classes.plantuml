@@ -161,7 +161,7 @@ class "ComputationState<TState, TValue>" as ComputationState << record >> {
 }
 
 interface "IComputationConstraint<TState, TValue>" as IComputationConstraint {
-    Ensure(ComputationState<TState, TSymbol> computationState): void
+    Enforce(ComputationState<TState, TSymbol> computationState): void
 }
 
 class "CancellationConstraint<TState, TValue>" as CancellationConstraint {
