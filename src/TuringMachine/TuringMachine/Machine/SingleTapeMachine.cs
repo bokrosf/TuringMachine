@@ -41,31 +41,31 @@ namespace TuringMachine.Machine
 
         public Task StartComputationAsync(IEnumerable<Symbol<TSymbol>> input)
         {
-            ResetToComputation(ComputationMode.Automatic, input);
+            InitializeComputation(ComputationMode.Automatic, input);
 
             return Task.Run(() => Compute(constraint: null));
         }
 
         public Task StartComputationAsync(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
         {
-            ResetToComputation(ComputationMode.Automatic, input);
+            InitializeComputation(ComputationMode.Automatic, input);
 
             return Task.Run(() => Compute(constraint));
         }
 
         public void StartComputation(IEnumerable<Symbol<TSymbol>> input)
         {
-            ResetToComputation(ComputationMode.Automatic, input);
+            InitializeComputation(ComputationMode.Automatic, input);
             Compute(constraint: null);
         }
 
         public void StartComputation(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
         {
-            ResetToComputation(ComputationMode.Automatic, input);
+            InitializeComputation(ComputationMode.Automatic, input);
             Compute(constraint);
         }
 
-        private void ResetToComputation(ComputationMode computationMode, IEnumerable<Symbol<TSymbol>> input)
+        private void InitializeComputation(ComputationMode computationMode, IEnumerable<Symbol<TSymbol>> input)
         {
             lock (computationLock)
             {

@@ -145,7 +145,7 @@ class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -tape: Tape<TSymbol>
     -transitionTable: TransitionTable<TState, TSymbol>
     +SingleTapeMachine(transitionTable: TransitionTable<TState, TSymbol>)
-    -ResetToComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
+    -InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
     -ComputeAsync(constraint: ComputationConstraint<TState, TSymbol>?): Task
     -TransitToNextConfiguration(): void
     -CanTerminate(): bool
