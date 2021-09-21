@@ -141,27 +141,30 @@ namespace TuringMachine.Machine
         private void HandleAbortedComputation(ComputationAbortedException exception)
         {
             elapsedTimeWatch.Stop();
+            computationState!.ElapsedTime = elapsedTimeWatch.Elapsed;
             ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(computationState!.AsReadOnly(), tape, exception);
-
-            lock (computationLock)
-            {
-                computationMode = null;
-            }
-
+            CleanupComputation();
             OnComputationAborted(eventArgs);
         }
 
         private void Terminate()
         {
             elapsedTimeWatch.Stop();
+            computationState!.ElapsedTime = elapsedTimeWatch.Elapsed;
             ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = new(computationState!.AsReadOnly(), tape);
+            CleanupComputation();
+            OnComputationTerminated(eventArgs);
+        }
+
+        private void CleanupComputation()
+        {
+            computationState = null;
+            tape.Clear();
 
             lock (computationLock)
             {
                 computationMode = null;
             }
-
-            OnComputationTerminated(eventArgs);
         }
 
         private void OnStepped(SteppedEventArgs<TState, TSymbol> eventArgs)

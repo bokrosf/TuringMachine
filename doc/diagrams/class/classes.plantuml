@@ -150,6 +150,7 @@ class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -TransitToNextConfiguration(): void
     -CanTerminate(): bool
     -Terminate(): void
+    -CleanupComputation(): void
     -OnStepped(): void
     -OnComputationTerminated(): void
 }
