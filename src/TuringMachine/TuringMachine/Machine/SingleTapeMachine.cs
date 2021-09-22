@@ -108,7 +108,7 @@ namespace TuringMachine.Machine
                 tape.MoveHeadInDirection(range.HeadDirection);
                 computationState.UpdateConfiguration((range.State, range.Symbol));
                 Transition<TState, TSymbol> transition = (domainBeforeTransition, range);
-                OnStepped(new(computationState.StepCount, computationState.Duration, transition));
+                OnStepped(new(computationState.AsReadOnly(), transition));
             }
             catch (TransitionDomainNotFoundException)
             {

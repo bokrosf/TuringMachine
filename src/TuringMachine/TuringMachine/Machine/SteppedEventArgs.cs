@@ -1,5 +1,4 @@
-﻿using System;
-using TuringMachine.Transition;
+﻿using TuringMachine.Transition;
 
 namespace TuringMachine.Machine
 {
@@ -16,13 +15,13 @@ namespace TuringMachine.Machine
         public Transition<TState, TSymbol> Transition { get; }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="SteppedEventArgs{TState, TSymbol}"/> class with the given step count, duration and transition.
+        /// Initializes a new instance of <see cref="SteppedEventArgs{TState, TSymbol}"/> class with the the specified computation state
+        /// and transition.
         /// </summary>
-        /// <param name="stepCount">The number of steps have taken since the start of the computation.</param>
-        /// <param name="duration">The elapsed time since the start of the computation.</param>
+        /// <param name="computationState">State of the computation.</param>
         /// <param name="transition">The applied transition during the step.</param>
-        public SteppedEventArgs(int stepCount, TimeSpan duration, Transition<TState, TSymbol> transition)
-            : base(stepCount, duration)
+        public SteppedEventArgs(IReadOnlyComputationState<TState, TSymbol> computationState, Transition<TState, TSymbol> transition)
+            : base(computationState.StepCount, computationState.Duration)
         {
             Transition = transition;
         }
