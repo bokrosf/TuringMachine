@@ -88,13 +88,13 @@ namespace TuringMachine.Machine
                     TransitToNextState();
                     constraint?.Enforce(computationState!.AsReadOnly());
                 } while (!CanTerminate());
+
+                Terminate();
             }
             catch (Exception ex)
             {
                 HandleAbortedComputation(ex);
             }
-
-            Terminate();
         }
 
         private void TransitToNextState()
