@@ -229,5 +229,6 @@ SingleTapeMachine "1..*" *-- "0..1" ComputationMode
 ComputationConstraint <|-- CancellationConstraint
 ComputationConstraint <|-- StepLimitConstraint
 ComputationConstraint <|-- TimeLimitConstraint
+IReadOnlyComputationState <-- ComputationConstraint
 
 @enduml
