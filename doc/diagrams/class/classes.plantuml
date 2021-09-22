@@ -129,7 +129,7 @@ class "ComputationTerminatedEventArgs<TState, TSymbol>" as ComputationTerminated
 }
 
 class "ComputationAbortedEventArgs<TState, TSymbol>" as ComputationAbortedEventArgs {
-    +{method} Exception: ComputationAbortedException {query}
+    +{method} Exception: Exception {query}
 }
 
 enum ComputationMode {

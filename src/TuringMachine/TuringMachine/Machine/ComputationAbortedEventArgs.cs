@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TuringMachine.Machine
 {
@@ -12,7 +13,7 @@ namespace TuringMachine.Machine
         /// <summary>
         /// The exception that caused the abortion.
         /// </summary>
-        public ComputationAbortedException Exception { get; }
+        public Exception Exception { get; }
 
         /// <summary>
         /// Initializes a new instance of <see cref="ComputationAbortedEventArgs{TState, TSymbol}"/> class with the specified computation state, 
@@ -24,7 +25,7 @@ namespace TuringMachine.Machine
         public ComputationAbortedEventArgs(
             IReadOnlyComputationState<TState, TSymbol> computationState, 
             IEnumerable<Symbol<TSymbol>> result,
-            ComputationAbortedException exception)
+            Exception exception)
             : base(computationState, result)
         {
             Exception = exception;

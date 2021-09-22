@@ -89,7 +89,7 @@ namespace TuringMachine.Machine
                     constraint?.Enforce(computationState!.AsReadOnly());
                 } while (!CanTerminate());
             }
-            catch (ComputationAbortedException ex)
+            catch (Exception ex)
             {
                 HandleAbortedComputation(ex);
             }
@@ -128,7 +128,7 @@ namespace TuringMachine.Machine
             return state == State<TState>.Accept || state == State<TState>.Reject;
         }
 
-        private void HandleAbortedComputation(ComputationAbortedException exception)
+        private void HandleAbortedComputation(Exception exception)
         {
             computationState!.StopDurationWatch();
             ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(computationState.AsReadOnly(), tape, exception);
