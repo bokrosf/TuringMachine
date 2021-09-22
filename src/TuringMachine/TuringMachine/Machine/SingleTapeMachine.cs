@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using TuringMachine.Machine.ComputationConstraint;
 using TuringMachine.Transition;
@@ -23,7 +22,6 @@ namespace TuringMachine.Machine
         private object computationLock;
         private ComputationMode? computationMode;
         private ComputationState<TState, TSymbol>? computationState;
-        private Stopwatch elapsedTimeWatch;
         private Tape<TSymbol> tape;
         private TransitionTable<TState, TSymbol> transitionTable;
 
@@ -34,7 +32,6 @@ namespace TuringMachine.Machine
         public SingleTapeMachine(TransitionTable<TState, TSymbol> transitionTable)
         {
             computationLock = new object();
-            elapsedTimeWatch = new Stopwatch();
             tape = new Tape<TSymbol>();
             this.transitionTable = transitionTable;
         }
@@ -74,12 +71,12 @@ namespace TuringMachine.Machine
                     throw new InvalidOperationException($"A(n) {this.computationMode} computation is already in progress.");
                 }
 
-                this.computationMode = computationMode;
-                tape = new Tape<TSymbol>(input);
-                TransitionDomain<TState, TSymbol> initialConfiguration = (State<TState>.Initial, tape.CurrentSymbol);
-                computationState = new ComputationState<TState, TSymbol>(initialConfiguration, 0, TimeSpan.Zero);
-                elapsedTimeWatch.Restart();
+                this.computationMode = computationMode;                
             }
+
+            tape = new Tape<TSymbol>(input);
+            computationState = new ComputationState<TState, TSymbol>(tape.CurrentSymbol);
+            computationState.StartDurationWatch();
         }
 
         private void Compute(ComputationConstraint<TState, TSymbol>? constraint)
@@ -109,21 +106,14 @@ namespace TuringMachine.Machine
                 TransitionRange<TState, TSymbol> range = transitionTable[domainBeforeTransition];
                 tape.CurrentSymbol = range.Symbol;
                 tape.MoveHeadInDirection(range.HeadDirection);
-                UpdateComputationState((range.State, range.Symbol));
+                computationState.UpdateConfiguration((range.State, range.Symbol));
                 Transition<TState, TSymbol> transition = (domainBeforeTransition, range);
-                OnStepped(new(computationState.StepCount, elapsedTimeWatch.Elapsed, transition));
+                OnStepped(new(computationState.StepCount, computationState.Duration, transition));
             }
             catch (TransitionDomainNotFoundException)
             {
-                UpdateComputationState((State<TState>.Reject, domainBeforeTransition.Symbol));
+                computationState.UpdateConfiguration((State<TState>.Reject, domainBeforeTransition.Symbol));
             }            
-        }
-
-        private void UpdateComputationState(TransitionDomain<TState, TSymbol> newConfiguration)
-        {
-            computationState!.Configuration = newConfiguration;
-            ++computationState.StepCount;
-            computationState.ElapsedTime = elapsedTimeWatch.Elapsed;
         }
 
         private bool CanTerminate()
@@ -140,18 +130,16 @@ namespace TuringMachine.Machine
 
         private void HandleAbortedComputation(ComputationAbortedException exception)
         {
-            elapsedTimeWatch.Stop();
-            computationState!.ElapsedTime = elapsedTimeWatch.Elapsed;
-            ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(computationState!.AsReadOnly(), tape, exception);
+            computationState!.StopDurationWatch();
+            ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(computationState.AsReadOnly(), tape, exception);
             CleanupComputation();
             OnComputationAborted(eventArgs);
         }
 
         private void Terminate()
         {
-            elapsedTimeWatch.Stop();
-            computationState!.ElapsedTime = elapsedTimeWatch.Elapsed;
-            ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = new(computationState!.AsReadOnly(), tape);
+            computationState!.StopDurationWatch();
+            ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = new(computationState.AsReadOnly(), tape);
             CleanupComputation();
             OnComputationTerminated(eventArgs);
         }

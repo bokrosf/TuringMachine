@@ -26,8 +26,8 @@ namespace TuringMachine.Machine
         /// </summary>
         /// <param name="computationState">State of the computation.</param>
         /// <param name="result">Symbols from the machine's tape after the computation has terminated.</param>
-        public ComputationTerminatedEventArgs(ReadOnlyComputationState<TState, TSymbol> computationState, IEnumerable<Symbol<TSymbol>> result)
-            : base(computationState.StepCount, computationState.ElapsedTime)
+        public ComputationTerminatedEventArgs(IReadOnlyComputationState<TState, TSymbol> computationState, IEnumerable<Symbol<TSymbol>> result)
+            : base(computationState.StepCount, computationState.Duration)
         {
             State = computationState.Configuration.State;
             Result = result.ToList().AsReadOnly();

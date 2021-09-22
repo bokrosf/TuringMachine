@@ -8,9 +8,9 @@ namespace TuringMachine.Machine
     /// </summary>
     /// <typeparam name="TState">Type of the machine's state.</typeparam>
     /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-    public class ReadOnlyComputationState<TState, TSymbol>
+    public class ReadOnlyComputationState<TState, TSymbol> : IReadOnlyComputationState<TState, TSymbol>
     {
-        private readonly ComputationState<TState, TSymbol> computationState;
+        private readonly IComputationState<TState, TSymbol> computationState;
 
         /// <summary>
         /// Current configuration of the machine.
@@ -18,20 +18,20 @@ namespace TuringMachine.Machine
         public TransitionDomain<TState, TSymbol> Configuration => computationState.Configuration;
 
         /// <summary>
-        /// Count of steps taken since the start of the computation.
+        /// Steps taken since the start of the computation.
         /// </summary>
         public int StepCount => computationState.StepCount;
 
         /// <summary>
         /// Elapsed time since the start of the computation.
         /// </summary>
-        public TimeSpan ElapsedTime => computationState.ElapsedTime;
+        public TimeSpan Duration => computationState.Duration;
 
         /// <summary>
         /// Initializes a new instance of <see cref="ReadOnlyComputationState{TState, TSymbol}"/> class with the specified computation state.
         /// </summary>
         /// <param name="computationState">State of a computation.</param>
-        public ReadOnlyComputationState(ComputationState<TState, TSymbol> computationState)
+        public ReadOnlyComputationState(IComputationState<TState, TSymbol> computationState)
         {
             this.computationState = computationState;
         }

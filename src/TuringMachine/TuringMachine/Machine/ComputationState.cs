@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using TuringMachine.Transition;
 
 namespace TuringMachine.Machine
@@ -8,53 +9,40 @@ namespace TuringMachine.Machine
     /// </summary>
     /// <typeparam name="TState">Type of the machine's state.</typeparam>
     /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-    public class ComputationState<TState, TSymbol>
+    public class ComputationState<TState, TSymbol> : IComputationState<TState, TSymbol>, IReadOnlyComputationState<TState, TSymbol>
     {
-        /// <summary>
-        /// Current configuration of the machine.
-        /// </summary>
-        public TransitionDomain<TState, TSymbol> Configuration { get; set; }
+        private readonly Stopwatch durationWatch;
         
-        /// <summary>
-        /// Count of steps taken since the start of the computation.
-        /// </summary>
-        public int StepCount { get; set; }
+        public TransitionDomain<TState, TSymbol> Configuration { get; private set; }
+       
+        public int StepCount { get; private set; }
         
-        /// <summary>
-        /// Elapsed time since the start of the computation.
-        /// </summary>
-        public TimeSpan ElapsedTime { get; set; }
+        public TimeSpan Duration => durationWatch.Elapsed;
 
         /// <summary>
-        /// Initialzes a new instance of <see cref="ComputationState{TState, TSymbol}"/> class with the specified configuration, step count
-        /// and elapsed time.
+        /// Initialzes a new instance of <see cref="ComputationState{TState, TSymbol}"/> class to be in <see cref="State{T}.Initial"/> state
+        /// and to contain the specified symbol.
         /// </summary>
-        /// <param name="configuration">Current configuration of the machine.</param>
-        /// <param name="stepCount">Count of steps taken since the start of the computation.</param>
-        /// <param name="elapsedTime">Elapsed time since the start of the computation.</param>
-        /// <exception cref="ArgumentOutOfRangeException">Step count less than zero or elapsed time less than <see cref="TimeSpan.Zero"/>.</exception>
-        public ComputationState(TransitionDomain<TState, TSymbol> configuration, int stepCount, TimeSpan elapsedTime)
+        public ComputationState(Symbol<TSymbol> symbol)
         {
-            if (stepCount < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(stepCount), stepCount, $"Step count must be greater than or equal to zero.");
-            }
-
-            if (elapsedTime < TimeSpan.Zero)
-            {
-                string message = $"Elapsed time must be greater than or equal to {nameof(TimeSpan)}.{nameof(TimeSpan.Zero)}";
-                throw new ArgumentOutOfRangeException(nameof(elapsedTime), elapsedTime, message);
-            }
-
-            Configuration = configuration;
-            StepCount = stepCount;
-            ElapsedTime = elapsedTime;
+            Configuration = (State<TState>.Initial, symbol);
+            durationWatch = new Stopwatch();
         }
+
+        public void UpdateConfiguration(TransitionDomain<TState, TSymbol> configuration)
+        {
+            Configuration = configuration;
+            ++StepCount;
+        }
+
+        public void StartDurationWatch() => durationWatch.Start();
+
+        public void StopDurationWatch() => durationWatch.Stop();
 
         /// <summary>
         /// Returns a read-only wrapper for the current instance.
         /// </summary>
         /// <returns>An object that acts as a read-only wrapper around the current <see cref="ComputationState{TState, TSymbol}"/>.</returns>
-        public ReadOnlyComputationState<TState, TSymbol> AsReadOnly() => new ReadOnlyComputationState<TState, TSymbol>(this);
+        public IReadOnlyComputationState<TState, TSymbol> AsReadOnly() => new ReadOnlyComputationState<TState, TSymbol>(this);
     }
 }

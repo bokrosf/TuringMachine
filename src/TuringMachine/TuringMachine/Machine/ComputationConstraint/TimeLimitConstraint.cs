@@ -29,9 +29,9 @@ namespace TuringMachine.Machine.ComputationConstraint
         
         /// <inheritdoc/>
         /// <exception cref="TimeLimitConstraint{TState, TSymbol}">Computation takes longer than the time limit.</exception>
-        public override void Enforce(ReadOnlyComputationState<TState, TSymbol> computationState)
+        public override void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
-            if (computationState.ElapsedTime > timeLimit && !IsComputationFinished(computationState))
+            if (computationState.Duration > timeLimit && !IsComputationFinished(computationState))
             {
                 throw new TimeLimitReachedException($"Computation takes longer than {timeLimit}.", timeLimit);
             }

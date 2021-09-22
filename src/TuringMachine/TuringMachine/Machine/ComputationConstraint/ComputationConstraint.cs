@@ -14,14 +14,14 @@ namespace TuringMachine.Machine.ComputationConstraint
         /// Checks whether the constraint is enforced.
         /// </summary>
         /// <param name="computationState">Computation state that the constraint apply to.</param>
-        public abstract void Enforce(ReadOnlyComputationState<TState, TSymbol> computationState);
+        public abstract void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState);
 
         /// <summary>
         /// Returns whether computation has been finished.
         /// </summary>
         /// <param name="computationState">Computation state.</param>
         /// <returns>true if the computation has finished already; otherwise, false.</returns>
-        protected bool IsComputationFinished(ReadOnlyComputationState<TState, TSymbol> computationState)
+        protected bool IsComputationFinished(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
             return GetFinishedStates().Contains(computationState.Configuration.State);
         }

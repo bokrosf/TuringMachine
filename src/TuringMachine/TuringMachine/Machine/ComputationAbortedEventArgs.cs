@@ -22,7 +22,7 @@ namespace TuringMachine.Machine
         /// <param name="result">Symbols from the machine's tape after the computation has terminated.</param>
         /// <param name="exception">The exception that caused the abortion.</param>
         public ComputationAbortedEventArgs(
-            ReadOnlyComputationState<TState, TSymbol> computationState, 
+            IReadOnlyComputationState<TState, TSymbol> computationState, 
             IEnumerable<Symbol<TSymbol>> result,
             ComputationAbortedException exception)
             : base(computationState, result)

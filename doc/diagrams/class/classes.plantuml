@@ -141,7 +141,6 @@ class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -computationLock: object
     -computationMode: ComputationMode?
     -computationState: ComputationState<TSymbol, TState>?    
-    -elapsedTimeWatch: Stopwatch
     -tape: Tape<TSymbol>
     -transitionTable: TransitionTable<TState, TSymbol>
     +SingleTapeMachine(transitionTable: TransitionTable<TState, TSymbol>)
@@ -155,24 +154,41 @@ class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -OnComputationTerminated(): void
 }
 
-class "ComputationState<TState, TSymbol>" as ComputationState {
-    +{method} Configuration: TransitionDomain<TState, TSymbol>
-    +{method} StepCount: int
-    +{method} ElapsedTime: TimeSpan
-    +AsReadOnly(): ReadOnlyComputationState<TState, TValue>
+interface "IReadOnlyComputationState<TState, TSymbol>" as IReadOnlyComputationState {
+    {method} Configuration: TransitionDomain<TState, TSymbol> {query}
+    {method} StepCount: int {query}
+    {method} Duration: TimeSpan {query}
 }
 
-ReadOnlyComputationState -[hidden]up- ComputationState
+interface "IComputationState<TState, TSymbol>" as IComputationState {
+    {method} Configuration: TransitionDomain<TState, TSymbol>
+    {method} StepCount: int
+    {method} Duration: TimeSpan
+    UpdateConfiguration(configuration: TransitionDomain<TState, TSymbol>): void
+    StartDurationWatch(): void
+    StopDurationWatch(): void
+}
+
+class "ComputationState<TState, TSymbol>" as ComputationState {
+    -durationWatch: StopWatch
+    +ComputationState(symbol: Symbol<TSymbol>)
+    +AsReadOnly(): IReadOnlyComputationState<TState, TSymbol>
+}
 
 class "ReadOnlyComputationState<TState, TSymbol>" as ReadOnlyComputationState {
-    -computationState: ComputationState<TState, TSymbol>
-    +{method} Configuration: TransitionDomain<TState, TSymbol> {query}
-    +{method} StepCount: int {query}
-    +{method} ElapsedTime: TimeSpan {query}
+    -computationState: IComputationState<TState, TSymbol>
+    +ReadOnlyComputationState(computationState: IComputationState<TState, TSymbol>)
 }
 
+IComputationState <|.. ComputationState
+IReadOnlyComputationState <|.. ReadOnlyComputationState
+IReadOnlyComputationState <|.. ComputationState
+ReadOnlyComputationState -[hidden]up- ComputationState
+
 abstract class "ComputationConstraint<TState, TSymbol>" as ComputationConstraint {
-    +{abstract} Enforce(ReadOnlyComputationState<TState, TSymbol> computationState): void
+    +{abstract} Enforce(IReadOnlyComputationState<TState, TSymbol> computationState): void
+    #IsComputationFinished(computationState: IReadOnlyComputationState<TState, TSymbol>): bool    
+    -GetFinishedStates(): IEnumerable<State<TState>
 }
 
 class "CancellationConstraint<TState, TSymbol>" as CancellationConstraint {
