@@ -95,15 +95,15 @@ class "TransitionCollectionValidator<TState, TSymbol>" as TransitionCollectionVa
 }
 
 interface "IAutomaticComputation<TState, TSymbol>" as IAutomaticComputation {
-    StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>): Task
-    StartComputationAsync(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): Task
-    StartComputation(input: IEnumerable<Symbol<TSymbol>>): void
-    StartComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): void
+    StartAutomaticComputationAsync(input: IEnumerable<Symbol<TSymbol>>): Task
+    StartAutomaticComputationAsync(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): Task
+    StartAutomaticComputation(input: IEnumerable<Symbol<TSymbol>>): void
+    StartAutomaticComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): void
 }
 
 interface "IManualComputation<TState, TSymbol>" as IManualComputation {
-    StartComputation(input: IEnumerable<Symbol<TSymbol>>): void
-    StartComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): void
+    StartManualComputation(input: IEnumerable<Symbol<TSymbol>>): void
+    StartManualComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): void
     Step(): bool
     Abort(): void
 }
@@ -142,6 +142,7 @@ class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -manualComputationLock: object
     -computationMode: ComputationMode?
     -computationState: ComputationState<TSymbol, TState>?    
+    -constraint: ComputationConstraint<TState, TSymbol>?
     -tape: Tape<TSymbol>
     -transitionTable: TransitionTable<TState, TSymbol>
     +SingleTapeMachine(transitionTable: TransitionTable<TState, TSymbol>)

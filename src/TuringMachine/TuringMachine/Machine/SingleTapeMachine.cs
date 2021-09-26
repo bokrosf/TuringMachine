@@ -13,6 +13,7 @@ namespace TuringMachine.Machine
     /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
     public class SingleTapeMachine<TState, TSymbol> :
         IAutomaticComputation<TState, TSymbol>,
+        IManualComputation<TState, TSymbol>,
         IComputationTracking<TState, TSymbol>
     {
         public event EventHandler<SteppedEventArgs<TState, TSymbol>>? Stepped;
@@ -20,8 +21,10 @@ namespace TuringMachine.Machine
         public event EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>? ComputationAborted;
 
         private object computationLock;
+        private object manualComputationLock;
         private ComputationMode? computationMode;
         private ComputationState<TState, TSymbol>? computationState;
+        private ComputationConstraint<TState, TSymbol>? constraint;
         private Tape<TSymbol> tape;
         private TransitionTable<TState, TSymbol> transitionTable;
 
@@ -32,37 +35,116 @@ namespace TuringMachine.Machine
         public SingleTapeMachine(TransitionTable<TState, TSymbol> transitionTable)
         {
             computationLock = new object();
+            manualComputationLock = new object();
             tape = new Tape<TSymbol>();
             this.transitionTable = transitionTable;
         }
 
-        public Task StartComputationAsync(IEnumerable<Symbol<TSymbol>> input)
+        public Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input)
         {
-            InitializeComputation(ComputationMode.Automatic, input);
-
-            return Task.Run(() => Compute(constraint: null));
+            InitializeComputationWithoutConstraint(ComputationMode.Automatic, input);
+            return Task.Run(() => Compute());
         }
 
-        public Task StartComputationAsync(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
+        public Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
         {
-            InitializeComputation(ComputationMode.Automatic, input);
-
-            return Task.Run(() => Compute(constraint));
+            InitializeComputation(ComputationMode.Automatic, input, constraint);
+            return Task.Run(() => Compute());
         }
 
-        public void StartComputation(IEnumerable<Symbol<TSymbol>> input)
+        public void StartAutomaticComputation(IEnumerable<Symbol<TSymbol>> input)
         {
-            InitializeComputation(ComputationMode.Automatic, input);
-            Compute(constraint: null);
+            InitializeComputationWithoutConstraint(ComputationMode.Automatic, input);
+            Compute();
         }
 
-        public void StartComputation(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
+        public void StartAutomaticComputation(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
         {
-            InitializeComputation(ComputationMode.Automatic, input);
-            Compute(constraint);
+            InitializeComputation(ComputationMode.Automatic, input, constraint);
+            Compute();
         }
 
-        private void InitializeComputation(ComputationMode computationMode, IEnumerable<Symbol<TSymbol>> input)
+        public void StartManualComputation(IEnumerable<Symbol<TSymbol>> input)
+        {
+            InitializeComputationWithoutConstraint(ComputationMode.Manual, input);
+        }
+
+        public void StartManualComputation(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
+        {
+            InitializeComputation(ComputationMode.Manual, input, constraint);
+        }
+
+        /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException">Computation has not started manually.</exception>
+        public bool Step()
+        {
+            lock (manualComputationLock)
+            {
+                lock (computationLock)
+                {
+                    if (computationMode != ComputationMode.Manual)
+                    {
+                        throw new InvalidOperationException($"{computationMode} computation can not be stepped manually.");
+                    }
+                }
+
+                bool canPerformAnotherStep = true;
+
+                try
+                {
+                    TransitToNextState();
+                    constraint?.Enforce(computationState!.AsReadOnly());
+
+                    if (CanTerminate())
+                    {
+                        Terminate();
+                        canPerformAnotherStep = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    HandleAbortedComputation(ex);
+                    canPerformAnotherStep = false;
+                }
+
+                return canPerformAnotherStep;
+            }
+        }
+
+        /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException">Computation has not started manually.</exception>
+        public void Abort()
+        {
+            lock (manualComputationLock)
+            {
+                lock (computationLock)
+                {
+                    if (computationMode != ComputationMode.Manual)
+                    {
+                        throw new InvalidOperationException($"{computationMode} computation can not be aborted manually.");
+                    }                    
+                }
+
+                try
+                {
+                    throw new ComputationCancellationRequestedException();
+                }
+                catch (Exception ex)
+                {
+                    HandleAbortedComputation(ex);
+                }
+            }
+        }
+
+        private void InitializeComputationWithoutConstraint(ComputationMode computationMode, IEnumerable<Symbol<TSymbol>> input)
+        {
+            InitializeComputation(computationMode, input, constraint: null);
+        }
+
+        private void InitializeComputation(
+            ComputationMode computationMode, 
+            IEnumerable<Symbol<TSymbol>> input, 
+            ComputationConstraint<TState, TSymbol>? constraint)
         {
             lock (computationLock)
             {
@@ -74,12 +156,13 @@ namespace TuringMachine.Machine
                 this.computationMode = computationMode;                
             }
 
+            this.constraint = constraint;
             tape = new Tape<TSymbol>(input);
             computationState = new ComputationState<TState, TSymbol>(tape.CurrentSymbol);
             computationState.StartDurationWatch();
         }
 
-        private void Compute(ComputationConstraint<TState, TSymbol>? constraint)
+        private void Compute()
         {
             try
             {
@@ -147,6 +230,7 @@ namespace TuringMachine.Machine
         private void CleanupComputation()
         {
             computationState = null;
+            constraint = null;
             tape.Clear();
 
             lock (computationLock)
