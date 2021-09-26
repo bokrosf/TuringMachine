@@ -139,6 +139,7 @@ enum ComputationMode {
 
 class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -computationLock: object
+    -manualComputationLock: object
     -computationMode: ComputationMode?
     -computationState: ComputationState<TSymbol, TState>?    
     -tape: Tape<TSymbol>
