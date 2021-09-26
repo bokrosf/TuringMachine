@@ -206,6 +206,11 @@ class "TimeLimitConstraint<TState, TSymbol>" as TimeLimitConstraint {
     +TimeLimitConstraint(timeout: TimeSpan)
 }
 
+class "MultiConstraint<TState, TSymbol>" as MultiConstraint {
+    -constraints: IReadOnlyCollection<ComputationConstraint<TState, TSymbol>
+    +MultiConstraint(constraints: IEnumerable<ComputationConstraint<TState, TSymbol>)
+}
+
 TransitionDomain <|-- TransitionRange
 Transition "*" o-- "1" TransitionDomain
 Transition "*" o-- "1" TransitionRange
@@ -229,6 +234,7 @@ SingleTapeMachine "1..*" *-- "0..1" ComputationMode
 ComputationConstraint <|-- CancellationConstraint
 ComputationConstraint <|-- StepLimitConstraint
 ComputationConstraint <|-- TimeLimitConstraint
+ComputationConstraint <|-- MultiConstraint
 IReadOnlyComputationState <-- ComputationConstraint
 
 @enduml
