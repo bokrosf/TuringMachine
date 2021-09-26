@@ -14,6 +14,7 @@ namespace TuringMachine.Machine.ComputationConstraint
         /// Checks whether the constraint is enforced.
         /// </summary>
         /// <param name="computationState">Computation state that the constraint apply to.</param>
+        /// <exception cref="ComputationAbortedException">Rule enforcement failed.</exception>
         public abstract void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState);
 
         /// <summary>
