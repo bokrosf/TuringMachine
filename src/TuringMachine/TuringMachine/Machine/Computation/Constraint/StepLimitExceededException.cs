@@ -11,7 +11,7 @@ namespace TuringMachine.Machine.Computation.Constraint
         /// <summary>
         /// The maximum number of steps the computation should have finished.
         /// </summary>
-        public int StepLimit { get; }
+        public int? StepLimit { get; }
 
         /// <summary>
         /// Initializes a new instance of <see cref="StepLimitExceededException"/> class.
@@ -32,7 +32,7 @@ namespace TuringMachine.Machine.Computation.Constraint
         /// Initializes a new instance of <see cref="StepLimitExceededException"/> class with a specified error message and step limit.
         /// <param name="message">The message that describes the error.</param>
         /// <param name="stepLimit">The maximum number of steps the computation should have finished.</param>
-        public StepLimitExceededException(string? message, int stepLimit)
+        public StepLimitExceededException(string? message, int? stepLimit)
             : base(message)
         {
             StepLimit = stepLimit;
@@ -45,7 +45,7 @@ namespace TuringMachine.Machine.Computation.Constraint
         /// <param name="message">The message that describes the error.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="stepLimit">The maximum number of steps the computation should have finished.</param>
-        public StepLimitExceededException(string? message, Exception? innerException, int stepLimit)
+        public StepLimitExceededException(string? message, Exception? innerException, int? stepLimit)
             : base(message, innerException)
         {
             StepLimit = stepLimit;
