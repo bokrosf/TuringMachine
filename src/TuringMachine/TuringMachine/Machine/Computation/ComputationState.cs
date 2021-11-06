@@ -11,14 +11,12 @@ namespace TuringMachine.Machine.Computation
     /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
     public class ComputationState<TState, TSymbol> : IComputationState<TState, TSymbol>, IReadOnlyComputationState<TState, TSymbol>
     {
-        private readonly Stopwatch durationWatch;
-        
         public TransitionDomain<TState, TSymbol> Configuration { get; private set; }
-       
         public int StepCount { get; private set; }
-        
         public TimeSpan Duration => durationWatch.Elapsed;
 
+        private readonly Stopwatch durationWatch;
+        
         /// <summary>
         /// Initialzes a new instance of <see cref="ComputationState{TState, TSymbol}"/> class to be in <see cref="State{T}.Initial"/> state
         /// and to contain the specified symbol.
