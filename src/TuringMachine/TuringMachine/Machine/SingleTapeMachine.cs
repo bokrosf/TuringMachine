@@ -146,8 +146,6 @@ namespace TuringMachine.Machine
 
         private bool PerformStep()
         {
-            bool canPerformAnotherStep = true;
-
             try
             {
                 TransitToNextState();
@@ -155,20 +153,18 @@ namespace TuringMachine.Machine
                 if (CanTerminate())
                 {
                     Terminate();
-                    canPerformAnotherStep = false;
+                    return false;
                 }
-                else
-                {
-                    constraint?.Enforce(computationState!.AsReadOnly());
-                }
+
+                constraint?.Enforce(computationState!.AsReadOnly());
+
+                return true;
             }
             catch (Exception ex)
             {
                 HandleAbortedComputation(ex);
-                canPerformAnotherStep = false;
+                return false;
             }
-
-            return canPerformAnotherStep;
         }
 
         private void Compute()
