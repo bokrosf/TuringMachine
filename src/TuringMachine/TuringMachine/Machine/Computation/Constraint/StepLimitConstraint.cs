@@ -27,7 +27,7 @@ namespace TuringMachine.Machine.Computation.Constraint
         }
         
         /// <inheritdoc/>
-        /// <exception cref="StepLimitExceededException">Throw when the computation takes more step than the limit.</exception>
+        /// <exception cref="StepLimitExceededException">Computation takes more step than the limit.</exception>
         public void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
             if (computationState.StepCount > stepLimit)

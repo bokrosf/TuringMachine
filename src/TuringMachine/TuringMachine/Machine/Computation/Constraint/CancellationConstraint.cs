@@ -28,9 +28,7 @@ namespace TuringMachine.Machine.Computation.Constraint
         }
 
         /// <inheritdoc/>
-        /// <exception cref="ComputationCancellationRequestedException">
-        /// Thrown when cancellation requested and computation has not finished.
-        /// </exception>
+        /// <exception cref="ComputationCancellationRequestedException">Cancellation requested.</exception>
         public void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
             if (cancellationToken.IsCancellationRequested)
