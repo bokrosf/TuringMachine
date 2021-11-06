@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <WarningsAsErrors>CS8618,CS8602,CS8601,CS8600,CS8629,CS8604,CS8625</WarningsAsErrors>
+    <WarningsAsErrors>8618,8602,8601,8600,8629,8604,8625</WarningsAsErrors>
   </PropertyGroup>
 
 </Project>
