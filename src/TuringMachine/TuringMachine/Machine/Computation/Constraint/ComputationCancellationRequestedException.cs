@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TuringMachine.Machine.ComputationConstraint
+namespace TuringMachine.Machine.Computation.Constraint
 {
     /// <summary>
     /// Exception that is thrown when cancellation of a computation is requested.

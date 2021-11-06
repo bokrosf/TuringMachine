@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TuringMachine.Machine.ComputationConstraint;
+using TuringMachine.Machine.Computation;
+using TuringMachine.Machine.Computation.Constraint;
 using TuringMachine.Transition;
 
 namespace TuringMachine.Machine

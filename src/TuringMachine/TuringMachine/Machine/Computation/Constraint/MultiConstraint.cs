@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TuringMachine.Machine.ComputationConstraint
+namespace TuringMachine.Machine.Computation.Constraint
 {
     /// <summary>
     /// Ensures all the given constraints.

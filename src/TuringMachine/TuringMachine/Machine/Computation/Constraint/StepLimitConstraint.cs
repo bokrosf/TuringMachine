@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TuringMachine.Machine.ComputationConstraint
+namespace TuringMachine.Machine.Computation.Constraint
 {
     /// <summary>
     /// Ensures that computation can not take more step than the limit.

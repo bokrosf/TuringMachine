@@ -1,4 +1,4 @@
-﻿namespace TuringMachine.Machine.ComputationConstraint
+﻿namespace TuringMachine.Machine.Computation.Constraint
 {
     /// <summary>
     /// Enforces the defined constraint during computation.

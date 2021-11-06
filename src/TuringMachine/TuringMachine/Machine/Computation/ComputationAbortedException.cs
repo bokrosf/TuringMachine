@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TuringMachine.Machine
+namespace TuringMachine.Machine.Computation
 {
     /// <summary>
     /// Exception that is thrown when a computation has been aborted.

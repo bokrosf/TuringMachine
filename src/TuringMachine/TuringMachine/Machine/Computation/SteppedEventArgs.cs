@@ -1,6 +1,6 @@
 ﻿using TuringMachine.Transition;
 
-namespace TuringMachine.Machine
+namespace TuringMachine.Machine.Computation
 {
     /// <summary>
     /// Provides data for the event that is raised when a turing machine transitioned from one state to another.

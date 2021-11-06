@@ -1,7 +1,7 @@
 ﻿using System;
 using TuringMachine.Transition;
 
-namespace TuringMachine.Machine
+namespace TuringMachine.Machine.Computation
 {
     /// <summary>
     /// Represents a read-only computation state.

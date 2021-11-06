@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace TuringMachine.Machine
+namespace TuringMachine.Machine.Computation
 {
     /// <summary>
     /// Provides data for the event that is raised when a computation has been terminated.

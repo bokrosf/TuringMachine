@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TuringMachine.Machine
+namespace TuringMachine.Machine.Computation
 {
     /// <summary>
     /// Notifies clients that computation state has changed.

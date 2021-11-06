@@ -1,7 +1,7 @@
 ﻿using System;
 using TuringMachine.Extensions.ExceptionCustomizer;
 
-namespace TuringMachine.Machine.ComputationConstraint
+namespace TuringMachine.Machine.Computation.Constraint
 {
     /// <summary>
     /// Exception that is thrown when a computation has been aborted because it has not finished in the given number of steps.

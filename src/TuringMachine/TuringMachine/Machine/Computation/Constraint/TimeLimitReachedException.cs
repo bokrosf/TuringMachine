@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using TuringMachine.Extensions.ExceptionCustomizer;
 
-namespace TuringMachine.Machine.ComputationConstraint
+namespace TuringMachine.Machine.Computation.Constraint
 {
     /// <summary>
     /// Exception that is thrown when a computation should have not taken longer then the specified time duration.

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using TuringMachine.Machine.ComputationConstraint;
+using TuringMachine.Machine.Computation.Constraint;
 
-namespace TuringMachine.Machine
+namespace TuringMachine.Machine.Computation
 {
     /// <summary>
     /// Defines methods for starting automatic computations.

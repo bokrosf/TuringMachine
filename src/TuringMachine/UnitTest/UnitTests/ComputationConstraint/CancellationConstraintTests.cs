@@ -1,8 +1,8 @@
 ﻿using Moq;
 using System;
 using System.Threading;
-using TuringMachine.Machine;
-using TuringMachine.Machine.ComputationConstraint;
+using TuringMachine.Machine.Computation;
+using TuringMachine.Machine.Computation.Constraint;
 using Xunit;
 
 namespace TuringMachine.Tests.UnitTests.ComputationConstraint

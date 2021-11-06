@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using TuringMachine.Transition;
 
-namespace TuringMachine.Machine
+namespace TuringMachine.Machine.Computation
 {
     /// <summary>
     /// Represents the state of a computation.

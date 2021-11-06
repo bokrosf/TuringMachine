@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace TuringMachine.Machine.ComputationConstraint
+namespace TuringMachine.Machine.Computation.Constraint
 {
     /// <summary>
     /// Enforces that a computation can be cancelled.

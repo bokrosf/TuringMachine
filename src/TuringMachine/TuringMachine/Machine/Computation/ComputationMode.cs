@@ -1,4 +1,4 @@
-﻿namespace TuringMachine.Machine
+﻿namespace TuringMachine.Machine.Computation
 {
     /// <summary>
     /// Specifies computation execution modes.

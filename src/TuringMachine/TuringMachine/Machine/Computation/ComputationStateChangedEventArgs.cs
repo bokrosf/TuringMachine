@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TuringMachine.Machine
+namespace TuringMachine.Machine.Computation
 {
     /// <summary>
     /// Represents the base class for classes that provides data for the event that is raised when a machine's computation state changed.
