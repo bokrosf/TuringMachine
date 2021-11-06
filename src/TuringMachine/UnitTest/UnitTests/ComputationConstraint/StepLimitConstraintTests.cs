@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moq;
+using System;
 using TuringMachine.Machine;
 using TuringMachine.Machine.ComputationConstraint;
 using Xunit;
@@ -29,70 +30,43 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint
         [InlineData(2)]
         [InlineData(3)]
         [InlineData(5)]
-        public void Ensure_LowerThanStepLimit_NotThrowsException(int stepLimit)
+        public void Enforce_LowerThanStepLimit_NotThrowsException(int stepLimit)
         {
             var constraint = new StepLimitConstraint<int, char>(stepLimit);
-            var computationState = new ComputationState<int, char>(new Symbol<char>('F'));
 
-            for (int i = 0; i < stepLimit - 1; i++)
-            {
-                computationState.UpdateConfiguration((i, 'G'));
-                constraint.Enforce(computationState);
-            }
+            var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
+            computationStateMock.Setup(cs => cs.StepCount).Returns(stepLimit - 1);
+
+            constraint.Enforce(computationStateMock.Object);
         }
 
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(5)]
-        public void Ensure_StepLimitReached_NotThrowsException(int stepLimit)
+        public void Enforce_StepLimitReached_NotThrowsException(int stepLimit)
         {
             var constraint = new StepLimitConstraint<int, char>(stepLimit);
-            var computationState = new ComputationState<int, char>(new Symbol<char>('F'));
 
-            for (int i = 0; i < stepLimit; i++)
-            {
-                computationState.UpdateConfiguration((i, 'G'));
-                constraint.Enforce(computationState);
-            }
+            var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
+            computationStateMock.Setup(cs => cs.StepCount).Returns(stepLimit);
+
+            constraint.Enforce(computationStateMock.Object);
         }
+
 
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(5)]
-        public void Ensure_FinishedAndStepLimitExceeded_NotThrowsException(int stepLimit)
+        public void Enforce_StepLimitExceeded_ThrowsException(int stepLimit)
         {
             var constraint = new StepLimitConstraint<int, char>(stepLimit);
-            var computationState = new ComputationState<int, char>(new Symbol<char>('F'));
+            
+            var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
+            computationStateMock.Setup(cs => cs.StepCount).Returns(stepLimit + 1);
 
-            for (int i = 0; i < stepLimit; i++)
-            {
-                computationState.UpdateConfiguration((i, 'G'));
-                constraint.Enforce(computationState);
-            }
-
-            computationState.UpdateConfiguration((stepLimit + 1, 'G'));
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(5)]
-        public void Ensure_UnfinishedAndStepLimitExceeded_ThrowsException(int stepLimit)
-        {
-            var constraint = new StepLimitConstraint<int, char>(stepLimit);
-            var computationState = new ComputationState<int, char>(new Symbol<char>('F'));
-
-            for (int i = 0; i < stepLimit; i++)
-            {
-                computationState.UpdateConfiguration((i, 'G'));
-                constraint.Enforce(computationState);
-            }
-
-            computationState.UpdateConfiguration((stepLimit + 1, 'G'));
-
-            Assert.Throws<StepLimitReachedException>(() => constraint.Enforce(computationState));
+            Assert.Throws<StepLimitExceededException>(() => constraint.Enforce(computationStateMock.Object));
         }
     }
 }

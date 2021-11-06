@@ -21,7 +21,7 @@ namespace TuringMachine.Machine
         /// </summary>
         /// <param name="input">Symbols that the tape is initialized with.</param>
         /// <param name="constraint">A constraint that must be enforced during the computation process.</param>
-        void StartManualComputation(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint);
+        void StartManualComputation(IEnumerable<Symbol<TSymbol>> input, IComputationConstraint<TState, TSymbol> constraint);
         
         /// <summary>
         /// Transitions the machine from it's current state to the next.

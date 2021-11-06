@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace TuringMachine.Tests.UnitTests.ComputationConstraint
+namespace TuringMachine.Tests.UnitTests
 {
     class FinishedStatesTestData<TState> : IEnumerable<object[]>
     {

@@ -29,8 +29,15 @@ namespace TuringMachine.Machine
             durationWatch = new Stopwatch();
         }
 
+        /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException">Configuration is in finished state.</exception>
         public void UpdateConfiguration(TransitionDomain<TState, TSymbol> configuration)
         {
+            if (Configuration.State.IsFinishState)
+            {
+                throw new InvalidOperationException("Configuration can not be updated after it's in finished state.");
+            }
+            
             Configuration = configuration;
             ++StepCount;
         }

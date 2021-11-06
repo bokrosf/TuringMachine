@@ -24,7 +24,7 @@ namespace TuringMachine.Machine
         private object manualComputationLock;
         private ComputationMode? computationMode;
         private ComputationState<TState, TSymbol>? computationState;
-        private ComputationConstraint<TState, TSymbol>? constraint;
+        private IComputationConstraint<TState, TSymbol>? constraint;
         private Tape<TSymbol> tape;
         private TransitionTable<TState, TSymbol> transitionTable;
 
@@ -46,7 +46,7 @@ namespace TuringMachine.Machine
             return Task.Run(() => Compute());
         }
 
-        public Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
+        public Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input, IComputationConstraint<TState, TSymbol> constraint)
         {
             InitializeComputation(ComputationMode.Automatic, input, constraint);
             return Task.Run(() => Compute());
@@ -58,7 +58,7 @@ namespace TuringMachine.Machine
             Compute();
         }
 
-        public void StartAutomaticComputation(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
+        public void StartAutomaticComputation(IEnumerable<Symbol<TSymbol>> input, IComputationConstraint<TState, TSymbol> constraint)
         {
             InitializeComputation(ComputationMode.Automatic, input, constraint);
             Compute();
@@ -69,7 +69,7 @@ namespace TuringMachine.Machine
             InitializeComputationWithoutConstraint(ComputationMode.Manual, input);
         }
 
-        public void StartManualComputation(IEnumerable<Symbol<TSymbol>> input, ComputationConstraint<TState, TSymbol> constraint)
+        public void StartManualComputation(IEnumerable<Symbol<TSymbol>> input, IComputationConstraint<TState, TSymbol> constraint)
         {
             InitializeComputation(ComputationMode.Manual, input, constraint);
         }
@@ -88,26 +88,7 @@ namespace TuringMachine.Machine
                     }
                 }
 
-                bool canPerformAnotherStep = true;
-
-                try
-                {
-                    TransitToNextState();
-                    constraint?.Enforce(computationState!.AsReadOnly());
-
-                    if (CanTerminate())
-                    {
-                        Terminate();
-                        canPerformAnotherStep = false;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    HandleAbortedComputation(ex);
-                    canPerformAnotherStep = false;
-                }
-
-                return canPerformAnotherStep;
+                return PerformStep();
             }
         }
 
@@ -144,7 +125,7 @@ namespace TuringMachine.Machine
         private void InitializeComputation(
             ComputationMode computationMode, 
             IEnumerable<Symbol<TSymbol>> input, 
-            ComputationConstraint<TState, TSymbol>? constraint)
+            IComputationConstraint<TState, TSymbol>? constraint)
         {
             lock (computationLock)
             {
@@ -162,21 +143,38 @@ namespace TuringMachine.Machine
             computationState.StartDurationWatch();
         }
 
-        private void Compute()
+        private bool PerformStep()
         {
+            bool canPerformAnotherStep = true;
+
             try
             {
-                do
-                {
-                    TransitToNextState();
-                    constraint?.Enforce(computationState!.AsReadOnly());
-                } while (!CanTerminate());
+                TransitToNextState();
 
-                Terminate();
+                if (CanTerminate())
+                {
+                    Terminate();
+                    canPerformAnotherStep = false;
+                }
+                else
+                {
+                    constraint?.Enforce(computationState!.AsReadOnly());
+                }
             }
             catch (Exception ex)
             {
                 HandleAbortedComputation(ex);
+                canPerformAnotherStep = false;
+            }
+
+            return canPerformAnotherStep;
+        }
+
+        private void Compute()
+        {
+            while (PerformStep())
+            {
+                ;
             }
         }
 

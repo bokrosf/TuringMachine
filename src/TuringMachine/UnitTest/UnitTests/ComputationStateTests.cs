@@ -38,5 +38,17 @@ namespace TuringMachine.Tests.UnitTests
             Assert.True(isSymbolUpdated);
             Assert.Equal(1, computationState.StepCount);
         }
+
+        [Theory]
+        [ClassData(typeof(FinishedStatesTestData<int>))]
+        public void UpdateConfiguration_InFinishedState_ThrowsException(State<int> finishedState)
+        {
+            var symbol = new Symbol<int>(5);
+            var computationState = new ComputationState<int, int>(symbol);
+
+            computationState.UpdateConfiguration((finishedState, symbol));
+         
+            Assert.Throws<InvalidOperationException>(() => computationState.UpdateConfiguration((finishedState, symbol)));
+        }
     }
 }

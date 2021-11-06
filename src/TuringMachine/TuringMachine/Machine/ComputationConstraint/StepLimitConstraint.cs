@@ -7,7 +7,7 @@ namespace TuringMachine.Machine.ComputationConstraint
     /// </summary>
     /// <typeparam name="TState">Type of the machine's state.</typeparam>
     /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-    public class StepLimitConstraint<TState, TSymbol> : ComputationConstraint<TState, TSymbol>
+    public class StepLimitConstraint<TState, TSymbol> : IComputationConstraint<TState, TSymbol>
     {
         private readonly int stepLimit;
 
@@ -27,12 +27,12 @@ namespace TuringMachine.Machine.ComputationConstraint
         }
         
         /// <inheritdoc/>
-        /// <exception cref="StepLimitReachedException">Throw when the computation takes more step than the limit.</exception>
-        public override void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
+        /// <exception cref="StepLimitExceededException">Throw when the computation takes more step than the limit.</exception>
+        public void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
-            if (computationState.StepCount > stepLimit && !IsComputationFinished(computationState))
+            if (computationState.StepCount > stepLimit)
             {
-                throw new StepLimitReachedException($"Computation can not take more than {stepLimit} steps.", stepLimit);
+                throw new StepLimitExceededException($"Computation can not take more than {stepLimit} steps.", stepLimit);
             }
         }
     }

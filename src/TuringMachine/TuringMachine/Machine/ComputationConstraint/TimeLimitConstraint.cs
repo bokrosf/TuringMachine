@@ -7,7 +7,7 @@ namespace TuringMachine.Machine.ComputationConstraint
     /// </summary>
     /// <typeparam name="TState">Type of the machine's state.</typeparam>
     /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-    public class TimeLimitConstraint<TState, TSymbol> : ComputationConstraint<TState, TSymbol>
+    public class TimeLimitConstraint<TState, TSymbol> : IComputationConstraint<TState, TSymbol>
     {
         private readonly TimeSpan timeLimit;
 
@@ -29,11 +29,11 @@ namespace TuringMachine.Machine.ComputationConstraint
         
         /// <inheritdoc/>
         /// <exception cref="TimeLimitConstraint{TState, TSymbol}">Computation takes longer than the time limit.</exception>
-        public override void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
+        public void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
-            if (computationState.Duration > timeLimit && !IsComputationFinished(computationState))
+            if (computationState.Duration > timeLimit)
             {
-                throw new TimeLimitReachedException($"Computation takes longer than {timeLimit}.", timeLimit);
+                throw new TimeLimitExceededException($"Computation takes longer than {timeLimit}.", timeLimit, computationState.Duration);
             }
         }
     }

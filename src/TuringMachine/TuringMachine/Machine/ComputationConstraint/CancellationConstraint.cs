@@ -8,7 +8,7 @@ namespace TuringMachine.Machine.ComputationConstraint
     /// </summary>
     /// <typeparam name="TState">Type of the machine's state.</typeparam>
     /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-    public class CancellationConstraint<TState, TSymbol> : ComputationConstraint<TState, TSymbol>
+    public class CancellationConstraint<TState, TSymbol> : IComputationConstraint<TState, TSymbol>
     {
         private readonly CancellationToken cancellationToken;
 
@@ -31,9 +31,9 @@ namespace TuringMachine.Machine.ComputationConstraint
         /// <exception cref="ComputationCancellationRequestedException">
         /// Thrown when cancellation requested and computation has not finished.
         /// </exception>
-        public override void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
+        public void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
-            if (cancellationToken.IsCancellationRequested && !IsComputationFinished(computationState))
+            if (cancellationToken.IsCancellationRequested)
             {
                 throw new ComputationCancellationRequestedException();
             }

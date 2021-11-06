@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moq;
+using System;
 using System.Threading;
 using TuringMachine.Machine;
 using TuringMachine.Machine.ComputationConstraint;
@@ -21,35 +22,23 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint
         }
 
         [Fact]
-        public void Ensure_NoCancellationRequested_NotCancelled()
+        public void Enforce_NoCancellationRequested_NotCancelled()
         {
             var constraint = new CancellationConstraint<int, char>(cancellationTokenSource.Token);
-            var computationState = new ComputationState<int, char>(new Symbol<char>('F'));
-            constraint.Enforce(computationState);
-        }
+            var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
 
-        [Theory]
-        [ClassData(typeof(FinishedStatesTestData<int>))]
-        public void Ensure_FinishedAndCancellationRequested_NotCancelled(State<int> finishedState)
-        {
-            var constraint = new CancellationConstraint<int, char>(cancellationTokenSource.Token);
-            var computationState = new ComputationState<int, char>(new Symbol<char>('F'));
-            computationState.UpdateConfiguration((finishedState, 'G'));
-
-            cancellationTokenSource.Cancel();
-
-            constraint.Enforce(computationState);
+            constraint.Enforce(computationStateMock.Object);
         }
 
         [Fact]
-        public void Ensure_UnfinishedAndCancellationRequested_Cancelled()
+        public void Enforce_CancellationRequested_Cancelled()
         {
             var constraint = new CancellationConstraint<int, char>(cancellationTokenSource.Token);
-            var computationState = new ComputationState<int, char>(new Symbol<char>('F'));
+            var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
 
             cancellationTokenSource.Cancel();
 
-            Assert.Throws<ComputationCancellationRequestedException>(() => constraint.Enforce(computationState));
+            Assert.Throws<ComputationCancellationRequestedException>(() => constraint.Enforce(computationStateMock.Object));
         }
     }
 }
