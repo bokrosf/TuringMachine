@@ -11,12 +11,12 @@ namespace TuringMachine.Machine.Computation.Constraint
         /// <summary>
         /// Maximum time duration the computation should have taken.
         /// </summary>
-        public TimeSpan TimeLimit { get; }
+        public TimeSpan? TimeLimit { get; }
 
         /// <summary>
         /// Elapsed time since the start of the computation.
         /// </summary>
-        public TimeSpan Duration { get; }
+        public TimeSpan? Duration { get; }
 
         /// <summary>
         /// Initializes a new instance of <see cref="TimeLimitExceededException"/> class.
@@ -39,7 +39,7 @@ namespace TuringMachine.Machine.Computation.Constraint
         /// <param name="message">The message that describes the error.</param>
         /// <param name="timeLimit">Maximum time duration the computation should have taken.</param>
         /// <param name="duration">Elapsed time since the start of the computation.</param>
-        public TimeLimitExceededException(string? message, TimeSpan timeLimit, TimeSpan duration)
+        public TimeLimitExceededException(string? message, TimeSpan? timeLimit, TimeSpan? duration)
             : base(message)
         {
             TimeLimit = timeLimit;
@@ -54,7 +54,7 @@ namespace TuringMachine.Machine.Computation.Constraint
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
         /// <param name="timeLimit">Maximum time duration the computation should have taken.</param>
         /// <param name="duration">Elapsed time since the start of the computation.</param>
-        public TimeLimitExceededException(string? message, Exception? innerException, TimeSpan timeLimit, TimeSpan duration)
+        public TimeLimitExceededException(string? message, Exception? innerException, TimeSpan? timeLimit, TimeSpan? duration)
             : base(message, innerException)
         {
             TimeLimit = timeLimit;
