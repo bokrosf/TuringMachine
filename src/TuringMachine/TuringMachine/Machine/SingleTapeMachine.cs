@@ -184,7 +184,7 @@ namespace TuringMachine.Machine
                 TransitionRange<TState, TSymbol> range = transitionTable[domainBeforeTransition];
                 tape.CurrentSymbol = range.Symbol;
                 tape.MoveHeadInDirection(range.HeadDirection);
-                computationState.UpdateConfiguration((range.State, range.Symbol));
+                computationState.UpdateConfiguration((range.State, tape.CurrentSymbol));
                 Transition<TState, TSymbol> transition = (domainBeforeTransition, range);
                 OnStepped(new(computationState.AsReadOnly(), transition));
             }
