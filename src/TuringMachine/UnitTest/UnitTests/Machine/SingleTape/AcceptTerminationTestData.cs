@@ -25,7 +25,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
             };
 
             var transitionTable = new TransitionTable<int, char>(transitions);
-            var input = new Symbol<char>[] { new Symbol<char>('a') };
+            var input = "a".Select(c => new Symbol<char>(c));
 
             return new object[] { new StartComputationArguments<int, char>(transitionTable, input) };
         }
