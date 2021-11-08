@@ -19,6 +19,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
                 () => machine.StartAutomaticComputation(arguments.Input));
 
             Assert.Same(machine, raisedStepped.Sender);
+            Assert.True(raisedStepped.Arguments.StepCount > 0);
             Assert.Equal(State<int>.Accept, raisedStepped.Arguments.Transition.Range.State);
         }
 
@@ -49,6 +50,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
                 () => machine.StartAutomaticComputationAsync(arguments.Input));
 
             Assert.Same(machine, raisedStepped.Sender);
+            Assert.True(raisedStepped.Arguments.StepCount > 0);
             Assert.Equal(State<int>.Accept, raisedStepped.Arguments.Transition.Range.State);
         }
 
