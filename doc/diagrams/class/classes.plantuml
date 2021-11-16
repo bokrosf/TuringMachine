@@ -126,7 +126,8 @@ class "SteppedEventArgs<TState, TSymbol>" as SteppedEventArgs {
 
 class "ComputationTerminatedEventArgs<TState, TSymbol>" as ComputationTerminatedEventArgs {
     +{method} State: TState {query}
-    +{method} Result: IReadOnlyList<Symbol<TSymbol>> {query}
+    +{method} RawResult: IReadOnlyList<Symbol<TSymbol>> {query}
+    +TrimResult(): IEnumerable<Symbol<TSymbol>> 
 }
 
 class "ComputationAbortedEventArgs<TState, TSymbol>" as ComputationAbortedEventArgs {

@@ -29,13 +29,28 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
 
-            var raisedStepped = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
+            var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
                 handler => machine.ComputationTerminated += handler,
                 handler => machine.ComputationTerminated -= handler,
                 () => machine.StartAutomaticComputation(arguments.Input));
 
-            Assert.Same(machine, raisedStepped.Sender);
-            Assert.Equal(State<int>.Accept, raisedStepped.Arguments.State);
+            Assert.Same(machine, raisedTerminated.Sender);
+            Assert.Equal(State<int>.Accept, raisedTerminated.Arguments.State);
+        }
+
+        [Theory]
+        [ClassData(typeof(ExpectedTapeOutputTestData))]
+        public void StartAutomaticComputation_OutputSymbols_SymbolsAsExpected(ExpectedTapeOutputArguments<int, char> arguments)
+        {
+            var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+
+            var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
+                handler => machine.ComputationTerminated += handler,
+                handler => machine.ComputationTerminated -= handler,
+                () => machine.StartAutomaticComputation(arguments.Input));
+
+            Assert.Same(machine, raisedTerminated.Sender);
+            Assert.Equal(arguments.ExpectedOutput, raisedTerminated.Arguments.TrimResult());
         }
 
         [Theory]
@@ -60,13 +75,28 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
 
-            var raisedStepped = await Assert.RaisesAsync<ComputationTerminatedEventArgs<int, char>>(
+            var raisedTerminated = await Assert.RaisesAsync<ComputationTerminatedEventArgs<int, char>>(
                 handler => machine.ComputationTerminated += handler,
                 handler => machine.ComputationTerminated -= handler,
                 () => machine.StartAutomaticComputationAsync(arguments.Input));
 
-            Assert.Same(machine, raisedStepped.Sender);
-            Assert.Equal(State<int>.Accept, raisedStepped.Arguments.State);
+            Assert.Same(machine, raisedTerminated.Sender);
+            Assert.Equal(State<int>.Accept, raisedTerminated.Arguments.State);
+        }
+
+        [Theory]
+        [ClassData(typeof(ExpectedTapeOutputTestData))]
+        public async Task StartAutomaticComputationAsync_OutputSymbols_SymbolsAsExpected(ExpectedTapeOutputArguments<int, char> arguments)
+        {
+            var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+
+            var raisedTerminated = await Assert.RaisesAsync<ComputationTerminatedEventArgs<int, char>>(
+                handler => machine.ComputationTerminated += handler,
+                handler => machine.ComputationTerminated -= handler,
+                () => machine.StartAutomaticComputationAsync(arguments.Input));
+
+            Assert.Same(machine, raisedTerminated.Sender);
+            Assert.Equal(arguments.ExpectedOutput, raisedTerminated.Arguments.TrimResult());
         }
     }
 }

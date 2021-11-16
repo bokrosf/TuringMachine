@@ -1,16 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace TuringMachine.Tests.UnitTests
 {
-    class FinishedStatesTestData<TState> : IEnumerable<object[]>
+    class FinishedStatesTestData<TState> : TestData
     {
-        public IEnumerator<object[]> GetEnumerator()
+        public override IEnumerator<object[]> GetEnumerator()
         {
             yield return new object[] { State<TState>.Accept };
             yield return new object[] { State<TState>.Reject };
         }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

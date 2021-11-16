@@ -1,21 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using TuringMachine.Machine;
 using TuringMachine.Transition;
 
 namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
 {
-    class AcceptTerminationTestData : IEnumerable<object[]>
+    class AcceptTerminationTestData : TestData
     {
-        public IEnumerator<object[]> GetEnumerator()
+        public override IEnumerator<object[]> GetEnumerator()
         {
             yield return GetSingleStepData();
             yield return GetSameSymbolReadMultipleTimesData();
             yield return GetMultipleSymbolReadAndStateChangeData();
         }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private object[] GetSingleStepData()
         {
