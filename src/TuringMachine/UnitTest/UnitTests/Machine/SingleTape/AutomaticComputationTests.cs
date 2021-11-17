@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using TuringMachine.Machine;
 using TuringMachine.Machine.Computation;
+using TuringMachine.Machine.Computation.Constraint;
 using Xunit;
 
 namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
@@ -54,6 +55,21 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         }
 
         [Theory]
+        [ClassData(typeof(InfiniteComputationTestData))]
+        public void StartAutomaticComputation_WithConstraint_EnforcementStopsComputation(StartComputationArguments<int, char> arguments)
+        {
+            var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+            var constraint = new StepLimitConstraint<int, char>(3);
+
+            var raisedAborted = Assert.Raises<ComputationAbortedEventArgs<int, char>>(
+                handler => machine.ComputationAborted += handler,
+                handler => machine.ComputationAborted -= handler,
+                () => machine.StartAutomaticComputation(arguments.Input, constraint));
+
+            Assert.True(raisedAborted.Arguments.Exception is ComputationAbortedException);
+        }
+
+        [Theory]
         [ClassData(typeof(AcceptTerminationTestData))]
         public async Task StartAutomaticComputationAsync_WithoutConstraint_SteppedRaised(StartComputationArguments<int, char> arguments)
         {
@@ -97,6 +113,21 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
 
             Assert.Same(machine, raisedTerminated.Sender);
             Assert.Equal(arguments.ExpectedOutput, raisedTerminated.Arguments.TrimResult());
+        }
+
+        [Theory]
+        [ClassData(typeof(InfiniteComputationTestData))]
+        public async Task StartAutomaticComputationAsync_WithConstraint_EnforcementStopsComputation(StartComputationArguments<int, char> arguments)
+        {
+            var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+            var constraint = new StepLimitConstraint<int, char>(3);
+
+            var raisedAborted = await Assert.RaisesAsync<ComputationAbortedEventArgs<int, char>>(
+                handler => machine.ComputationAborted += handler,
+                handler => machine.ComputationAborted -= handler,
+                () => machine.StartAutomaticComputationAsync(arguments.Input, constraint));
+
+            Assert.True(raisedAborted.Arguments.Exception is ComputationAbortedException);
         }
     }
 }
