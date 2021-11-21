@@ -26,7 +26,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
 
         [Theory]
         [ClassData(typeof(AcceptTerminationTestData))]
-        public void StartAutomaticComputation_WithoutConstraint_ComputationTerminatedRaised(StartComputationArguments<int, char> arguments)
+        public void StartAutomaticComputation_WithoutConstraint_InputAccepted(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
 
@@ -37,6 +37,21 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
 
             Assert.Same(machine, raisedTerminated.Sender);
             Assert.Equal(State<int>.Accept, raisedTerminated.Arguments.State);
+        }
+
+        [Theory]
+        [ClassData(typeof(RejectTerminationTestData))]
+        public void StartAutomaticComputation_WithoutConstraint_InputRejected(StartComputationArguments<int, char> arguments)
+        {
+            var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+
+            var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
+                handler => machine.ComputationTerminated += handler,
+                handler => machine.ComputationTerminated -= handler,
+                () => machine.StartAutomaticComputation(arguments.Input));
+
+            Assert.Same(machine, raisedTerminated.Sender);
+            Assert.Equal(State<int>.Reject, raisedTerminated.Arguments.State);
         }
 
         [Theory]
@@ -87,7 +102,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
 
         [Theory]
         [ClassData(typeof(AcceptTerminationTestData))]
-        public async Task StartAutomaticComputationAsync_WithoutConstraint_ComputationTerminatedRaised(StartComputationArguments<int, char> arguments)
+        public async Task StartAutomaticComputationAsync_WithoutConstraint_InputAccepted(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
 
@@ -98,6 +113,21 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
 
             Assert.Same(machine, raisedTerminated.Sender);
             Assert.Equal(State<int>.Accept, raisedTerminated.Arguments.State);
+        }
+
+        [Theory]
+        [ClassData(typeof(RejectTerminationTestData))]
+        public async Task StartAutomaticComputationAsync_WithoutConstraint_InputRejected(StartComputationArguments<int, char> arguments)
+        {
+            var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+
+            var raisedTerminated = await Assert.RaisesAsync<ComputationTerminatedEventArgs<int, char>>(
+                handler => machine.ComputationTerminated += handler,
+                handler => machine.ComputationTerminated -= handler,
+                () => machine.StartAutomaticComputationAsync(arguments.Input));
+
+            Assert.Same(machine, raisedTerminated.Sender);
+            Assert.Equal(State<int>.Reject, raisedTerminated.Arguments.State);
         }
 
         [Theory]
