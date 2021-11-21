@@ -9,7 +9,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
     public class AutomaticComputationTests
     {
         [Theory]
-        [ClassData(typeof(AcceptTerminationTestData))]
+        [ClassData(typeof(AcceptedInputTestData))]
         public void StartAutomaticComputation_WithoutConstraint_SteppedRaised(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
@@ -25,7 +25,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         }
 
         [Theory]
-        [ClassData(typeof(AcceptTerminationTestData))]
+        [ClassData(typeof(AcceptedInputTestData))]
         public void StartAutomaticComputation_WithoutConstraint_InputAccepted(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
@@ -40,7 +40,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         }
 
         [Theory]
-        [ClassData(typeof(RejectTerminationTestData))]
+        [ClassData(typeof(RejectedInputTestData))]
         public void StartAutomaticComputation_WithoutConstraint_InputRejected(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
@@ -85,7 +85,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         }
 
         [Theory]
-        [ClassData(typeof(AcceptTerminationTestData))]
+        [ClassData(typeof(AcceptedInputTestData))]
         public async Task StartAutomaticComputationAsync_WithoutConstraint_SteppedRaised(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
@@ -101,7 +101,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         }
 
         [Theory]
-        [ClassData(typeof(AcceptTerminationTestData))]
+        [ClassData(typeof(AcceptedInputTestData))]
         public async Task StartAutomaticComputationAsync_WithoutConstraint_InputAccepted(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
@@ -116,7 +116,7 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         }
 
         [Theory]
-        [ClassData(typeof(RejectTerminationTestData))]
+        [ClassData(typeof(RejectedInputTestData))]
         public async Task StartAutomaticComputationAsync_WithoutConstraint_InputRejected(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);

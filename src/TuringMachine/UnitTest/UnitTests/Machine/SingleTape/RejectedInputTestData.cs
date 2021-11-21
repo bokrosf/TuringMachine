@@ -5,7 +5,7 @@ using TuringMachine.Transition;
 
 namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
 {
-    internal class RejectTerminationTestData : TestData
+    internal class RejectedInputTestData : TestData
     {
         public override IEnumerator<object[]> GetEnumerator()
         {
