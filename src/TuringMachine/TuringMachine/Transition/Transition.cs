@@ -1,4 +1,6 @@
-﻿namespace TuringMachine.Transition
+﻿using TuringMachine.Machine;
+
+namespace TuringMachine.Transition
 {
     /// <summary>
     /// Represents the domain of a machine transition.

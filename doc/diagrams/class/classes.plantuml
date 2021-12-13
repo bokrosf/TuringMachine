@@ -31,6 +31,7 @@ class "State<T>" as State {
     +{method} {static} Accept: T {query}
     +{method} {static} Reject: T {query}
     +{method} Value: T {query}
+    +{method} IsFinishState: bool {query}
 }
 
 Symbol -[hidden]- State
@@ -56,7 +57,7 @@ class "Tape<T>" as Tape {
 Tape "*" o-left- "1..*" Symbol
 interface "IEnumerable<T>" as IEnumerable
 IEnumerable <|.. Tape
-Tape --> TapeHeadDirection
+Tape ..> TapeHeadDirection
 
 
 class "TransitionDomain<TState, TSymbol>" as TransitionDomain << record >> {
@@ -94,6 +95,124 @@ class "TransitionCollectionValidator<TState, TSymbol>" as TransitionCollectionVa
     -CheckStateOfRange(transition: Transition<TState, TSymbol>): void
 }
 
+interface "IAutomaticComputation<TState, TSymbol>" as IAutomaticComputation {
+    StartAutomaticComputationAsync(input: IEnumerable<Symbol<TSymbol>>): Task
+    StartAutomaticComputationAsync(input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<TState, TSymbol>): Task
+    StartAutomaticComputation(input: IEnumerable<Symbol<TSymbol>>): void
+    StartAutomaticComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<TState, TSymbol>): void
+}
+
+interface "IManualComputation<TState, TSymbol>" as IManualComputation {
+    StartManualComputation(input: IEnumerable<Symbol<TSymbol>>): void
+    StartManualComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): void
+    Step(): bool
+    Abort(): void
+}
+
+interface "IComputationTracking<TState, TSymbol>" as IComputationTracking {
+    Stepped: EventHandler<SteppedEventArgs<TState, TSymbol>>?
+    ComputationTerminated: EventHandler<ComputationTerminatedEventArgs<TState>>?
+    ComputationAborted: EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>?
+}
+
+abstract class ComputationStateChangedEventArgs {
+    +{method} StepCount: int {query}
+    +{method} Duration: TimeSpan {query}
+}
+
+class "SteppedEventArgs<TState, TSymbol>" as SteppedEventArgs {
+    +{method} Transition: Transition<TState, TSymbol> {query}
+}
+
+class "ComputationTerminatedEventArgs<TState, TSymbol>" as ComputationTerminatedEventArgs {
+    +{method} State: TState {query}
+    +{method} RawResult: IReadOnlyList<Symbol<TSymbol>> {query}
+    +TrimResult(): IEnumerable<Symbol<TSymbol>> 
+}
+
+class "ComputationAbortedEventArgs<TState, TSymbol>" as ComputationAbortedEventArgs {
+    +{method} Exception: Exception {query}
+}
+
+enum ComputationMode {
+    Automatic,
+    Manual
+}
+
+class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
+    -computationLock: object
+    -manualComputationLock: object
+    -computationMode: ComputationMode?
+    -computationState: ComputationState<TSymbol, TState>?    
+    -constraint: IComputationConstraint<TState, TSymbol>?
+    -tape: Tape<TSymbol>
+    -transitionTable: TransitionTable<TState, TSymbol>
+    +SingleTapeMachine(transitionTable: TransitionTable<TState, TSymbol>)
+    -InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
+    -ComputeAsync(constraint: IComputationConstraint<TState, TSymbol>?): Task
+    -TransitToNextConfiguration(): void
+    -CanTerminate(): bool
+    -Terminate(): void
+    -CleanupComputation(): void
+    -OnStepped(): void
+    -OnComputationTerminated(): void
+}
+
+interface "IReadOnlyComputationState<TState, TSymbol>" as IReadOnlyComputationState {
+    {method} Configuration: TransitionDomain<TState, TSymbol> {query}
+    {method} StepCount: int {query}
+    {method} Duration: TimeSpan {query}
+}
+
+interface "IComputationState<TState, TSymbol>" as IComputationState {
+    {method} Configuration: TransitionDomain<TState, TSymbol>
+    {method} StepCount: int
+    {method} Duration: TimeSpan
+    UpdateConfiguration(configuration: TransitionDomain<TState, TSymbol>): void
+    StartDurationWatch(): void
+    StopDurationWatch(): void
+}
+
+class "ComputationState<TState, TSymbol>" as ComputationState {
+    -durationWatch: StopWatch
+    +ComputationState(symbol: Symbol<TSymbol>)
+    +AsReadOnly(): IReadOnlyComputationState<TState, TSymbol>
+}
+
+class "ReadOnlyComputationState<TState, TSymbol>" as ReadOnlyComputationState {
+    -computationState: IComputationState<TState, TSymbol>
+    +ReadOnlyComputationState(computationState: IComputationState<TState, TSymbol>)
+}
+
+IComputationState <|.. ComputationState
+IReadOnlyComputationState <|.. ReadOnlyComputationState
+IReadOnlyComputationState <|.. ComputationState
+ReadOnlyComputationState -[hidden]up- ComputationState
+
+interface "IComputationConstraint<TState, TSymbol>" as IComputationConstraint {
+    Enforce(IReadOnlyComputationState<TState, TSymbol> computationState): void
+}
+
+class "CancellationConstraint<TState, TSymbol>" as CancellationConstraint {
+    -cancellationToken: CancellationToken
+    +CancellationConstraint(cancellationToken: CancellationToken)
+}
+
+class "StepLimitConstraint<TState, TSymbol>" as StepLimitConstraint {
+    -stepLimit: int
+    +StepLimitConstraint(stepLimit: int)
+}
+
+class "TimeLimitConstraint<TState, TSymbol>" as TimeLimitConstraint {
+    -timeLimit: TimeSpan
+    +TimeLimitConstraint(timeout: TimeSpan)
+}
+
+class "MultiConstraint<TState, TSymbol>" as MultiConstraint {
+    -constraints: IReadOnlyCollection<IComputationConstraint<TState, TSymbol>
+    +MultiConstraint(constraints: IEnumerable<IComputationConstraint<TState, TSymbol>)
+}
+
 TransitionDomain <|-- TransitionRange
 Transition "*" o-- "1" TransitionDomain
 Transition "*" o-- "1" TransitionRange
@@ -102,5 +221,22 @@ TransitionTable "*" o-- "1..*" TransitionRange
 TransitionTable --> "Validate()" TransitionCollectionValidator
 
 Tape -[hidden]right- Transition
+
+ComputationStateChangedEventArgs <|-- SteppedEventArgs
+ComputationStateChangedEventArgs <|-- ComputationTerminatedEventArgs
+ComputationTerminatedEventArgs <|-- ComputationAbortedEventArgs
+
+IAutomaticComputation <|.. SingleTapeMachine
+IManualComputation <|.. SingleTapeMachine
+IComputationTracking <|.. SingleTapeMachine
+SingleTapeMachine *-- Tape
+SingleTapeMachine "*" o-- "1" TransitionTable
+SingleTapeMachine "1..*" *-- "0..1" ComputationMode   
+
+IComputationConstraint <|-- CancellationConstraint
+IComputationConstraint <|-- StepLimitConstraint
+IComputationConstraint <|-- TimeLimitConstraint
+IComputationConstraint <|-- MultiConstraint
+IReadOnlyComputationState <-- IComputationConstraint
 
 @enduml

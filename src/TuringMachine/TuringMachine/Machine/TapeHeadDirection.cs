@@ -1,4 +1,4 @@
-﻿namespace TuringMachine
+﻿namespace TuringMachine.Machine
 {
     /// <summary>
     /// Movement direction of the tape's head.

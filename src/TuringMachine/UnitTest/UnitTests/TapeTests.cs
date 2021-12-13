@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TuringMachine.Machine;
 using Xunit;
 
 namespace TuringMachine.Tests.UnitTests

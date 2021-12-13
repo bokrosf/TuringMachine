@@ -34,6 +34,11 @@ namespace TuringMachine
         /// </summary>
         public T Value { get; }
 
+        /// <summary>
+        /// Gets whether the current instance is a finished computation state.
+        /// </summary>
+        public bool IsFinishState => this == Accept || this == Reject;
+
         static State()
         {
             Initial = new State<T>(default!);

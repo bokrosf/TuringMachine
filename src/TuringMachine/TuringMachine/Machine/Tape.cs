@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TuringMachine
+namespace TuringMachine.Machine
 {
     /// <summary>
     /// Represents a Turing machine tape that reads and modifies the stored symbols.
