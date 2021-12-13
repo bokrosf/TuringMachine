@@ -94,8 +94,6 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>();
-            computationStateMock.Setup(cs => cs.Configuration).Returns((1, 'a'));
             CancellationConstraint<int, char> constraint = new CancellationConstraint<int, char>(cancellationTokenSource.Token);
 
             // Thread creation needed because using Task.Run() can cause the infinite computation run forever because scheduling.
@@ -111,17 +109,6 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
 
             cancellationTokenSource.Cancel();
             cancellationTokenSource.Dispose();
-        }
-
-        [Theory]
-        [ClassData(typeof(InfiniteComputationTestData))]
-        public void StartAutomaticComputation_ManualAlreadyStarted_ThrowsException(StartComputationArguments<int, char> arguments)
-        {
-            var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
-
-            machine.StartManualComputation(arguments.Input);
-
-            Assert.Throws<InvalidOperationException>(() => machine.StartAutomaticComputation(arguments.Input));
         }
 
         [Theory]
