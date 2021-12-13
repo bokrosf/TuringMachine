@@ -103,7 +103,7 @@ namespace TuringMachine.Machine
                 {
                     if (computationMode != ComputationMode.Manual)
                     {
-                        throw new InvalidOperationException($"{computationMode} computation can not be aborted manually.");
+                        throw new InvalidOperationException($"{computationMode?.ToString() ?? "<null>"} computation mode can not be aborted manually.");
                     }                    
                 }
 
