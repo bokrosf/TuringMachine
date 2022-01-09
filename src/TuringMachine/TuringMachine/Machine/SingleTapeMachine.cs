@@ -17,15 +17,15 @@ namespace TuringMachine.Machine
         IManualComputation<TState, TSymbol>,
         IComputationTracking<TState, TSymbol>
     {
+        private record Computation(ComputationMode Mode, ComputationState<TState, TSymbol> State, IComputationConstraint<TState, TSymbol>? Constraint);
+        
         public event EventHandler<SteppedEventArgs<TState, TSymbol>>? Stepped;
         public event EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>? ComputationTerminated;
         public event EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>? ComputationAborted;
 
         private object computationLock;
         private object manualComputationLock;
-        private ComputationMode? computationMode;
-        private ComputationState<TState, TSymbol>? computationState;
-        private IComputationConstraint<TState, TSymbol>? constraint;
+        private Computation? computation;
         private Tape<TSymbol> tape;
         private TransitionTable<TState, TSymbol> transitionTable;
 
@@ -81,9 +81,9 @@ namespace TuringMachine.Machine
             {
                 lock (computationLock)
                 {
-                    if (computationMode != ComputationMode.Manual)
+                    if (computation?.Mode != ComputationMode.Manual)
                     {
-                        throw new InvalidOperationException($"{computationMode?.ToString() ?? "<null>"} computation mode can not be stepped manually.");
+                        throw new InvalidOperationException($"{(computation?.Mode)?.ToString() ?? "<null>"} computation mode can not be stepped manually.");
                     }
                 }
 
@@ -99,9 +99,9 @@ namespace TuringMachine.Machine
             {
                 lock (computationLock)
                 {
-                    if (computationMode != ComputationMode.Manual)
+                    if (computation?.Mode != ComputationMode.Manual)
                     {
-                        throw new InvalidOperationException($"{computationMode?.ToString() ?? "<null>"} computation mode can not be aborted manually.");
+                        throw new InvalidOperationException($"{(computation?.Mode)?.ToString() ?? "<null>"} computation mode can not be aborted manually.");
                     }                    
                 }
 
@@ -123,18 +123,16 @@ namespace TuringMachine.Machine
         {
             lock (computationLock)
             {
-                if (this.computationMode.HasValue)
+                if (computation != null)
                 {
-                    throw new InvalidOperationException($"A(n) {this.computationMode} computation is already in progress.");
+                    throw new InvalidOperationException($"A(n) {computation.Mode} computation is already in progress.");
                 }
 
-                this.computationMode = computationMode;                
+                tape = new Tape<TSymbol>(input);
+                computation = new Computation(computationMode, new ComputationState<TState, TSymbol>(tape.CurrentSymbol), constraint);
             }
 
-            this.constraint = constraint;
-            tape = new Tape<TSymbol>(input);
-            computationState = new ComputationState<TState, TSymbol>(tape.CurrentSymbol);
-            computationState.StartDurationWatch();
+            computation.State.StartDurationWatch();
         }
 
         private bool PerformStep()
@@ -149,7 +147,7 @@ namespace TuringMachine.Machine
                     return false;
                 }
 
-                constraint?.Enforce(computationState!.AsReadOnly());
+                computation!.Constraint?.Enforce(computation.State.AsReadOnly());
 
                 return true;
             }
@@ -170,58 +168,51 @@ namespace TuringMachine.Machine
 
         private void TransitToNextState()
         {
-            TransitionDomain<TState, TSymbol> domainBeforeTransition = computationState!.Configuration;
+            TransitionDomain<TState, TSymbol> domainBeforeTransition = computation!.State.Configuration;
 
             try
             {
                 TransitionRange<TState, TSymbol> range = transitionTable[domainBeforeTransition];
                 tape.CurrentSymbol = range.Symbol;
                 tape.MoveHeadInDirection(range.HeadDirection);
-                computationState.UpdateConfiguration((range.State, tape.CurrentSymbol));
+                computation.State.UpdateConfiguration((range.State, tape.CurrentSymbol));
                 Transition<TState, TSymbol> transition = (domainBeforeTransition, range);
-                OnStepped(new(computationState.AsReadOnly(), transition));
+                OnStepped(new(computation.State.AsReadOnly(), transition));
             }
             catch (TransitionDomainNotFoundException)
             {
-                computationState.UpdateConfiguration((State<TState>.Reject, domainBeforeTransition.Symbol));
+                computation.State.UpdateConfiguration((State<TState>.Reject, domainBeforeTransition.Symbol));
             }            
         }
 
         private bool CanTerminate()
         {
-            if (computationState == null)
-            {
-                return false;
-            }
-
-            return computationState.Configuration.State.IsFinishState;
+            return computation!.State.Configuration.State.IsFinishState;
         }
 
         private void HandleAbortedComputation(Exception exception)
         {
-            computationState!.StopDurationWatch();
-            ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(computationState.AsReadOnly(), tape, exception);
+            computation!.State.StopDurationWatch();
+            ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(computation!.State.AsReadOnly(), tape, exception);
             CleanupComputation();
             OnComputationAborted(eventArgs);
         }
 
         private void Terminate()
         {
-            computationState!.StopDurationWatch();
-            ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = new(computationState.AsReadOnly(), tape);
+            computation!.State.StopDurationWatch();
+            ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = new(computation!.State.AsReadOnly(), tape);
             CleanupComputation();
             OnComputationTerminated(eventArgs);
         }
 
         private void CleanupComputation()
         {
-            computationState = null;
-            constraint = null;
             tape.Clear();
 
             lock (computationLock)
             {
-                computationMode = null;
+                computation = null;
             }
         }
 
