@@ -201,9 +201,7 @@ namespace TuringMachine.Machine
                 return false;
             }
 
-            State<TState> state = computationState.Configuration.State;
-
-            return state == State<TState>.Accept || state == State<TState>.Reject;
+            return computationState.Configuration.State.IsFinishState;
         }
 
         private void HandleAbortedComputation(Exception exception)
