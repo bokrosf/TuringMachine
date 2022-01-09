@@ -13,11 +13,11 @@ namespace TuringMachine.Transition
         /// Converts the given tuple of state and symbol into a <see cref="TransitionDomain{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="domain">Domain of a machine transition.</param>
-        public static implicit operator TransitionDomain<TState, TSymbol>((TState State, TSymbol Value) domain)
+        public static implicit operator TransitionDomain<TState, TSymbol>((TState State, TSymbol Symbol) domain)
         {
             return new TransitionDomain<TState, TSymbol>(
                 new State<TState>(domain.State),
-                new Symbol<TSymbol>(domain.Value));
+                new Symbol<TSymbol>(domain.Symbol));
         }
 
         /// <summary>
@@ -63,11 +63,11 @@ namespace TuringMachine.Transition
         /// Converts the given tuple of state, symbol and head direction into a <see cref="TransitionRange{TState, TSymbol}{TState, TSymbol}"/> instance.
         /// </summary>
         /// <param name="range">Range of a machine transition.</param>
-        public static implicit operator TransitionRange<TState, TSymbol>((TState State, TSymbol Value, TapeHeadDirection HeadDirection) range)
+        public static implicit operator TransitionRange<TState, TSymbol>((TState State, TSymbol Symbol, TapeHeadDirection HeadDirection) range)
         {
             return new TransitionRange<TState, TSymbol>(
                 new State<TState>(range.State),
-                new Symbol<TSymbol>(range.Value),
+                new Symbol<TSymbol>(range.Symbol),
                 range.HeadDirection);
         }
 
