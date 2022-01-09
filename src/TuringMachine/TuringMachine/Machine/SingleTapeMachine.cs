@@ -43,7 +43,7 @@ namespace TuringMachine.Machine
 
         public Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input)
         {
-            InitializeComputationWithoutConstraint(ComputationMode.Automatic, input);
+            InitializeComputation(ComputationMode.Automatic, input, constraint: null);
             return Task.Run(() => Compute());
         }
 
@@ -55,7 +55,7 @@ namespace TuringMachine.Machine
 
         public void StartAutomaticComputation(IEnumerable<Symbol<TSymbol>> input)
         {
-            InitializeComputationWithoutConstraint(ComputationMode.Automatic, input);
+            InitializeComputation(ComputationMode.Automatic, input, constraint: null);
             Compute();
         }
 
@@ -67,7 +67,7 @@ namespace TuringMachine.Machine
 
         public void StartManualComputation(IEnumerable<Symbol<TSymbol>> input)
         {
-            InitializeComputationWithoutConstraint(ComputationMode.Manual, input);
+            InitializeComputation(ComputationMode.Manual, input, constraint: null);
         }
 
         public void StartManualComputation(IEnumerable<Symbol<TSymbol>> input, IComputationConstraint<TState, TSymbol> constraint)
@@ -116,11 +116,6 @@ namespace TuringMachine.Machine
                     HandleAbortedComputation(ex);
                 }
             }
-        }
-
-        private void InitializeComputationWithoutConstraint(ComputationMode computationMode, IEnumerable<Symbol<TSymbol>> input)
-        {
-            InitializeComputation(computationMode, input, constraint: null);
         }
 
         private void InitializeComputation(
