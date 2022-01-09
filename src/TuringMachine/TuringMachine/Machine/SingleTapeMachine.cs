@@ -43,14 +43,12 @@ namespace TuringMachine.Machine
 
         public Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input)
         {
-            InitializeComputation(ComputationMode.Automatic, input, constraint: null);
-            return Task.Run(() => Compute());
+            return Task.Run(() => StartAutomaticComputation(input));
         }
 
         public Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input, IComputationConstraint<TState, TSymbol> constraint)
         {
-            InitializeComputation(ComputationMode.Automatic, input, constraint);
-            return Task.Run(() => Compute());
+            return Task.Run(() => StartAutomaticComputation(input, constraint));
         }
 
         public void StartAutomaticComputation(IEnumerable<Symbol<TSymbol>> input)
