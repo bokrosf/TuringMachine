@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TuringMachine.Machine.Computation.Constraint;
 
 namespace TuringMachine.Machine.Computation
 {
@@ -13,7 +14,12 @@ namespace TuringMachine.Machine.Computation
         /// <summary>
         /// The exception that caused the abortion.
         /// </summary>
-        public Exception Exception { get; }
+        public Exception? Exception { get; }
+
+        /// <summary>
+        /// The constraint violation that caused the abortion.
+        /// </summary>
+        public ConstraintViolation? ConstraintViolation { get; }
 
         /// <summary>
         /// Initializes a new instance of <see cref="ComputationAbortedEventArgs{TState, TSymbol}"/> class with the specified computation state, 
@@ -22,13 +28,16 @@ namespace TuringMachine.Machine.Computation
         /// <param name="computationState">State of the computation.</param>
         /// <param name="result">Symbols from the machine's tape after the computation has terminated.</param>
         /// <param name="exception">The exception that caused the abortion.</param>
+        /// <param name="constraintViolation"></param>
         public ComputationAbortedEventArgs(
             IReadOnlyComputationState<TState, TSymbol> computationState, 
             IEnumerable<Symbol<TSymbol>> result,
-            Exception exception)
+            Exception? exception,
+            ConstraintViolation? constraintViolation)
             : base(computationState, result)
         {
             Exception = exception;
+            ConstraintViolation = constraintViolation;
         }
     }
 }

@@ -7,6 +7,7 @@ using Xunit;
 
 namespace TuringMachine.Tests.UnitTests.ComputationConstraint
 {
+    [Obsolete("Automatic computation will be abortable by the machine.")]
     public class CancellationConstraintTests : IDisposable
     {
         private readonly CancellationTokenSource cancellationTokenSource;
@@ -35,10 +36,11 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint
         {
             var constraint = new CancellationConstraint<int, char>(cancellationTokenSource.Token);
             var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
-
             cancellationTokenSource.Cancel();
 
-            Assert.Throws<ComputationCancellationRequestedException>(() => constraint.Enforce(computationStateMock.Object));
+            var violation = constraint.Enforce(computationStateMock.Object);
+
+            Assert.NotNull(violation);
         }
     }
 }

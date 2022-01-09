@@ -8,6 +8,7 @@ namespace TuringMachine.Machine.Computation.Constraint
     /// </summary>
     /// <typeparam name="TState">Type of the machine's state.</typeparam>
     /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
+    [Obsolete("Automatic computation will be abortable by the machine.")]
     public class CancellationConstraint<TState, TSymbol> : IComputationConstraint<TState, TSymbol>
     {
         private readonly CancellationToken cancellationToken;
@@ -29,12 +30,11 @@ namespace TuringMachine.Machine.Computation.Constraint
 
         /// <inheritdoc/>
         /// <exception cref="ComputationCancellationRequestedException">Cancellation requested.</exception>
-        public void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
+        public ConstraintViolation? Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                throw new ComputationCancellationRequestedException();
-            }
+            return cancellationToken.IsCancellationRequested
+                ? new ConstraintViolation("Cancellation requested")
+                : null;
         }
     }
 }

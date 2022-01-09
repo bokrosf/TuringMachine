@@ -5,6 +5,7 @@ namespace TuringMachine.Machine.Computation.Constraint
     /// <summary>
     /// Exception that is thrown when cancellation of a computation is requested.
     /// </summary>
+    [Obsolete("Automatic computation will be abortable by the machine.")]
     public class ComputationCancellationRequestedException : ComputationAbortedException
     {
         /// <summary>

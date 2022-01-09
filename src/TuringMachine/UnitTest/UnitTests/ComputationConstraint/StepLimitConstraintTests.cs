@@ -62,11 +62,13 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint
         public void Enforce_StepLimitExceeded_ThrowsException(int stepLimit)
         {
             var constraint = new StepLimitConstraint<int, char>(stepLimit);
-            
             var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
             computationStateMock.Setup(cs => cs.StepCount).Returns(stepLimit + 1);
 
-            Assert.Throws<StepLimitExceededException>(() => constraint.Enforce(computationStateMock.Object));
+            var violation = constraint.Enforce(computationStateMock.Object) as StepLimitViolation;
+
+            Assert.NotNull(violation);
+            Assert.Equal(stepLimit, violation!.StepLimit);
         }
     }
 }

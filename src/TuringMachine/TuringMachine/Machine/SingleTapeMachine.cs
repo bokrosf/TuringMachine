@@ -111,7 +111,7 @@ namespace TuringMachine.Machine
                 }
                 catch (Exception ex)
                 {
-                    HandleAbortedComputation(ex);
+                    HandleAbortedComputation(ex, constraintViolation: null);
                 }
             }
         }
@@ -147,13 +147,17 @@ namespace TuringMachine.Machine
                     return false;
                 }
 
-                computation!.Constraint?.Enforce(computation.State.AsReadOnly());
+                if (computation!.Constraint?.Enforce(computation.State.AsReadOnly()) is ConstraintViolation violation)
+                {
+                    HandleAbortedComputation(exception: null, constraintViolation: violation);
+                    return false;
+                }
 
                 return true;
             }
             catch (Exception ex)
             {
-                HandleAbortedComputation(ex);
+                HandleAbortedComputation(ex, constraintViolation: null);
                 return false;
             }
         }
@@ -190,10 +194,10 @@ namespace TuringMachine.Machine
             return computation!.State.Configuration.State.IsFinishState;
         }
 
-        private void HandleAbortedComputation(Exception exception)
+        private void HandleAbortedComputation(Exception? exception, ConstraintViolation? constraintViolation)
         {
             computation!.State.StopDurationWatch();
-            ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(computation!.State.AsReadOnly(), tape, exception);
+            ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(computation!.State.AsReadOnly(), tape, exception, constraintViolation);
             CleanupComputation();
             OnComputationAborted(eventArgs);
         }

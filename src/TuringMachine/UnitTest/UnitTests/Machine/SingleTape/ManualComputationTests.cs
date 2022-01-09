@@ -87,7 +87,9 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
                 handler => machine.ComputationAborted -= handler,
                 () => StepUntilTermination(machine));
 
-            Assert.True(raisedAborted.Arguments.Exception is ComputationAbortedException);
+            Assert.Null(raisedAborted.Arguments.Exception);
+            Assert.NotNull(raisedAborted.Arguments.ConstraintViolation);
+            Assert.IsType<StepLimitViolation>(raisedAborted.Arguments.ConstraintViolation);
         }
 
         [Theory]
