@@ -20,24 +20,8 @@ namespace TuringMachine.Transition
         /// <exception cref="MissingStateException">Thrown when the collection does not contain an obligatory state.</exception>
         public void Validate(IEnumerable<Transition<TState, TSymbol>> transitions)
         {
-            CheckDuplications(transitions);
             CheckDeterminism(transitions);
             CheckStates(transitions);
-        }
-
-        private void CheckDuplications(IEnumerable<Transition<TState, TSymbol>> transitions)
-        {
-            var distinctTransitions = new HashSet<Transition<TState, TSymbol>>();
-
-            foreach (var t in transitions)
-            {
-                if (distinctTransitions.Contains(t))
-                {
-                    throw new DuplicateTransitionException($"Transitions must be unique. Transition={t}.");
-                }
-
-                distinctTransitions.Add(t);
-            }
         }
 
         private void CheckDeterminism(IEnumerable<Transition<TState, TSymbol>> transitions)

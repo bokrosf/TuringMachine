@@ -73,21 +73,6 @@ namespace TuringMachine.Tests.UnitTests
         }
 
         [Fact]
-        public void Validate_DuplicateTransition_Invalid()
-        {
-            var duplicateTransition = (("q0", 1), ("q1", 2, TapeHeadDirection.Right));
-
-            var transitions = new Transition<string, int>[]
-            {
-                duplicateTransition,
-                (("q1", 2), ("q2", 3, TapeHeadDirection.Stay)),
-                duplicateTransition
-            };
-
-            Assert.Throws<DuplicateTransitionException>(() => validator.Validate(transitions));
-        }
-
-        [Fact]
         public void Validate_NonDeterministic_Invalid()
         {
             var domain = ("q0", 1);
