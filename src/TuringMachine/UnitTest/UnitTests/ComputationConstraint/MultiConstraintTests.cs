@@ -44,7 +44,10 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint
             var constraints = new IComputationConstraint<int, char>[] { CreateInvalidConstraintMock<int, char>() };
             var multiConstraint = new MultiConstraint<int, char>(constraints);
 
-            Assert.Throws<ComputationAbortedException>(() => multiConstraint.Enforce(mockComputationState.Object));
+            var violation = multiConstraint.Enforce(mockComputationState.Object) as MultiViolation;
+
+            Assert.NotNull(violation);
+            Assert.Equal(1, violation!.Violations.Count);
         }
 
         [Fact]
@@ -54,7 +57,10 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint
             var constraints = Enumerable.Range(0, 5).Select(i => CreateInvalidConstraintMock<int, char>());
             var multiConstraint = new MultiConstraint<int, char>(constraints);
 
-            Assert.Throws<ComputationAbortedException>(() => multiConstraint.Enforce(mockComputationState.Object));
+            var violation = multiConstraint.Enforce(mockComputationState.Object) as MultiViolation;
+
+            Assert.NotNull(violation);
+            Assert.Equal(constraints.Count(), violation!.Violations.Count);
         }
 
         [Fact]
@@ -65,7 +71,10 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint
             var invalidConstraints = Enumerable.Range(0, 5).Select(i => CreateInvalidConstraintMock<int, char>());
             var multiConstraint = new MultiConstraint<int, char>(validConstraints.Concat(invalidConstraints));
 
-            Assert.Throws<ComputationAbortedException>(() => multiConstraint.Enforce(mockComputationState.Object));
+            var violation = multiConstraint.Enforce(mockComputationState.Object) as MultiViolation;
+
+            Assert.NotNull(violation);
+            Assert.Equal(invalidConstraints.Count(), violation!.Violations.Count);
         }
 
         private IComputationConstraint<TState, TSymbol> CreateInvalidConstraintMock<TState, TSymbol>()
@@ -73,7 +82,7 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint
             var constraint = new Mock<IComputationConstraint<TState, TSymbol>>();
             constraint
                 .Setup(sc => sc.Enforce(It.IsAny<IReadOnlyComputationState<TState, TSymbol>>()))
-                .Throws<ComputationAbortedException>();
+                .Returns(() => new ConstraintViolation("Mock for testing."));
 
             return constraint.Object;
         }

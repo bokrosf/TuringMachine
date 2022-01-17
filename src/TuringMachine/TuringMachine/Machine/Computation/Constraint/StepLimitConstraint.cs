@@ -28,12 +28,11 @@ namespace TuringMachine.Machine.Computation.Constraint
         
         /// <inheritdoc/>
         /// <exception cref="StepLimitExceededException">Computation takes more step than the limit.</exception>
-        public void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
+        public ConstraintViolation? Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
-            if (computationState.StepCount > stepLimit)
-            {
-                throw new StepLimitExceededException($"Computation can not take more than {stepLimit} steps.", stepLimit);
-            }
+            return computationState.StepCount > stepLimit
+                ? new StepLimitViolation($"Computation can not take more than {stepLimit} steps.", stepLimit)
+                : null;
         }
     }
 }

@@ -11,6 +11,6 @@
         /// Enforces the constraint.
         /// </summary>
         /// <param name="computationState">Computation state that the constraint apply to.</param>
-        void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState);
+        ConstraintViolation? Enforce(IReadOnlyComputationState<TState, TSymbol> computationState);
     }
 }

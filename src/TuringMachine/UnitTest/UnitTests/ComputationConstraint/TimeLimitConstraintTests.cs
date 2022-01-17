@@ -59,11 +59,14 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint
             TimeSpan timeLimit = TimeSpan.FromSeconds(3);
             TimeSpan duration = timeLimit.Add(TimeSpan.FromSeconds(2));
             var constraint = new TimeLimitConstraint<int, char>(timeLimit);
-
             var mockComputationState = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
             mockComputationState.Setup(ms => ms.Duration).Returns(duration);
 
-            Assert.Throws<TimeLimitExceededException>(() => constraint.Enforce(mockComputationState.Object));
+            var violation = constraint.Enforce(mockComputationState.Object) as TimeLimitViolation;
+
+            Assert.NotNull(violation);
+            Assert.Equal(timeLimit, violation!.TimeLimit);
+            Assert.Equal(mockComputationState.Object.Duration, violation!.Duration);
         }
     }
 }

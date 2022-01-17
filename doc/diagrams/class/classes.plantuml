@@ -100,13 +100,14 @@ interface "IAutomaticComputation<TState, TSymbol>" as IAutomaticComputation {
     StartAutomaticComputationAsync(input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<TState, TSymbol>): Task
     StartAutomaticComputation(input: IEnumerable<Symbol<TSymbol>>): void
     StartAutomaticComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<TState, TSymbol>): void
+    RequestAbortion(): void
 }
 
 interface "IManualComputation<TState, TSymbol>" as IManualComputation {
     StartManualComputation(input: IEnumerable<Symbol<TSymbol>>): void
     StartManualComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: ComputationConstraint<TState, TSymbol>): void
     Step(): bool
-    Abort(): void
+    RequestAbortion(): void
 }
 
 interface "IComputationTracking<TState, TSymbol>" as IComputationTracking {
@@ -131,7 +132,8 @@ class "ComputationTerminatedEventArgs<TState, TSymbol>" as ComputationTerminated
 }
 
 class "ComputationAbortedEventArgs<TState, TSymbol>" as ComputationAbortedEventArgs {
-    +{method} Exception: Exception {query}
+    +{method} Exception: Exception? {query}
+    +{method} ConstraintViolation: ConstraintViolation? {query}
 }
 
 enum ComputationMode {
@@ -141,7 +143,6 @@ enum ComputationMode {
 
 class "SingleTapeMachine<TState, TSymbol>" as SingleTapeMachine {
     -computationLock: object
-    -manualComputationLock: object
     -computationMode: ComputationMode?
     -computationState: ComputationState<TSymbol, TState>?    
     -constraint: IComputationConstraint<TState, TSymbol>?
@@ -190,7 +191,7 @@ IReadOnlyComputationState <|.. ComputationState
 ReadOnlyComputationState -[hidden]up- ComputationState
 
 interface "IComputationConstraint<TState, TSymbol>" as IComputationConstraint {
-    Enforce(IReadOnlyComputationState<TState, TSymbol> computationState): void
+    Enforce(IReadOnlyComputationState<TState, TSymbol> computationState): ConstraintViolation?
 }
 
 class "CancellationConstraint<TState, TSymbol>" as CancellationConstraint {
@@ -238,5 +239,28 @@ IComputationConstraint <|-- StepLimitConstraint
 IComputationConstraint <|-- TimeLimitConstraint
 IComputationConstraint <|-- MultiConstraint
 IReadOnlyComputationState <-- IComputationConstraint
+
+CancellationConstraint -[hidden]down- ConstraintViolation
+
+class ConstraintViolation << record >> {
+    +{method} Reason: string
+}
+
+class StepLimitViolation << record >> {
+    +{method} StepLimit: int
+}
+
+class TimeLimitViolation << record >> {
+    +{method} TimeLimit: TimeSpan
+}
+
+class MultiViolation << record >> {
+    +{method} Violations: IEnumerable<Violation>
+}
+
+ConstraintViolation <|-- CancellationViolation
+ConstraintViolation <|-- StepLimitViolation
+ConstraintViolation <|-- TimeLimitViolation
+ConstraintViolation <|-- MultiConstraintViolation
 
 @enduml

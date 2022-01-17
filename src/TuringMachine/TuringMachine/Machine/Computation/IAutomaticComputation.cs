@@ -37,5 +37,10 @@ namespace TuringMachine.Machine.Computation
         /// <param name="input">Symbols that the tape is initialized with.</param>
         /// <param name="constraint">A constraint that must be enforced during the computation process.</param>
         void StartAutomaticComputation(IEnumerable<Symbol<TSymbol>> input, IComputationConstraint<TState, TSymbol> constraint);
+
+        /// <summary>
+        /// Aborts the computation that is in progress.
+        /// </summary>
+        void RequestAbortion();
     }
 }

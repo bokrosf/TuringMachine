@@ -29,12 +29,11 @@ namespace TuringMachine.Machine.Computation.Constraint
         
         /// <inheritdoc/>
         /// <exception cref="TimeLimitConstraint{TState, TSymbol}">Computation takes longer than the time limit.</exception>
-        public void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
+        public ConstraintViolation? Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
-            if (computationState.Duration > timeLimit)
-            {
-                throw new TimeLimitExceededException($"Computation takes longer than {timeLimit}.", timeLimit, computationState.Duration);
-            }
+            return computationState.Duration > timeLimit
+                ? new TimeLimitViolation($"Computation takes longer than {timeLimit}.", timeLimit, computationState.Duration)
+                : null;
         }
     }
 }

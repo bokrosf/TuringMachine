@@ -9,7 +9,7 @@ namespace TuringMachine.Tests.UnitTests
 {
     public class TransitionCollectionValidatorTests
     {
-        TransitionCollectionValidator<string, int> validator;
+        private readonly TransitionCollectionValidator<string, int> validator;
 
         public TransitionCollectionValidatorTests()
         {
@@ -70,21 +70,6 @@ namespace TuringMachine.Tests.UnitTests
             };
 
             Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
-        }
-
-        [Fact]
-        public void Validate_DuplicateTransition_Invalid()
-        {
-            var duplicateTransition = (("q0", 1), ("q1", 2, TapeHeadDirection.Right));
-
-            var transitions = new Transition<string, int>[]
-            {
-                duplicateTransition,
-                (("q1", 2), ("q2", 3, TapeHeadDirection.Stay)),
-                duplicateTransition
-            };
-
-            Assert.Throws<DuplicateTransitionException>(() => validator.Validate(transitions));
         }
 
         [Fact]

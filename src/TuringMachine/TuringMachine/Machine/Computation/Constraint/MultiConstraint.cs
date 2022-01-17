@@ -29,12 +29,17 @@ namespace TuringMachine.Machine.Computation.Constraint
 
         /// <inheritdoc/>
         /// <exception cref="ComputationAbortedException">Any of the constraints could not be enforced.</exception>
-        public void Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
+        public ConstraintViolation? Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
         {
-            foreach (var c in constraints)
-            {
-                c.Enforce(computationState);
-            }
+            IEnumerable<ConstraintViolation> violations = constraints
+                .Select(c => c.Enforce(computationState))
+                .Where(cv => cv != null)
+                .Cast<ConstraintViolation>()
+                .ToList();
+
+            return violations.Any() 
+                ? new MultiViolation("Multiple constraints violated.", violations) 
+                : null;
         }
     }
 }
