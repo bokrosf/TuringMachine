@@ -9,7 +9,7 @@ namespace TuringMachine.Tests.UnitTests
 {
     public class TransitionCollectionValidatorTests
     {
-        TransitionCollectionValidator<string, int> validator;
+        private readonly TransitionCollectionValidator<string, int> validator;
 
         public TransitionCollectionValidatorTests()
         {
