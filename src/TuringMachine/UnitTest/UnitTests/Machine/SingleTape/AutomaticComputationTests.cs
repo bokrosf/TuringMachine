@@ -92,11 +92,9 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
 
         [Theory]
         [ClassData(typeof(InfiniteComputationTestData))]
-        public async Task StartAutomaticComputation_AutomaticAlreadyStarted_ThrowsExceptionAsync(StartComputationArguments<int, char> arguments)
+        public async Task StartAutomaticComputation_AutomaticAlreadyStarted_ThrowsException(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            CancellationConstraint<int, char> constraint = new CancellationConstraint<int, char>(cancellationTokenSource.Token);
             Task firstStepSynchronizationTask = new Task(() => { });
 
             void HandleMachineStepped(object? sender, SteppedEventArgs<int, char> e)
@@ -108,14 +106,13 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
             machine.Stepped += HandleMachineStepped;
 
             // Thread creation needed because using Task.Run() can cause the infinite computation run forever because scheduling.
-            Thread computationThread = new Thread(() => machine.StartAutomaticComputation(arguments.Input, constraint));
+            Thread computationThread = new Thread(() => machine.StartAutomaticComputation(arguments.Input));
             computationThread.Priority = ThreadPriority.Lowest;
             computationThread.Start();
             await firstStepSynchronizationTask;
             Assert.Throws<InvalidOperationException>(() => machine.StartAutomaticComputation(arguments.Input));
-
-            cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
+            machine.RequestAbortion();
+            computationThread.Join();
         }
 
         [Theory]
@@ -201,10 +198,8 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         public async Task StartAutomaticComputationAsync_AutomaticAlreadyStarted_ThrowsException(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>();
             computationStateMock.Setup(cs => cs.Configuration).Returns((1, 'a'));
-            CancellationConstraint<int, char> constraint = new CancellationConstraint<int, char>(cancellationTokenSource.Token);
             Task firstStepSynchronizationTask = new Task(() => { });
 
             void HandleMachineStepped(object? sender, SteppedEventArgs<int, char> e)
@@ -216,14 +211,13 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
             machine.Stepped += HandleMachineStepped;
 
             // Thread creation needed because using Task.Run() can cause the infinite computation run forever because scheduling.
-            Thread computationThread = new Thread(() => machine.StartAutomaticComputation(arguments.Input, constraint));
+            Thread computationThread = new Thread(() => machine.StartAutomaticComputation(arguments.Input));
             computationThread.Priority = ThreadPriority.Lowest;
             computationThread.Start();
             await firstStepSynchronizationTask;
             await Assert.ThrowsAsync<InvalidOperationException>(() => machine.StartAutomaticComputationAsync(arguments.Input));
-
-            cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
+            machine.RequestAbortion();
+            computationThread.Join();
         }
 
         [Theory]

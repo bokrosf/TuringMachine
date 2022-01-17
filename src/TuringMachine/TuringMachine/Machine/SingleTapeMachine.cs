@@ -16,16 +16,14 @@ namespace TuringMachine.Machine
         IAutomaticComputation<TState, TSymbol>,
         IManualComputation<TState, TSymbol>,
         IComputationTracking<TState, TSymbol>
-    {
-        private record Computation(ComputationMode Mode, ComputationState<TState, TSymbol> State, IComputationConstraint<TState, TSymbol>? Constraint);
-        
+    {        
         public event EventHandler<SteppedEventArgs<TState, TSymbol>>? Stepped;
         public event EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>? ComputationTerminated;
         public event EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>? ComputationAborted;
 
         private object computationLock;
         private object manualComputationLock;
-        private Computation? computation;
+        private Computation<TState, TSymbol>? computation;
         private Tape<TSymbol> tape;
         private TransitionTable<TState, TSymbol> transitionTable;
 
@@ -36,7 +34,7 @@ namespace TuringMachine.Machine
         public SingleTapeMachine(TransitionTable<TState, TSymbol> transitionTable)
         {
             computationLock = new object();
-            manualComputationLock = new object();
+            manualComputationLock = new object(); 
             tape = new Tape<TSymbol>();
             this.transitionTable = transitionTable;
         }
@@ -85,33 +83,37 @@ namespace TuringMachine.Machine
                     {
                         throw new InvalidOperationException($"{(computation?.Mode)?.ToString() ?? "<null>"} computation mode can not be stepped manually.");
                     }
+
+                    if (computation.IsAborted)
+                    {
+                        return false;
+                    }
                 }
 
                 return PerformStep();
             }
         }
 
-        /// <inheritdoc/>
-        /// <exception cref="InvalidOperationException">Computation has not started manually.</exception>
-        public void Abort()
+        public void RequestAbortion()
         {
             lock (manualComputationLock)
             {
+                ComputationMode mode = default;
+
                 lock (computationLock)
                 {
-                    if (computation?.Mode != ComputationMode.Manual)
+                    if (computation == null || computation.IsAborted)
                     {
-                        throw new InvalidOperationException($"{(computation?.Mode)?.ToString() ?? "<null>"} computation mode can not be aborted manually.");
-                    }                    
+                        return;
+                    }
+
+                    computation = computation with { IsAborted = true };
+                    mode = computation.Mode;
                 }
 
-                try
+                if (mode == ComputationMode.Manual)
                 {
-                    throw new ComputationCancellationRequestedException();
-                }
-                catch (Exception ex)
-                {
-                    HandleAbortedComputation(ex, constraintViolation: null);
+                    AbortComputation();
                 }
             }
         }
@@ -129,7 +131,7 @@ namespace TuringMachine.Machine
                 }
 
                 tape = new Tape<TSymbol>(input);
-                computation = new Computation(computationMode, new ComputationState<TState, TSymbol>(tape.CurrentSymbol), constraint);
+                computation = new (computationMode, new (tape.CurrentSymbol), constraint, IsAborted: false);
             }
 
             computation.State.StartDurationWatch();
@@ -139,6 +141,12 @@ namespace TuringMachine.Machine
         {
             try
             {
+                if (IsAborted())
+                {
+                    AbortComputation();
+                    return false;
+                }
+
                 TransitToNextState();
 
                 if (CanTerminate())
@@ -149,7 +157,7 @@ namespace TuringMachine.Machine
 
                 if (computation!.Constraint?.Enforce(computation.State.AsReadOnly()) is ConstraintViolation violation)
                 {
-                    HandleAbortedComputation(exception: null, constraintViolation: violation);
+                    AbortComputation(violation);
                     return false;
                 }
 
@@ -157,8 +165,16 @@ namespace TuringMachine.Machine
             }
             catch (Exception ex)
             {
-                HandleAbortedComputation(ex, constraintViolation: null);
+                AbortComputation(ex);
                 return false;
+            }
+        }
+
+        private bool IsAborted()
+        {
+            lock (computationLock)
+            {
+                return computation?.IsAborted ?? true;
             }
         }
 
@@ -194,7 +210,11 @@ namespace TuringMachine.Machine
             return computation!.State.Configuration.State.IsFinishState;
         }
 
-        private void HandleAbortedComputation(Exception? exception, ConstraintViolation? constraintViolation)
+        private void AbortComputation() => AbortComputation(exception: null, constraintViolation: null);
+        private void AbortComputation(Exception? ex) => AbortComputation(exception: ex, constraintViolation: null);
+        private void AbortComputation(ConstraintViolation? violation) => AbortComputation(exception: null, constraintViolation: violation);
+
+        private void AbortComputation(Exception? exception, ConstraintViolation? constraintViolation)
         {
             computation!.State.StopDurationWatch();
             ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(computation!.State.AsReadOnly(), tape, exception, constraintViolation);

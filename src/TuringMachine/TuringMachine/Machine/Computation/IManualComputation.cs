@@ -32,6 +32,6 @@ namespace TuringMachine.Machine.Computation
         /// <summary>
         /// Aborts the computation that is in progress.
         /// </summary>
-        void Abort();
+        void RequestAbortion();
     }
 }

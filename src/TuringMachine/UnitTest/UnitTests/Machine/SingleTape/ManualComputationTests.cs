@@ -113,12 +113,11 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
             var raisedAborted = Assert.Raises<ComputationAbortedEventArgs<int, char>>(
                 handler => machine.ComputationAborted += handler,
                 handler => machine.ComputationAborted -= handler,
-                () => machine.Abort());
+                () => machine.RequestAbortion());
 
             Assert.Same(machine, raisedAborted.Sender);
             Assert.Equal(State<int>.Initial, raisedAborted.Arguments.State);
             Assert.Equal(0, raisedAborted.Arguments.StepCount);
-            Assert.IsType<ComputationCancellationRequestedException>(raisedAborted.Arguments.Exception);
         }
 
         [Theory]
@@ -132,22 +131,12 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
             var raisedAborted = Assert.Raises<ComputationAbortedEventArgs<int, char>>(
                 handler => machine.ComputationAborted += handler,
                 handler => machine.ComputationAborted -= handler,
-                () => machine.Abort());
+                () => machine.RequestAbortion());
 
             Assert.Same(machine, raisedAborted.Sender);
             Assert.NotEqual(State<int>.Initial, raisedAborted.Arguments.State);
             Assert.False(raisedAborted.Arguments.State.IsFinishState);
             Assert.Equal(1, raisedAborted.Arguments.StepCount);
-            Assert.IsType<ComputationCancellationRequestedException>(raisedAborted.Arguments.Exception);
-        }
-
-        [Theory]
-        [ClassData(typeof(InfiniteComputationTestData))]
-        public void Abort_NoComputationStarted_ThrowsExceptionAsync(StartComputationArguments<int, char> arguments)
-        {
-            var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
-
-            Assert.Throws<InvalidOperationException>(() => machine.Abort());
         }
 
         [Theory]
@@ -155,29 +144,36 @@ namespace TuringMachine.Tests.UnitTests.Machine.SingleTape
         public async Task Abort_AutomaticAlreadyStarted_ThrowsExceptionAsync(StartComputationArguments<int, char> arguments)
         {
             var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            CancellationConstraint<int, char> constraint = new CancellationConstraint<int, char>(cancellationTokenSource.Token);
             Task firstStepSynchronizationTask = new Task(() => { });
+            bool hasRaisedAborted = false;
 
-            void HandleMachineStepped(object? sender, SteppedEventArgs<int, char> e)
+            void Machine_Stepped(object? sender, SteppedEventArgs<int, char> e)
             {
-                machine.Stepped -= HandleMachineStepped;
+                machine.Stepped -= Machine_Stepped;
                 firstStepSynchronizationTask.Start();
             }
 
-            machine.Stepped += HandleMachineStepped;
+            void Machine_ComputationAborted(object? sender, ComputationAbortedEventArgs<int, char> e)
+            {
+                machine.Stepped -= Machine_Stepped;
+                hasRaisedAborted = true;
+            }
+
+            machine.Stepped += Machine_Stepped;
+            machine.ComputationAborted += Machine_ComputationAborted;
 
             // Thread creation needed because using Task.Run() can cause the infinite computation run forever because scheduling.
-            Thread computationThread = new Thread(() => machine.StartAutomaticComputation(arguments.Input, constraint));
+            Thread computationThread = new Thread(() => machine.StartAutomaticComputation(arguments.Input));
             computationThread.Priority = ThreadPriority.Lowest;
             computationThread.Start();
             await firstStepSynchronizationTask;
-            Assert.Throws<InvalidOperationException>(() => machine.Abort());
+            machine.RequestAbortion();
+            computationThread.Join();
 
-            cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
+            Assert.True(hasRaisedAborted);
         }
 
+        
         private void StepUntilTermination<TState, TSymbol>(SingleTapeMachine<TState, TSymbol> machine)
         {
             while (machine.Step())
