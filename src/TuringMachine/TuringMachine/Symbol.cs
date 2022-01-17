@@ -11,7 +11,7 @@ namespace TuringMachine
         private const int NullValueHashCode = 0;
         
         /// <summary>
-        /// Gets the blank symbol tape value.
+        /// Gets the blank symbol.
         /// </summary>
         public static Symbol<T> Blank { get; }
 
@@ -28,6 +28,19 @@ namespace TuringMachine
         /// <param name="value">The value to be stored on the tape.</param>
         public Symbol(T value) => Value = value;
 
+        /// <summary>
+        /// Converts the value of this instance to a <see cref="string"/>.
+        /// </summary>
+        /// <returns>
+        /// <see cref="string"/> whose value is the same as the string representation of <see cref="Value"/>. If it's the <see cref="Blank"/>
+        /// symbol then it returns "&lt;BLANK&gt;".
+        /// </returns>
+        public override string ToString()
+        {
+            return ReferenceEquals(this, Blank) ? "<BLANK>" : $"<{Value}>";
+        }
+
+        /// <inheritdoc/>
         public override bool Equals(object? obj)
         {
             if (obj == null || GetType() != obj.GetType())
@@ -35,15 +48,16 @@ namespace TuringMachine
                 return false;
             }
 
-            if (ReferenceEquals(obj, Blank) && ReferenceEquals(this, Blank))
+            Symbol<T> other = (Symbol<T>)obj;
+            bool otherIsBlank = ReferenceEquals(other, Blank);
+            bool thisIsBlank = ReferenceEquals(this, Blank);
+
+            if (otherIsBlank && thisIsBlank)
             {
                 return true;
             }
 
-            Symbol<T> symbol = (Symbol<T>)obj;
-            bool oneOfThemIsBlank = ReferenceEquals(symbol, Blank) || ReferenceEquals(this, Blank);
-
-            return !oneOfThemIsBlank && EqualityComparer<T>.Default.Equals(symbol.Value, Value);
+            return !otherIsBlank && !thisIsBlank && EqualityComparer<T>.Default.Equals(other.Value, Value);
         }
 
         /// <summary>
@@ -54,18 +68,12 @@ namespace TuringMachine
         /// <returns>true if the value of left is the same as the value of right; otherwise, false.</returns>
         public static bool operator ==(Symbol<T>? left, Symbol<T>? right)
         {
-            if (left is null && right is null)
+            return (left, right) switch
             {
-                return true;
-            }
-            else if (left is null ^ right is null)
-            {
-                return false;
-            }
-            else
-            {
-                return left!.Equals(right);
-            }
+                (null, null) => true,
+                (null, _) => false,
+                _ => left.Equals(right)
+            };
         }
 
         /// <summary>
@@ -85,14 +93,8 @@ namespace TuringMachine
             {
                 return base.GetHashCode();
             }
-            else if (Value == null)
-            {
-                return NullValueHashCode;
-            }
-            else
-            {
-                return Value.GetHashCode();
-            }
+
+            return Value?.GetHashCode() ?? NullValueHashCode;
         }
     }
 }
