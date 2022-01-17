@@ -21,11 +21,11 @@ namespace TuringMachine.Machine
         public event EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>? ComputationTerminated;
         public event EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>? ComputationAborted;
 
-        private object computationLock;
-        private object manualComputationLock;
+        private readonly object computationLock;
+        private readonly object manualComputationLock;
         private Computation<TState, TSymbol>? computation;
         private Tape<TSymbol> tape;
-        private TransitionTable<TState, TSymbol> transitionTable;
+        private readonly TransitionTable<TState, TSymbol> transitionTable;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SingleTapeMachine{TState, TSymbol}"/> class with the given transition table.
