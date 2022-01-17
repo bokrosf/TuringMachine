@@ -6,10 +6,4 @@
     <WarningsAsErrors>8618,8602,8601,8600,8629,8604,8625</WarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Extensions\**" />
-    <EmbeddedResource Remove="Extensions\**" />
-    <None Remove="Extensions\**" />
-  </ItemGroup>
-
 </Project>
