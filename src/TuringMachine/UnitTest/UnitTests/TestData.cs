@@ -1,12 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace TuringMachine.Tests.UnitTests
-{
-    internal abstract class TestData : IEnumerable<object[]>
-    {
-        public abstract IEnumerator<object[]> GetEnumerator();
+namespace TuringMachine.Tests.UnitTests;
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+internal abstract class TestData : IEnumerable<object[]>
+{
+    public abstract IEnumerator<object[]> GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
