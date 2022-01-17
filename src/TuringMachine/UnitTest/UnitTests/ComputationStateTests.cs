@@ -2,53 +2,52 @@
 using TuringMachine.Machine.Computation;
 using Xunit;
 
-namespace TuringMachine.Tests.UnitTests
+namespace TuringMachine.Tests.UnitTests;
+
+public class ComputationStateTests
 {
-    public class ComputationStateTests
+    [Fact]
+    public void Constructor_SettingSymbol_Success()
     {
-        [Fact]
-        public void Constructor_SettingSymbol_Success()
-        {
-            var symbol = new Symbol<char>('F');
-            var computationState = new ComputationState<int, char>(symbol);
+        var symbol = new Symbol<char>('F');
+        var computationState = new ComputationState<int, char>(symbol);
 
-            bool isInitialState = computationState.Configuration.State == State<int>.Initial;
-            bool isSameSymbol = computationState.Configuration.Symbol == symbol;
-            bool isWatchStarted = computationState.Duration > TimeSpan.Zero;
+        bool isInitialState = computationState.Configuration.State == State<int>.Initial;
+        bool isSameSymbol = computationState.Configuration.Symbol == symbol;
+        bool isWatchStarted = computationState.Duration > TimeSpan.Zero;
 
-            Assert.True(isInitialState);
-            Assert.True(isSameSymbol);
-            Assert.False(isWatchStarted);
-            Assert.Equal(0, computationState.StepCount);
-        }
+        Assert.True(isInitialState);
+        Assert.True(isSameSymbol);
+        Assert.False(isWatchStarted);
+        Assert.Equal(0, computationState.StepCount);
+    }
 
-        [Fact]
-        public void UpdateConfiguration_InInitialState_Updated()
-        {
-            var stateUpdateValue = new State<int>(2);
-            var initialSymbol = new Symbol<int>(5);
-            var symbolUpdateValue = new Symbol<int>(initialSymbol.Value + 1);
-            var computationState = new ComputationState<int, int>(initialSymbol);
+    [Fact]
+    public void UpdateConfiguration_InInitialState_Updated()
+    {
+        var stateUpdateValue = new State<int>(2);
+        var initialSymbol = new Symbol<int>(5);
+        var symbolUpdateValue = new Symbol<int>(initialSymbol.Value + 1);
+        var computationState = new ComputationState<int, int>(initialSymbol);
 
-            computationState.UpdateConfiguration((stateUpdateValue, symbolUpdateValue));
-            bool isStateUpdated = computationState.Configuration.State == stateUpdateValue;
-            bool isSymbolUpdated = computationState.Configuration.Symbol == symbolUpdateValue;
+        computationState.UpdateConfiguration((stateUpdateValue, symbolUpdateValue));
+        bool isStateUpdated = computationState.Configuration.State == stateUpdateValue;
+        bool isSymbolUpdated = computationState.Configuration.Symbol == symbolUpdateValue;
 
-            Assert.True(isStateUpdated);
-            Assert.True(isSymbolUpdated);
-            Assert.Equal(1, computationState.StepCount);
-        }
+        Assert.True(isStateUpdated);
+        Assert.True(isSymbolUpdated);
+        Assert.Equal(1, computationState.StepCount);
+    }
 
-        [Theory]
-        [ClassData(typeof(FinishedStatesTestData<int>))]
-        public void UpdateConfiguration_InFinishedState_ThrowsException(State<int> finishedState)
-        {
-            var symbol = new Symbol<int>(5);
-            var computationState = new ComputationState<int, int>(symbol);
+    [Theory]
+    [ClassData(typeof(FinishedStatesTestData<int>))]
+    public void UpdateConfiguration_InFinishedState_ThrowsException(State<int> finishedState)
+    {
+        var symbol = new Symbol<int>(5);
+        var computationState = new ComputationState<int, int>(symbol);
 
-            computationState.UpdateConfiguration((finishedState, symbol));
-         
-            Assert.Throws<InvalidOperationException>(() => computationState.UpdateConfiguration((finishedState, symbol)));
-        }
+        computationState.UpdateConfiguration((finishedState, symbol));
+
+        Assert.Throws<InvalidOperationException>(() => computationState.UpdateConfiguration((finishedState, symbol)));
     }
 }

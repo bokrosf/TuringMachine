@@ -1,18 +1,17 @@
-﻿namespace TuringMachine.Machine.Computation
+﻿namespace TuringMachine.Machine.Computation;
+
+/// <summary>
+/// Specifies computation execution modes.
+/// </summary>
+public enum ComputationMode
 {
     /// <summary>
-    /// Specifies computation execution modes.
+    /// The computation executed automatically without client interference.
     /// </summary>
-    public enum ComputationMode
-    {
-        /// <summary>
-        /// The computation executed automatically without client interference.
-        /// </summary>
-        Automatic,
+    Automatic,
 
-        /// <summary>
-        /// The computation executed manually by the client step by step.
-        /// </summary>
-        Manual
-    }
+    /// <summary>
+    /// The computation executed manually by the client step by step.
+    /// </summary>
+    Manual
 }
