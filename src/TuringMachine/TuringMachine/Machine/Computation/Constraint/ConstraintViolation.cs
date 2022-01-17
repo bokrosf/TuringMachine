@@ -32,17 +32,20 @@ namespace TuringMachine.Machine.Computation.Constraint
     /// </summary>
     public record MultiViolation : ConstraintViolation
     {
+        /// <summary>
+        /// Details of the violations.
+        /// </summary>
         public IReadOnlyList<ConstraintViolation> Violations { get; }
 
         /// <summary>
         /// Multiple constraint violation.
         /// </summary>
-        /// <param name="Reason">Reason of the violation.</param>
-        /// <param name="Violations">Violations</param>
-        public MultiViolation(string Reason, IEnumerable<ConstraintViolation> Violations)
-            : base(Reason)
+        /// <param name="reason">Reason of the violation.</param>
+        /// <param name="violations">Violations to ensure.</param>
+        public MultiViolation(string reason, IEnumerable<ConstraintViolation> violations)
+            : base(reason)
         {
-            this.Violations = Violations.ToList().AsReadOnly();
+            Violations = violations.ToList().AsReadOnly();
         }
     }
 }
