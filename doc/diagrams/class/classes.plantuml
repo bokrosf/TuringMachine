@@ -268,4 +268,10 @@ class StateTransition<TState> << record >> {
     +{method} Range: State<TState>
 }
 
+class TapeTransition<TSymbol> << record >> {
+    +{method} Domain: Symbol<TSymbol>
+    +{method} Range: Symbol<TSymbol>
+    +{method} TapeHeadDirection: TapeHeadDirection
+}
+
 @enduml
