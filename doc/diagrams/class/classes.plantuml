@@ -263,4 +263,9 @@ ConstraintViolation <|-- StepLimitViolation
 ConstraintViolation <|-- TimeLimitViolation
 ConstraintViolation <|-- MultiConstraintViolation
 
+class StateTransition<TState> << record >> {
+    +{method} Domain: State<TState>
+    +{method} Range: State<TState>
+}
+
 @enduml
