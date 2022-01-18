@@ -1,4 +1,4 @@
-﻿namespace TuringMachine.Transition;
+﻿namespace TuringMachine.Transition.SingleTape;
 
 /// <summary>
 /// Represents a machine transition.

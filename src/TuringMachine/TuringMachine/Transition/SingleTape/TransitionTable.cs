@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace TuringMachine.Transition;
+namespace TuringMachine.Transition.SingleTape;
 
 /// <summary>
 /// Represents the mapping of transition domains and ranges that can be used by a machine for transitioning one configuration to the next.

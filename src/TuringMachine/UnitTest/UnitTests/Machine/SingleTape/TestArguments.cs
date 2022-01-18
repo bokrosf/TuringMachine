@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using TuringMachine.Transition;
+using TuringMachine.Transition.SingleTape;
 
 namespace TuringMachine.Tests.UnitTests.Machine.SingleTape;
 

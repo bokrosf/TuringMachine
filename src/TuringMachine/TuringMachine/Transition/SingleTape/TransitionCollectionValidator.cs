@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace TuringMachine.Transition;
+namespace TuringMachine.Transition.SingleTape;
 
 /// <summary>
 /// Check validity of transaction collections.

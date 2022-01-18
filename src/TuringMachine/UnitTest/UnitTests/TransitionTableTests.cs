@@ -1,5 +1,6 @@
 ﻿using TuringMachine.Machine;
 using TuringMachine.Transition;
+using TuringMachine.Transition.SingleTape;
 using Xunit;
 
 namespace TuringMachine.Tests.UnitTests;
@@ -12,9 +13,9 @@ public class TransitionTableTests
         var existingTransition = new Transition<string, int>(("q1", 2), ("q1", 3, TapeHeadDirection.Left));
         var transitions = new Transition<string, int>[]
         {
-                ((State<string>.Initial, 1), ("q1", 2, TapeHeadDirection.Right)),
-                existingTransition,
-                (("q1", 3), (State<string>.Accept, 4, TapeHeadDirection.Stay)),
+            ((State<string>.Initial, 1), ("q1", 2, TapeHeadDirection.Right)),
+            existingTransition,
+            (("q1", 3), (State<string>.Accept, 4, TapeHeadDirection.Stay)),
         };
 
         var transitionTable = new TransitionTable<string, int>(transitions);
@@ -31,9 +32,9 @@ public class TransitionTableTests
         var existingTransition = new Transition<string, int>(("q1", 2), ("q1", 3, TapeHeadDirection.Left));
         var transitions = new Transition<string, int>[]
         {
-                ((State<string>.Initial, 1), ("q1", 2, TapeHeadDirection.Right)),
-                existingTransition,
-                (("q1", 3), (State<string>.Accept, 4, TapeHeadDirection.Stay)),
+            ((State<string>.Initial, 1), ("q1", 2, TapeHeadDirection.Right)),
+            existingTransition,
+            (("q1", 3), (State<string>.Accept, 4, TapeHeadDirection.Stay)),
         };
 
         var notExistingTransition = new Transition<string, int>(

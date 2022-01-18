@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using TuringMachine.Machine.Computation;
 using TuringMachine.Machine.Computation.Constraint;
 using TuringMachine.Transition;
+using TuringMachine.Transition.SingleTape;
 
 namespace TuringMachine.Machine;
 

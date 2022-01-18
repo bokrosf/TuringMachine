@@ -1,6 +1,6 @@
 ﻿using TuringMachine.Machine;
 
-namespace TuringMachine.Transition;
+namespace TuringMachine.Transition.SingleTape;
 
 /// <summary>
 /// Represents the range of a machine transition.

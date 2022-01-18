@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TuringMachine.Machine;
 using TuringMachine.Transition;
+using TuringMachine.Transition.SingleTape;
 using Xunit;
 
 namespace TuringMachine.Tests.UnitTests;

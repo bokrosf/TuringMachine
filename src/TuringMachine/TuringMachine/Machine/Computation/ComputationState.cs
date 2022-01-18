@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using TuringMachine.Transition;
+using TuringMachine.Transition.SingleTape;
 
 namespace TuringMachine.Machine.Computation;
 
