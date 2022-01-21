@@ -166,9 +166,6 @@ interface "IReadOnlyComputationState<TState, TSymbol>" as IReadOnlyComputationSt
 }
 
 interface "IComputationState<TState, TSymbol>" as IComputationState {
-    {method} Configuration: TransitionDomain<TState, TSymbol>
-    {method} StepCount: int
-    {method} Duration: TimeSpan
     UpdateConfiguration(configuration: TransitionDomain<TState, TSymbol>): void
     StartDurationWatch(): void
     StopDurationWatch(): void
@@ -185,10 +182,11 @@ class "ReadOnlyComputationState<TState, TSymbol>" as ReadOnlyComputationState {
     +ReadOnlyComputationState(computationState: IComputationState<TState, TSymbol>)
 }
 
+IReadOnlyComputationState <|.. IComputationState
 IComputationState <|.. ComputationState
 IReadOnlyComputationState <|.. ReadOnlyComputationState
 IReadOnlyComputationState <|.. ComputationState
-ReadOnlyComputationState -[hidden]up- ComputationState
+ReadOnlyComputationState o-up- ComputationState
 
 interface "IComputationConstraint<TState, TSymbol>" as IComputationConstraint {
     Enforce(IReadOnlyComputationState<TState, TSymbol> computationState): ConstraintViolation?

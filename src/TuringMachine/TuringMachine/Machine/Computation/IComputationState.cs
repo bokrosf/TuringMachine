@@ -8,23 +8,8 @@ namespace TuringMachine.Machine.Computation;
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public interface IComputationState<TState, TSymbol>
+public interface IComputationState<TState, TSymbol> : IReadOnlyComputationState<TState, TSymbol>
 {
-    /// <summary>
-    /// Current configuration of the machine.
-    /// </summary>
-    TransitionDomain<TState, TSymbol> Configuration { get; }
-
-    /// <summary>
-    /// Steps taken since the start of the computation.
-    /// </summary>
-    int StepCount { get; }
-
-    /// <summary>
-    /// Elapsed time since the start of the computation.
-    /// </summary>
-    TimeSpan Duration { get; }
-
     /// <summary>
     /// Updates the configuration to the specified one.
     /// </summary>
