@@ -276,10 +276,25 @@ namespace TuringMachine.Transition.MultiTape {
     }
 
     class "Transition<TState, TSymbol>" as Transition {
-        +Transition(state: StateTransition<TState>, tapes: IEnumerable<TapeTransition<TSym>>)
+        +Transition(state: StateTransition<TState>, tapes: IEnumerable<TapeTransition<TSymbol>>)
         +{method} State: StateTransition<TState>
         +{method} Tapes: IReadOnlyList<TapeTransition<TSymbol>>
     }   
+
+    ~class "TapeTransitionRange<TSymbol>" as TapeTransitionRange << record >> {
+        +{method} Symbol: Symbol<TSymbol>
+        +{method} TapeHeadDirection: TapeHeadDirection
+    }
+
+    ~class "TransitionRange<TState, TSymbol>" as TransitionRange {
+        +TransitionRange(state: State<TState>, tapes: IEnumerable<TapeTransitionRange<TSymbol>>)
+        +{method} State: State<TState>
+        +{method} Tapes: IReadOnlyList<TapeTransitionRange<TSymbol>>
+    }
+
+    interface "ITransitionTable<TState, TSymbol>" as ITransitionTable {
+        ~GetRange(State<TState> state, IEnumerable<Symbol<TSymbol>> tapeSymbols): TransitionRange<TState, TSymbol>
+    }
 
     TuringMachine.Transition.MultiTape.Transition o-- TuringMachine.Transition.MultiTape.StateTransition
     TuringMachine.Transition.MultiTape.Transition o-- "1..*" TuringMachine.Transition.MultiTape.TapeTransition
