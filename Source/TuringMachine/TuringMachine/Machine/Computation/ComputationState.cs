@@ -24,7 +24,17 @@ public abstract class ComputationState<TConfiguration> : IReadOnlyComputationSta
     /// Updates the configuration to the specified one.
     /// </summary>
     /// <param name="configuration">Configuration of the matchine.</param>
-    public abstract void UpdateConfiguration(TConfiguration configuration);
+    /// <exception cref="InvalidOperationException">Configuration is in finished state.</exception>
+    public void UpdateConfiguration(TConfiguration configuration)
+    {
+        if (IsFinishState(Configuration))
+        {
+            throw new InvalidOperationException("Configuration can not be updated after it's in finished state.");
+        }
+
+        Configuration = configuration;
+        ++StepCount;
+    }
 
     public void StartDurationWatch() => durationWatch.Start();
 
@@ -34,5 +44,12 @@ public abstract class ComputationState<TConfiguration> : IReadOnlyComputationSta
     /// Returns a read-only wrapper for the current instance.
     /// </summary>
     /// <returns>An object that acts as a read-only wrapper around the current <see cref="ComputationState{TConfiguration}"/>.</returns>
-    public abstract IReadOnlyComputationState<TConfiguration> AsReadOnly();
+    public IReadOnlyComputationState<TConfiguration> AsReadOnly() => new ReadOnlyComputationState<TConfiguration>(this);
+
+    /// <summary>
+    /// Returns whether the configuration is in finish state.
+    /// </summary>
+    /// <param name="configuration">Configuration of the machine.</param>
+    /// <returns>true if the configuration is in finished state; otherwise, false.</returns>
+    protected abstract bool IsFinishState(TConfiguration configuration);
 }

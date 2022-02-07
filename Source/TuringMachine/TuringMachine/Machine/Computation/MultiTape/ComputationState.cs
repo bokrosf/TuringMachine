@@ -1,9 +1,10 @@
-﻿using TuringMachine.Transition.SingleTape;
+﻿using System.Collections.Generic;
+using TuringMachine.Transition.MultiTape;
 
-namespace TuringMachine.Machine.Computation.SingleTape;
+namespace TuringMachine.Machine.Computation.MultiTape;
 
 /// <summary>
-/// Represents the state of a single-tape machine's computation.
+/// Represents the state of a multi-tape machine's computation.
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
@@ -12,12 +13,12 @@ public class ComputationState<TState, TSymbol> : Computation.ComputationState<Tr
     public override TransitionDomain<TState, TSymbol> Configuration { get; protected set; }
 
     /// <summary>
-    /// Initialzes a new instance of <see cref="ComputationState{TState, TSymbol}"/> class to be in <see cref="State{T}.Initial"/> state
-    /// and to contain the specified symbol.
+    /// Creates a new instance of <see cref="ComputationState{TState, TSymbol}"/> class with the specified symbols per tape.
     /// </summary>
-    public ComputationState(Symbol<TSymbol> symbol)
+    /// <param name="symbols">Current symbols on each tape.</param>
+    public ComputationState(IEnumerable<Symbol<TSymbol>> symbols)
     {
-        Configuration = (State<TState>.Initial, symbol);
+        Configuration = new TransitionDomain<TState, TSymbol>(State<TState>.Initial, symbols);
     }
 
     protected override bool IsFinishState(TransitionDomain<TState, TSymbol> configuration)

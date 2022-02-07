@@ -198,11 +198,12 @@ interface "IReadOnlyComputationState<TConfiguration>" as IReadOnlyComputationSta
 abstract class "ComputationState<TConfiguration>" as ComputationState {
     -durationWatch: StopWatch
     #ComputationState()
-    +{abstract} UpdateConfiguration(configuration: TConfiguration): void
+    +UpdateConfiguration(configuration: TConfiguration): void
     +StartDurationWatch(): void
     +StopDurationWatch(): void
     +AsReadOnly(): IReadOnlyComputationState<TConfiguration>
     +{abstract}{method} Configuration: TConfiguration {query}
+    +{abstract} IsFinishedState(configuration: TConfiguration): bool
 }
 
 ~class "ReadOnlyComputationState<TConfiguration>" as ReadOnlyComputationState {
@@ -213,7 +214,6 @@ abstract class "ComputationState<TConfiguration>" as ComputationState {
 namespace TuringMachine.Computation.SingleTape {
     class "ComputationState<TState, TSymbol>" as ComputationState {
         +ComputationState(symbol: Symbol<TSymbol>)
-        +UpdateConfiguration(configuration: TransitionDomain<TState, TSymbol>): void
         +{method} Configuration: TransitionDomain<TState, TSymbol> {query}
     }
 }
@@ -221,7 +221,6 @@ namespace TuringMachine.Computation.SingleTape {
 namespace TuringMachine.Computation.MultiTape {
     class "ComputationState<TState, TSymbol>" as ComputationState {
         +ComputationState(symbols: IEnumerable<Symbol<TSymbol>>)
-        +UpdateConfiguration(configuration: TransitionDomain<TState, TSymbol>): void
         +{method} Configuration: TransitionDomain<TState, TSymbol> {query}
     }
 }
