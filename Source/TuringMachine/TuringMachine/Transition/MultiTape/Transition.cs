@@ -26,7 +26,7 @@ public class Transition<TState, TSymbol>
     /// </summary>
     /// <param name="state">State transition.</param>
     /// <param name="tapes">Transitions per tapes.</param>
-    /// <exception cref="ArgumentException">Empty tape transitions provided.</exception>
+    /// <exception cref="ArgumentException">Empty tape transition collection provided.</exception>
     public Transition(StateTransition<TState> state, IEnumerable<TapeTransition<TSymbol>> tapes)
     {
         if (!tapes.Any())

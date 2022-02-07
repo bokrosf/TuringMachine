@@ -15,6 +15,7 @@ public class MultiConstraint : IComputationConstraint<IReadOnlyComputationState>
     /// Initializes a new instance of <see cref="MultiConstraint"/> class with the specified constraints.
     /// </summary>
     /// <param name="constraints">Constraints need to be enforced.</param>
+    /// <exception cref="ArgumentException">Empty constraint collection provided.</exception>
     public MultiConstraint(IEnumerable<IComputationConstraint<IReadOnlyComputationState>> constraints)
     {
         if (!constraints.Any())
