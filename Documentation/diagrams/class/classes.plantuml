@@ -172,11 +172,25 @@ enum ComputationMode {
     
 }
 
-namespace TuringMachine.Machine {
+namespace TuringMachine.Machine.SingleTape {
     class "Machine<TState, TSymbol>" as Machine {
         -tape: Tape<TSymbol>
         -transitionTable: TransitionTable<TState, TSymbol>
         +SingleTapeMachine(transitionTable: TransitionTable<TState, TSymbol>)
+        #InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<IReadOnlyComputationState<TransitionDomain<TState, TSymbol>>>?): void
+        #TransitToNextState(): void
+        #Terminate(): void
+        #CleanupComputation(): void
+        #CanTerminate(): bool
+        #AbortComputation(ex: Exception?, violation: ConstraintViolation?): void
+    }
+}
+
+namespace TuringMachine.Machine.MultiTape {
+    class "Machine<TState, TSymbol>" as Machine {
+        -tapes: IReadOnlyList<Tape<TSymbol>>
+        -transitionTable: ITransitionTable<TState, TSymbol>
+        +SingleTapeMachine(transitionTable: ITransitionTable<TState, TSymbol>)
         #InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<IReadOnlyComputationState<TransitionDomain<TState, TSymbol>>>?): void
         #TransitToNextState(): void
         #Terminate(): void
@@ -266,9 +280,9 @@ IAutomaticComputation <|.. Machine
 IManualComputation <|.. Machine
 IComputationTracking <|.. Machine
 Machine *-- Computation
-TuringMachine.Machine.Machine *-- Tape
-TuringMachine.Machine.Machine "*" o-- "1" TuringMachine.Transition.SingleTape.TransitionTable
-Machine <|-- TuringMachine.Machine.Machine
+TuringMachine.Machine.SingleTape.Machine *-- Tape
+TuringMachine.Machine.SingleTape.Machine "*" o-- "1" TuringMachine.Transition.SingleTape.TransitionTable
+Machine <|-- TuringMachine.Machine.SingleTape.Machine
 Computation "1..*" *-- "0..1" ComputationMode   
 
 IComputationConstraint <|.. StepLimitConstraint
@@ -335,7 +349,8 @@ namespace TuringMachine.Transition.MultiTape {
     }
 
     interface "ITransitionTable<TState, TSymbol>" as ITransitionTable {
-        ~ <<indexer>> [domain: TransitionDomain<TState, TSymbol>]: TransitionRange<TState, TSymbol>
+        +{method} TapeCount: int
+        ~{method} <<indexer>> [domain: TransitionDomain<TState, TSymbol>]: TransitionRange<TState, TSymbol>
     }
 
     TuringMachine.Transition.MultiTape.Transition o-- TuringMachine.Transition.MultiTape.StateTransition

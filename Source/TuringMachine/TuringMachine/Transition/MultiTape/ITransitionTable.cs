@@ -9,6 +9,11 @@
 public interface ITransitionTable<TState, TSymbol>
 {
     /// <summary>
+    /// Gets the number of tapes.
+    /// </summary>
+    int TapeCount { get; }
+    
+    /// <summary>
     ///  Gets the range that belongs to the given transition domain.
     /// </summary>
     /// <param name="domain">Domain of a transition</param>
