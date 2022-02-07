@@ -320,12 +320,21 @@ namespace TuringMachine.Transition.MultiTape {
         +{method} Tapes: IReadOnlyList<TapeTransitionRange<TSymbol>>
     }
 
+    class "TransitionDomain<TState, TSymbol>" as TransitionDomain {
+        +TransitionDomain(state: State<TState>, symbols: IEnumerable<Symbol<TSymbol>>)
+        +{method} State: State<TState> {query}
+        +{method} TapeSymbols: IReadOnlyList<Symbol<TSymbol>> {query}
+    }
+
     interface "ITransitionTable<TState, TSymbol>" as ITransitionTable {
-        ~GetRange(State<TState> state, IEnumerable<Symbol<TSymbol>> tapeSymbols): TransitionRange<TState, TSymbol>
+        ~GetRange(TransitionDomain<TState, TSymbol> domain): TransitionRange<TState, TSymbol>
     }
 
     TuringMachine.Transition.MultiTape.Transition o-- TuringMachine.Transition.MultiTape.StateTransition
     TuringMachine.Transition.MultiTape.Transition o-- "1..*" TuringMachine.Transition.MultiTape.TapeTransition
+    TuringMachine.Transition.MultiTape.ITransitionTable ..> TuringMachine.Transition.MultiTape.TransitionDomain
+    TuringMachine.Transition.MultiTape.ITransitionTable ..> TuringMachine.Transition.MultiTape.TransitionRange
+    TuringMachine.Transition.MultiTape.TransitionRange o-- "1..*" TuringMachine.Transition.MultiTape.TapeTransitionRange
 }
 
 @enduml
