@@ -83,7 +83,7 @@ namespace TuringMachine.Transition.SingleTape {
     class "TransitionTable<TState, TSymbol>" as TransitionTable {
         -transitions: ReadOnlyDictionary<TState, TSymbol>
         +TransitionTable(transitions: IEnumerable<Transition<TState, TSymbol>>)
-        ~[](TransitionDomain<TState, TSymbol> domain): TransitionRange
+        ~{method} <<indexer>> [domain: TransitionDomain<TState, TSymbol>]: TransitionRange
     }
 
     class "TransitionCollectionValidator<TState, TSymbol>" as TransitionCollectionValidator {
@@ -336,7 +336,7 @@ namespace TuringMachine.Transition.MultiTape {
     }
 
     interface "ITransitionTable<TState, TSymbol>" as ITransitionTable {
-        ~GetRange(TransitionDomain<TState, TSymbol> domain): TransitionRange<TState, TSymbol>
+        ~ <<indexer>> [domain: TransitionDomain<TState, TSymbol>]: TransitionRange<TState, TSymbol>
     }
 
     TuringMachine.Transition.MultiTape.Transition o-- TuringMachine.Transition.MultiTape.StateTransition

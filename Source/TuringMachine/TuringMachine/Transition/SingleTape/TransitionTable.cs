@@ -5,7 +5,8 @@ using System.Linq;
 namespace TuringMachine.Transition.SingleTape;
 
 /// <summary>
-/// Represents the mapping of transition domains and ranges that can be used by a machine for transitioning one configuration to the next.
+/// Represents the mapping of transition domains and ranges that can be used by a single-tape machine for transitioning
+/// from one configuration to the next.
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
@@ -16,7 +17,7 @@ public sealed class TransitionTable<TState, TSymbol>
     /// <summary>
     /// Gets the range that belongs to the given transition domain.
     /// </summary>
-    /// <param name="domain">Domain of a transitions.</param>
+    /// <param name="domain">Domain of a transition.</param>
     /// <returns><see cref="TransitionRange{TState, TSymbol}"/> that belongs to the given transition domain.</returns>
     /// <exception cref="TransitionDomainNotFoundException">Thrown when the table does not contain any range belonging the given domain.</exception>
     internal TransitionRange<TState, TSymbol> this[TransitionDomain<TState, TSymbol> domain]

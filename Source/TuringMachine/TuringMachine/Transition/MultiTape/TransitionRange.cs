@@ -4,7 +4,7 @@ using System.Linq;
 namespace TuringMachine.Transition.MultiTape;
 
 /// <summary>
-/// Represents the range of a multi tape transition.
+/// Represents the range of a multi-tape machine transition.
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>

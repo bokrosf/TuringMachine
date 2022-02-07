@@ -5,7 +5,7 @@ using System.Linq;
 namespace TuringMachine.Transition.MultiTape;
 
 /// <summary>
-/// Represents the domain of a single-tape machine transition.
+/// Represents the domain of a multi-tape machine transition.
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
