@@ -218,9 +218,18 @@ namespace TuringMachine.Computation.SingleTape {
     }
 }
 
+namespace TuringMachine.Computation.MultiTape {
+    class "ComputationState<TState, TSymbol>" as ComputationState {
+        +ComputationState(symbols: IEnumerable<Symbol<TSymbol>>)
+        +UpdateConfiguration(configuration: TransitionDomain<TState, TSymbol>): void
+        +{method} Configuration: TransitionDomain<TState, TSymbol> {query}
+    }
+}
+
 IReadOnlyComputationState <|-- IReadOnlyComputationStateWithTStateAndTConfiguration
 IReadOnlyComputationStateWithTStateAndTConfiguration <|.. ComputationState
 ComputationState <|-- TuringMachine.Computation.SingleTape.ComputationState
+ComputationState <|-- TuringMachine.Computation.MultiTape.ComputationState
 ReadOnlyComputationState o-up- IReadOnlyComputationStateWithTStateAndTConfiguration
 
 interface "IComputationConstraint<TConfiguration>" as IComputationConstraint {
