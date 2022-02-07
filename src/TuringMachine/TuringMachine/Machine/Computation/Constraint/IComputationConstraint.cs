@@ -3,13 +3,13 @@
 /// <summary>
 /// Enforces the defined constraint during computation.
 /// </summary>
-/// <typeparam name="TState">Type of the machine's state.</typeparam>
-/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public interface IComputationConstraint<TState, TSymbol>
+/// <typeparam name="TComputationState">Type of the computation's state.</typeparam>
+public interface IComputationConstraint<in TComputationState> 
+    where TComputationState : IReadOnlyComputationState
 {
     /// <summary>
     /// Enforces the constraint.
     /// </summary>
-    /// <param name="computationState">Computation state that the constraint apply to.</param>
-    ConstraintViolation? Enforce(IReadOnlyComputationState<TState, TSymbol> computationState);
+    /// <param name="computationState">Computation state that the constraint applies to.</param>
+    ConstraintViolation? Enforce(TComputationState computationState);
 }

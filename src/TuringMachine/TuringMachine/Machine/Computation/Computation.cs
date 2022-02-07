@@ -5,14 +5,16 @@ namespace TuringMachine.Machine.Computation;
 /// <summary>
 /// Stores information about a computation.
 /// </summary>
-/// <typeparam name="TState">Type of the machine's state.</typeparam>
-/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
+/// <typeparam name="TComputationState">Type of the computation's state.</typeparam>
+/// <typeparam name="TConfiguration">Type of the machine's configuration</typeparam>
 /// <param name="Mode">Which mode the computation has been started.</param>
 /// <param name="State">Current state of the computation.</param>
 /// <param name="Constraint">Constraint that must be enforced during the computation.</param>
 /// <param name="IsAborted">whether the computation has aborted</param>
-internal record Computation<TState, TSymbol>(
+public record Computation<TComputationState, TConfiguration>(
     ComputationMode Mode,
-    ComputationState<TState, TSymbol> State,
-    IComputationConstraint<TState, TSymbol>? Constraint,
-    bool IsAborted);
+    TComputationState State,
+    IComputationConstraint<IReadOnlyComputationState<TConfiguration>>? Constraint,
+    bool IsAborted)
+        where TComputationState : IReadOnlyComputationState
+        where TConfiguration : notnull;

@@ -1,39 +1,27 @@
 ﻿using System;
-using TuringMachine.Transition;
-using TuringMachine.Transition.SingleTape;
 
 namespace TuringMachine.Machine.Computation;
 
 /// <summary>
-/// Represents a read-only computation state.
+/// Represents a machine's read-only computation state.
 /// </summary>
-/// <typeparam name="TState">Type of the machine's state.</typeparam>
-/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public class ReadOnlyComputationState<TState, TSymbol> : IReadOnlyComputationState<TState, TSymbol>
+/// <typeparam name="TConfiguration">Type of the machine's configuration.</typeparam>
+internal class ReadOnlyComputationState<TConfiguration> : IReadOnlyComputationState<TConfiguration>
 {
-    private readonly IComputationState<TState, TSymbol> computationState;
+    private readonly IReadOnlyComputationState<TConfiguration> computationState;
 
     /// <summary>
-    /// Current configuration of the machine.
-    /// </summary>
-    public TransitionDomain<TState, TSymbol> Configuration => computationState.Configuration;
-
-    /// <summary>
-    /// Steps taken since the start of the computation.
-    /// </summary>
-    public int StepCount => computationState.StepCount;
-
-    /// <summary>
-    /// Elapsed time since the start of the computation.
-    /// </summary>
-    public TimeSpan Duration => computationState.Duration;
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="ReadOnlyComputationState{TState, TSymbol}"/> class with the specified computation state.
+    /// Initializes a new instance of <see cref="ReadOnlyComputationState{TState, TConfiguration}"/> class with the specified computation state.
     /// </summary>
     /// <param name="computationState">State of a computation.</param>
-    public ReadOnlyComputationState(IComputationState<TState, TSymbol> computationState)
+    public ReadOnlyComputationState(IReadOnlyComputationState<TConfiguration> computationState)
     {
         this.computationState = computationState;
     }
+
+    public TConfiguration Configuration => computationState.Configuration;
+    
+    public int StepCount => computationState.StepCount;
+    
+    public TimeSpan Duration => computationState.Duration;
 }

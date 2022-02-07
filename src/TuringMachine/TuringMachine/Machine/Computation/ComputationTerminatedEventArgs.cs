@@ -22,24 +22,28 @@ public class ComputationTerminatedEventArgs<TState, TSymbol> : ComputationStateC
     public IReadOnlyList<Symbol<TSymbol>> RawResult { get; }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="ComputationTerminatedEventArgs{TState, TSymbol}"/> class with the specified computation state
-    /// and the resulting symbols of the computation.
+    /// Initializes a new instance of <see cref="ComputationTerminatedEventArgs{TState, TSymbol}"/> class with the specified computation state, 
+    /// state the machine terminated at and the resulting symbols of the computation.
     /// </summary>
-    /// <param name="computationState">State of the computation.</param>
+    /// <param name="computationState">State of a computation.</param>
+    /// <param name="state">The state that the machine terminated at.</param>
     /// <param name="result">Symbols from the machine's tape after the computation has terminated.</param>
-    public ComputationTerminatedEventArgs(IReadOnlyComputationState<TState, TSymbol> computationState, IEnumerable<Symbol<TSymbol>> result)
-        : base(computationState.StepCount, computationState.Duration)
+    public ComputationTerminatedEventArgs(
+        IReadOnlyComputationState computationState, 
+        State<TState> state, 
+        IEnumerable<Symbol<TSymbol>> result)
+        : base(computationState)
     {
-        State = computationState.Configuration.State;
+        State = state;
         RawResult = result.ToList().AsReadOnly();
     }
 
     /// <summary>
-    /// Enumerates the result sequence without all leading and trailing <see cref="Symbol{T}.Blank"/> symbols.
+    /// Enumerates the result sequence without all leading and trailing <see cref="Symbol{TSymbol}.Blank"/> symbols.
     /// </summary>
     /// <returns>
-    /// <see cref="IEnumerable{T}"/> The sequence that remains after all <see cref="Symbol{T}.Blank"/> symbols removed from
-    /// the start and end of the result sequence. If no <see cref="Symbol{T}.Blank"/> symbols can be trimmed from the result,
+    /// <see cref="IEnumerable{T}"/> The sequence that remains after all <see cref="Symbol{TSymbol}.Blank"/> symbols removed from
+    /// the start and end of the result sequence. If no <see cref="Symbol{TSymbol}.Blank"/> symbols can be trimmed from the result,
     /// the method returns the current result sequence unchanged.
     /// </returns>
     public IEnumerable<Symbol<TSymbol>> TrimResult()

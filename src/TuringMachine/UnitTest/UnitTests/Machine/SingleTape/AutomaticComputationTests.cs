@@ -1,11 +1,11 @@
 ﻿using Moq;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using TuringMachine.Machine;
 using TuringMachine.Machine.Computation;
 using TuringMachine.Machine.Computation.Constraint;
+using TuringMachine.Machine.SingleTape;
+using TuringMachine.Transition.SingleTape;
 using Xunit;
 
 namespace TuringMachine.Tests.UnitTests.Machine.SingleTape;
@@ -16,9 +16,9 @@ public class AutomaticComputationTests
     [ClassData(typeof(AcceptedInputTestData))]
     public void StartAutomaticComputation_WithoutConstraint_SteppedRaised(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
 
-        var raisedStepped = Assert.Raises<SteppedEventArgs<int, char>>(
+        var raisedStepped = Assert.Raises<SteppedEventArgs<Transition<int, char>>>(
             handler => machine.Stepped += handler,
             handler => machine.Stepped -= handler,
             () => machine.StartAutomaticComputation(arguments.Input));
@@ -32,7 +32,7 @@ public class AutomaticComputationTests
     [ClassData(typeof(AcceptedInputTestData))]
     public void StartAutomaticComputation_WithoutConstraint_InputAccepted(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
 
         var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
@@ -47,7 +47,7 @@ public class AutomaticComputationTests
     [ClassData(typeof(RejectedInputTestData))]
     public void StartAutomaticComputation_WithoutConstraint_InputRejected(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
 
         var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
@@ -62,7 +62,7 @@ public class AutomaticComputationTests
     [ClassData(typeof(ExpectedTapeOutputTestData))]
     public void StartAutomaticComputation_OutputSymbols_SymbolsAsExpected(ExpectedTapeOutputArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
 
         var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
@@ -77,8 +77,8 @@ public class AutomaticComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public void StartAutomaticComputation_WithConstraint_EnforcementStopsComputation(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
-        var constraint = new StepLimitConstraint<int, char>(3);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var constraint = new StepLimitConstraint(3);
 
         var raisedAborted = Assert.Raises<ComputationAbortedEventArgs<int, char>>(
             handler => machine.ComputationAborted += handler,
@@ -94,10 +94,10 @@ public class AutomaticComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public async Task StartAutomaticComputation_AutomaticAlreadyStarted_ThrowsException(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
         Task firstStepSynchronizationTask = new Task(() => { });
 
-        void HandleMachineStepped(object? sender, SteppedEventArgs<int, char> e)
+        void HandleMachineStepped(object? sender, SteppedEventArgs<Transition<int, char>> e)
         {
             machine.Stepped -= HandleMachineStepped;
             firstStepSynchronizationTask.Start();
@@ -119,9 +119,9 @@ public class AutomaticComputationTests
     [ClassData(typeof(AcceptedInputTestData))]
     public async Task StartAutomaticComputationAsync_WithoutConstraint_SteppedRaised(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
 
-        var raisedStepped = await Assert.RaisesAsync<SteppedEventArgs<int, char>>(
+        var raisedStepped = await Assert.RaisesAsync<SteppedEventArgs<Transition<int, char>>>(
             handler => machine.Stepped += handler,
             handler => machine.Stepped -= handler,
             () => machine.StartAutomaticComputationAsync(arguments.Input));
@@ -135,7 +135,7 @@ public class AutomaticComputationTests
     [ClassData(typeof(AcceptedInputTestData))]
     public async Task StartAutomaticComputationAsync_WithoutConstraint_InputAccepted(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
 
         var raisedTerminated = await Assert.RaisesAsync<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
@@ -150,7 +150,7 @@ public class AutomaticComputationTests
     [ClassData(typeof(RejectedInputTestData))]
     public async Task StartAutomaticComputationAsync_WithoutConstraint_InputRejected(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
 
         var raisedTerminated = await Assert.RaisesAsync<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
@@ -165,7 +165,7 @@ public class AutomaticComputationTests
     [ClassData(typeof(ExpectedTapeOutputTestData))]
     public async Task StartAutomaticComputationAsync_OutputSymbols_SymbolsAsExpected(ExpectedTapeOutputArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
 
         var raisedTerminated = await Assert.RaisesAsync<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
@@ -180,8 +180,8 @@ public class AutomaticComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public async Task StartAutomaticComputationAsync_WithConstraint_EnforcementStopsComputation(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
-        var constraint = new StepLimitConstraint<int, char>(3);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var constraint = new StepLimitConstraint(3);
 
         var raisedAborted = await Assert.RaisesAsync<ComputationAbortedEventArgs<int, char>>(
             handler => machine.ComputationAborted += handler,
@@ -197,12 +197,10 @@ public class AutomaticComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public async Task StartAutomaticComputationAsync_AutomaticAlreadyStarted_ThrowsException(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
-        var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>();
-        computationStateMock.Setup(cs => cs.Configuration).Returns((1, 'a'));
+        var machine = new Machine<int, char>(arguments.TransitionTable);
         Task firstStepSynchronizationTask = new Task(() => { });
 
-        void HandleMachineStepped(object? sender, SteppedEventArgs<int, char> e)
+        void HandleMachineStepped(object? sender, SteppedEventArgs<Transition<int, char>> e)
         {
             machine.Stepped -= HandleMachineStepped;
             firstStepSynchronizationTask.Start();
@@ -224,7 +222,7 @@ public class AutomaticComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public async Task StartAutomaticComputationAsync_ManualAlreadyStarted_ThrowsException(StartComputationArguments<int, char> arguments)
     {
-        var machine = new SingleTapeMachine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>(arguments.TransitionTable);
 
         machine.StartManualComputation(arguments.Input);
 

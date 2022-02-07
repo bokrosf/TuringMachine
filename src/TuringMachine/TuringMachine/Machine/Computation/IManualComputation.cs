@@ -6,9 +6,10 @@ namespace TuringMachine.Machine.Computation;
 /// <summary>
 /// Defines methods for controlling manual computations.
 /// </summary>
-/// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public interface IManualComputation<TState, TSymbol>
+/// <typeparam name="TConfiguration">Type of the machine's configuration.</typeparam>
+public interface IManualComputation<TSymbol, TConfiguration>
+    where TConfiguration : notnull
 {
     /// <summary>
     /// Starts a manually steppable computation process with the specified symbols.
@@ -21,7 +22,9 @@ public interface IManualComputation<TState, TSymbol>
     /// </summary>
     /// <param name="input">Symbols that the tape is initialized with.</param>
     /// <param name="constraint">A constraint that must be enforced during the computation process.</param>
-    void StartManualComputation(IEnumerable<Symbol<TSymbol>> input, IComputationConstraint<TState, TSymbol> constraint);
+    void StartManualComputation(
+        IEnumerable<Symbol<TSymbol>> input,
+        IComputationConstraint<IReadOnlyComputationState<TConfiguration>> constraint);
 
     /// <summary>
     /// Transitions the machine from it's current state to the next.

@@ -14,7 +14,7 @@ public class StepLimitConstraintTests
     [InlineData(488)]
     public void Constructor_ValidStepLimit_Success(int validStepLimit)
     {
-        new StepLimitConstraint<int, char>(validStepLimit);
+        new StepLimitConstraint(validStepLimit);
     }
 
     [Theory]
@@ -23,7 +23,7 @@ public class StepLimitConstraintTests
     [InlineData(-300)]
     public void Constructor_InvalidStepLimit_ThrowsException(int invalidStepLimit)
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new StepLimitConstraint<int, char>(invalidStepLimit));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new StepLimitConstraint(invalidStepLimit));
     }
 
     [Theory]
@@ -32,9 +32,9 @@ public class StepLimitConstraintTests
     [InlineData(5)]
     public void Enforce_LowerThanStepLimit_NotThrowsException(int stepLimit)
     {
-        var constraint = new StepLimitConstraint<int, char>(stepLimit);
+        var constraint = new StepLimitConstraint(stepLimit);
 
-        var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
+        var computationStateMock = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
         computationStateMock.Setup(cs => cs.StepCount).Returns(stepLimit - 1);
 
         constraint.Enforce(computationStateMock.Object);
@@ -46,9 +46,9 @@ public class StepLimitConstraintTests
     [InlineData(5)]
     public void Enforce_StepLimitReached_NotThrowsException(int stepLimit)
     {
-        var constraint = new StepLimitConstraint<int, char>(stepLimit);
+        var constraint = new StepLimitConstraint(stepLimit);
 
-        var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
+        var computationStateMock = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
         computationStateMock.Setup(cs => cs.StepCount).Returns(stepLimit);
 
         constraint.Enforce(computationStateMock.Object);
@@ -61,8 +61,8 @@ public class StepLimitConstraintTests
     [InlineData(5)]
     public void Enforce_StepLimitExceeded_ThrowsException(int stepLimit)
     {
-        var constraint = new StepLimitConstraint<int, char>(stepLimit);
-        var computationStateMock = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
+        var constraint = new StepLimitConstraint(stepLimit);
+        var computationStateMock = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
         computationStateMock.Setup(cs => cs.StepCount).Returns(stepLimit + 1);
 
         var violation = constraint.Enforce(computationStateMock.Object) as StepLimitViolation;

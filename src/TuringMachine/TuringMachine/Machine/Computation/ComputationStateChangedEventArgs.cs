@@ -18,13 +18,12 @@ public abstract class ComputationStateChangedEventArgs : EventArgs
     public TimeSpan Duration { get; }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="ComputationStateChangedEventArgs"/> class with the given step count and duration.
+    /// Initializes a new instance of <see cref="ComputationStateChangedEventArgs"/> class with the given computation state.
     /// </summary>
-    /// <param name="stepCount">The number of steps have taken since the start of the computation.</param>
-    /// <param name="duration">The elapsed time since the start of the computation.</param>
-    protected ComputationStateChangedEventArgs(int stepCount, TimeSpan duration)
+    /// <param name="computationState">State of the computation.</param>
+    protected ComputationStateChangedEventArgs(IReadOnlyComputationState computationState)
     {
-        StepCount = stepCount;
-        Duration = duration;
+        StepCount = computationState.StepCount;
+        Duration = computationState.Duration;
     }
 }

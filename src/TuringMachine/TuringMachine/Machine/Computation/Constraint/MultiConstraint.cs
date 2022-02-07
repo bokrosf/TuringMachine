@@ -7,17 +7,15 @@ namespace TuringMachine.Machine.Computation.Constraint;
 /// <summary>
 /// Ensures all the given constraints.
 /// </summary>
-/// <typeparam name="TState">Type of the machine's state.</typeparam>
-/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public class MultiConstraint<TState, TSymbol> : IComputationConstraint<TState, TSymbol>
+public class MultiConstraint : IComputationConstraint<IReadOnlyComputationState>
 {
-    private readonly IReadOnlyCollection<IComputationConstraint<TState, TSymbol>> constraints;
+    private readonly IReadOnlyCollection<IComputationConstraint<IReadOnlyComputationState>> constraints;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="MultiConstraint{TState, TSymbol}"/> class with the specified constraints.
+    /// Initializes a new instance of <see cref="MultiConstraint"/> class with the specified constraints.
     /// </summary>
     /// <param name="constraints">Constraints need to be enforced.</param>
-    public MultiConstraint(IEnumerable<IComputationConstraint<TState, TSymbol>> constraints)
+    public MultiConstraint(IEnumerable<IComputationConstraint<IReadOnlyComputationState>> constraints)
     {
         if (!constraints.Any())
         {
@@ -27,15 +25,14 @@ public class MultiConstraint<TState, TSymbol> : IComputationConstraint<TState, T
         this.constraints = constraints.ToList().AsReadOnly();
     }
 
-    /// <inheritdoc/>
-    /// <exception cref="ComputationAbortedException">Any of the constraints could not be enforced.</exception>
-    public ConstraintViolation? Enforce(IReadOnlyComputationState<TState, TSymbol> computationState)
+    public ConstraintViolation? Enforce(IReadOnlyComputationState computationState)
     {
         IEnumerable<ConstraintViolation> violations = constraints
             .Select(c => c.Enforce(computationState))
             .Where(cv => cv != null)
             .Cast<ConstraintViolation>()
-            .ToList();
+            .ToList()
+            .AsReadOnly();
 
         return violations.Any()
             ? new MultiViolation("Multiple constraints violated.", violations)

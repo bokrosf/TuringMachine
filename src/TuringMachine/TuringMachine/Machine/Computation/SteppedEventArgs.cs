@@ -1,28 +1,26 @@
-﻿using TuringMachine.Transition.SingleTape;
-
-namespace TuringMachine.Machine.Computation;
+﻿namespace TuringMachine.Machine.Computation;
 
 /// <summary>
 /// Provides data for the event that is raised when a turing machine transitioned from one state to another.
 /// </summary>
-/// <typeparam name="TState">Type of the machine's state.</typeparam>
-/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public class SteppedEventArgs<TState, TSymbol> : ComputationStateChangedEventArgs
+/// <typeparam name="TTransition">Type of a machine transition.</typeparam>
+public class SteppedEventArgs<TTransition> : ComputationStateChangedEventArgs
+    where TTransition : notnull
 {
     /// <summary>
     /// The applied transition during the step.
     /// </summary>
-    public Transition<TState, TSymbol> Transition { get; }
+    public TTransition Transition { get; }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="SteppedEventArgs{TState, TSymbol}"/> class with the the specified computation state
+    /// Initializes a new instance of <see cref="SteppedEventArgs{TTransition}"/> class with the the specified computation state
     /// and transition.
     /// </summary>
     /// <param name="computationState">State of the computation.</param>
     /// <param name="transition">The applied transition during the step.</param>
-    public SteppedEventArgs(IReadOnlyComputationState<TState, TSymbol> computationState, Transition<TState, TSymbol> transition)
-        : base(computationState.StepCount, computationState.Duration)
+    public SteppedEventArgs(IReadOnlyComputationState computationState, TTransition tranition)
+        : base(computationState)
     {
-        Transition = transition;
+        Transition = tranition;
     }
 }

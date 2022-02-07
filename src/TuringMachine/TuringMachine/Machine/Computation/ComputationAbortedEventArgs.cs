@@ -23,18 +23,20 @@ public class ComputationAbortedEventArgs<TState, TSymbol> : ComputationTerminate
 
     /// <summary>
     /// Initializes a new instance of <see cref="ComputationAbortedEventArgs{TState, TSymbol}"/> class with the specified computation state, 
-    /// the resulting symbols of the computation and the cause of abortion.
+    /// state the machine was at abortion and the resulting symbols of the computation and the cause of abortion.
     /// </summary>
-    /// <param name="computationState">State of the computation.</param>
+    /// <param name="computationState">State of a computation.</param>
+    /// <param name="state">The state that the machine terminated at.</param>
     /// <param name="result">Symbols from the machine's tape after the computation has terminated.</param>
     /// <param name="exception">The exception that caused the abortion.</param>
-    /// <param name="constraintViolation"></param>
+    /// <param name="constraintViolation">Violation of a constraint that caused the abortion.</param>
     public ComputationAbortedEventArgs(
-        IReadOnlyComputationState<TState, TSymbol> computationState,
+        IReadOnlyComputationState computationState, 
+        State<TState> state,
         IEnumerable<Symbol<TSymbol>> result,
         Exception? exception,
         ConstraintViolation? constraintViolation)
-        : base(computationState, result)
+        : base(computationState, state, result)
     {
         Exception = exception;
         ConstraintViolation = constraintViolation;

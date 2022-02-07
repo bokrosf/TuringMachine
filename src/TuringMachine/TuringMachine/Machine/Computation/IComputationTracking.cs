@@ -7,12 +7,13 @@ namespace TuringMachine.Machine.Computation;
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public interface IComputationTracking<TState, TSymbol>
+public interface IComputationTracking<TState, TSymbol, TTransition>
+    where TTransition : notnull
 {
     /// <summary>
     /// Occures when a machine transitions from one state to another.
     /// </summary>
-    event EventHandler<SteppedEventArgs<TState, TSymbol>>? Stepped;
+    event EventHandler<SteppedEventArgs<TTransition>>? Stepped;
 
     /// <summary>
     /// Occures when a computation terminated.

@@ -1,20 +1,12 @@
 ﻿using System;
-using TuringMachine.Transition.SingleTape;
 
 namespace TuringMachine.Machine.Computation;
 
 /// <summary>
 /// Represents a read-only computation state.
 /// </summary>
-/// <typeparam name="TState">Type of the machine's state.</typeparam>
-/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public interface IReadOnlyComputationState<TState, TSymbol>
+public interface IReadOnlyComputationState
 {
-    /// <summary>
-    /// Current configuration of the machine.
-    /// </summary>
-    TransitionDomain<TState, TSymbol> Configuration { get; }
-
     /// <summary>
     /// Steps taken since the start of the computation.
     /// </summary>

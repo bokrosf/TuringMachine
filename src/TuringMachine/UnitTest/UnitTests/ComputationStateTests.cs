@@ -1,5 +1,5 @@
 ﻿using System;
-using TuringMachine.Machine.Computation;
+using TuringMachine.Machine.Computation.SingleTape;
 using Xunit;
 
 namespace TuringMachine.Tests.UnitTests;

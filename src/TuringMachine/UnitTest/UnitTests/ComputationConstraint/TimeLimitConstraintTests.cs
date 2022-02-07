@@ -12,20 +12,20 @@ public class TimeLimitConstraintTests
     public void Constructor_TimeLimitLessThanZero_ThrowsException()
     {
         TimeSpan lessThanZero = TimeSpan.Zero.Subtract(TimeSpan.FromTicks(1));
-        Assert.Throws<ArgumentOutOfRangeException>(() => new TimeLimitConstraint<int, char>(lessThanZero));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new TimeLimitConstraint(lessThanZero));
     }
 
     [Fact]
     public void Constructor_TimeLimitIsZero_ThrowsException()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => new TimeLimitConstraint<int, char>(TimeSpan.Zero));
+        Assert.Throws<ArgumentOutOfRangeException>(() => new TimeLimitConstraint(TimeSpan.Zero));
     }
 
     [Fact]
     public void Constructor_TimeLimitGreaterThanZero_Success()
     {
         TimeSpan greaterThanZero = TimeSpan.Zero.Add(TimeSpan.FromTicks(1));
-        new TimeLimitConstraint<int, char>(greaterThanZero);
+        new TimeLimitConstraint(greaterThanZero);
     }
 
     [Fact]
@@ -33,9 +33,9 @@ public class TimeLimitConstraintTests
     {
         TimeSpan duration = TimeSpan.FromSeconds(3);
         TimeSpan timeLimit = duration.Add(TimeSpan.FromSeconds(2));
-        var constraint = new TimeLimitConstraint<int, char>(timeLimit);
+        var constraint = new TimeLimitConstraint(timeLimit);
 
-        var mockComputationState = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
+        var mockComputationState = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
         mockComputationState.Setup(ms => ms.Duration).Returns(duration);
 
         constraint.Enforce(mockComputationState.Object);
@@ -45,9 +45,9 @@ public class TimeLimitConstraintTests
     public void Enforce_TimeLimitReached_NotThrowsException()
     {
         TimeSpan timeLimit = TimeSpan.FromSeconds(2);
-        var constraint = new TimeLimitConstraint<int, char>(timeLimit);
+        var constraint = new TimeLimitConstraint(timeLimit);
 
-        var mockComputationState = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
+        var mockComputationState = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
         mockComputationState.Setup(ms => ms.Duration).Returns(timeLimit);
 
         constraint.Enforce(mockComputationState.Object);
@@ -58,8 +58,8 @@ public class TimeLimitConstraintTests
     {
         TimeSpan timeLimit = TimeSpan.FromSeconds(3);
         TimeSpan duration = timeLimit.Add(TimeSpan.FromSeconds(2));
-        var constraint = new TimeLimitConstraint<int, char>(timeLimit);
-        var mockComputationState = new Mock<IReadOnlyComputationState<int, char>>(MockBehavior.Strict);
+        var constraint = new TimeLimitConstraint(timeLimit);
+        var mockComputationState = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
         mockComputationState.Setup(ms => ms.Duration).Returns(duration);
 
         var violation = constraint.Enforce(mockComputationState.Object) as TimeLimitViolation;
