@@ -188,7 +188,7 @@ namespace TuringMachine.Machine.SingleTape {
 
 namespace TuringMachine.Machine.MultiTape {
     class "Machine<TState, TSymbol>" as Machine {
-        -tapes: IReadOnlyList<Tape<TSymbol>>
+        -tapes: Tape<TSymbol>[]
         -transitionTable: ITransitionTable<TState, TSymbol>
         +SingleTapeMachine(transitionTable: ITransitionTable<TState, TSymbol>)
         #InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<IReadOnlyComputationState<TransitionDomain<TState, TSymbol>>>?): void
