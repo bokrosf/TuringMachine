@@ -139,36 +139,34 @@ public abstract class Machine<TState, TSymbol, TComputationState, TConfiguration
 
     private bool PerformStep()
     {
+        try
         {
-            try
+            if (IsAborted())
             {
-                if (IsAborted())
-                {
-                    AbortComputation();
-                    return false;
-                }
-
-                TransitToNextState();
-
-                if (CanTerminate())
-                {
-                    Terminate();
-                    return false;
-                }
-
-                if (computation!.Constraint?.Enforce(computation.State.AsReadOnly()) is ConstraintViolation violation)
-                {
-                    AbortComputation(violation);
-                    return false;
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                AbortComputation(ex);
+                AbortComputation();
                 return false;
             }
+
+            TransitToNextState();
+
+            if (CanTerminate())
+            {
+                Terminate();
+                return false;
+            }
+
+            if (computation!.Constraint?.Enforce(computation.State.AsReadOnly()) is ConstraintViolation violation)
+            {
+                AbortComputation(violation);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            AbortComputation(ex);
+            return false;
         }
     }
 
