@@ -283,6 +283,11 @@ Machine *-- Computation
 TuringMachine.Machine.SingleTape.Machine *-- Tape
 TuringMachine.Machine.SingleTape.Machine "*" o-- "1" TuringMachine.Transition.SingleTape.TransitionTable
 Machine <|-- TuringMachine.Machine.SingleTape.Machine
+
+TuringMachine.Machine.MultiTape.Machine *-- "1..*" Tape
+TuringMachine.Machine.MultiTape.Machine "*" o-- "1" TuringMachine.Transition.MultiTape.ITransitionTable
+Machine <|-- TuringMachine.Machine.MultiTape.Machine
+
 Computation "1..*" *-- "0..1" ComputationMode   
 
 IComputationConstraint <|.. StepLimitConstraint
