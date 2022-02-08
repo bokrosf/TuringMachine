@@ -71,18 +71,6 @@ public class Machine<TState, TSymbol> :
         }
     }
 
-    protected override void Terminate()
-    {
-        computation!.State.StopDurationWatch();
-        ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = new(
-            computation!.State.AsReadOnly(),
-            computation.State.Configuration.State,
-            tape);
-
-        CleanupComputation();
-        OnComputationTerminated(eventArgs);
-    }
-
     protected override void CleanupComputation()
     {
         tape.Clear();
@@ -98,17 +86,23 @@ public class Machine<TState, TSymbol> :
         return computation!.State.Configuration.State.IsFinishState;
     }
 
-    protected override void AbortComputation(Exception? ex, ConstraintViolation? violation)
+    protected override ComputationTerminatedEventArgs<TState, TSymbol> CreateComputationTerminatedEventArgs()
     {
-        computation!.State.StopDurationWatch();
-        ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(
+        return new ComputationTerminatedEventArgs<TState, TSymbol>(
             computation!.State.AsReadOnly(),
-            computation.State.Configuration.State, 
-            tape, 
+            computation.State.Configuration.State,
+            tape);
+    }
+
+    protected override ComputationAbortedEventArgs<TState, TSymbol> CreateComputationAbortedEventArgs(
+        Exception? ex,
+        ConstraintViolation? violation)
+    {
+        return new ComputationAbortedEventArgs<TState, TSymbol>(
+            computation!.State.AsReadOnly(),
+            computation.State.Configuration.State,
+            tape,
             ex,
             violation);
-
-        CleanupComputation();
-        OnComputationAborted(eventArgs);
     }
 }

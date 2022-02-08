@@ -80,18 +80,6 @@ public class Machine<TState, TSymbol> :
         }
     }
 
-    protected override void Terminate()
-    {
-        computation!.State.StopDurationWatch();
-        ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = new(
-            computation!.State.AsReadOnly(),
-            computation.State.Configuration.State,
-            tapes.First());
-
-        CleanupComputation();
-        OnComputationTerminated(eventArgs);
-    }
-
     protected override void CleanupComputation()
     {
         foreach (var t in tapes)
@@ -110,18 +98,24 @@ public class Machine<TState, TSymbol> :
         return computation!.State.Configuration.State.IsFinishState;
     }
 
-    protected override void AbortComputation(Exception? ex, ConstraintViolation? violation)
+    protected override ComputationTerminatedEventArgs<TState, TSymbol> CreateComputationTerminatedEventArgs()
     {
-        computation!.State.StopDurationWatch();
-        ComputationAbortedEventArgs<TState, TSymbol> eventArgs = new(
+        return new ComputationTerminatedEventArgs<TState, TSymbol>(
+            computation!.State.AsReadOnly(),
+            computation.State.Configuration.State,
+            tapes.First());
+    }
+
+    protected override ComputationAbortedEventArgs<TState, TSymbol> CreateComputationAbortedEventArgs(
+        Exception? ex, 
+        ConstraintViolation? violation)
+    {
+        return new ComputationAbortedEventArgs<TState, TSymbol>(
             computation!.State.AsReadOnly(),
             computation.State.Configuration.State,
             tapes.First(),
             ex,
             violation);
-
-        CleanupComputation();
-        OnComputationAborted(eventArgs);
     }
 
     private void TransitToNextTapeSymbols(IReadOnlyList<TapeTransitionRange<TSymbol>> tapeTransitions)

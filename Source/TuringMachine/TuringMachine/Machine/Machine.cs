@@ -117,10 +117,12 @@ public abstract class Machine<TState, TSymbol, TComputationState, TConfiguration
         IComputationConstraint<IReadOnlyComputationState<TConfiguration>>? constraint);
 
     protected abstract void TransitToNextState();
-    protected abstract void Terminate();
     protected abstract void CleanupComputation();
     protected abstract bool CanTerminate();
-    protected abstract void AbortComputation(Exception? ex, ConstraintViolation? violation);
+    protected abstract ComputationTerminatedEventArgs<TState, TSymbol> CreateComputationTerminatedEventArgs();
+    protected abstract ComputationAbortedEventArgs<TState, TSymbol> CreateComputationAbortedEventArgs(
+        Exception? ex, 
+        ConstraintViolation? violation);
 
     protected void OnStepped(SteppedEventArgs<TTransition> eventArgs)
     {
@@ -135,6 +137,14 @@ public abstract class Machine<TState, TSymbol, TComputationState, TConfiguration
     protected void OnComputationAborted(ComputationAbortedEventArgs<TState, TSymbol> eventArgs)
     {
         ComputationAborted?.Invoke(this, eventArgs);
+    }
+
+    private void Terminate()
+    {
+        computation!.State.StopDurationWatch();
+        ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = CreateComputationTerminatedEventArgs();
+        CleanupComputation();
+        OnComputationTerminated(eventArgs);
     }
 
     private bool PerformStep()
@@ -189,4 +199,12 @@ public abstract class Machine<TState, TSymbol, TComputationState, TConfiguration
     private void AbortComputation() => AbortComputation(ex: null, violation: null);
     private void AbortComputation(Exception? ex) => AbortComputation(ex, violation: null);
     private void AbortComputation(ConstraintViolation? violation) => AbortComputation(ex: null, violation);
+
+    private void AbortComputation(Exception? ex, ConstraintViolation? violation)
+    {
+        computation!.State.StopDurationWatch();
+        ComputationAbortedEventArgs<TState, TSymbol> eventArgs = CreateComputationAbortedEventArgs(ex, violation);
+        CleanupComputation();
+        OnComputationAborted(eventArgs);
+    }
 }

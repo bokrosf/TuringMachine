@@ -156,19 +156,21 @@ enum ComputationMode {
     #Machine()
     #{abstract} InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<IReadOnlyComputationState<TConfiguration>>?): void
     #{abstract} TransitToNextState(): void
-    #{abstract} Terminate(): void
     #{abstract} CleanupComputation(): void
     #{abstract} CanTerminate(): bool
-    #{abstract} AbortComputation(ex: Exception?, violation: ConstraintViolation?): void
+    #{abstract} CreateComputationTerminatedEventArgs(): ComputationTerminatedEventArgs<TState, TSymbol>
+    #{abstract} CreateComputationAbortedEventArgs(ex: Exception?, violation: ConstraintViolation?): ComputationAbortedEventArgs<TState, TSymbol>
     #OnStepped(eventArgs: SteppedEventArgs<TTransition>): void
     #OnComputationTerminated(eventArgs: ComputationTerminatedEventArgs<TState, TSymbol>): void
     #OnComputationAborted(eventArgs: ComputationAbortedEventArgs<TState, TSymbol>): void
     -PerformStep(): bool
+    -Terminate(): void
     -IsAborted(): bool
     -Compute(): void
     -AbortComputation(): void
     -AbortComputation(ex: Exception?): void
     -AbortComputation(violation: ConstraintViolation?): void
+    -AbortComputation(ex: Exception?, violation: ConstraintViolation?): void
     
 }
 
@@ -182,7 +184,8 @@ namespace TuringMachine.Machine.SingleTape {
         #Terminate(): void
         #CleanupComputation(): void
         #CanTerminate(): bool
-        #AbortComputation(ex: Exception?, violation: ConstraintViolation?): void
+        #CreateComputationTerminatedEventArgs(): ComputationTerminatedEventArgs<TState, TSymbol>
+        #CreateComputationAbortedEventArgs(ex: Exception?, violation: ConstraintViolation?): ComputationAbortedEventArgs<TState, TSymbol>
     }
 }
 
@@ -196,7 +199,8 @@ namespace TuringMachine.Machine.MultiTape {
         #Terminate(): void
         #CleanupComputation(): void
         #CanTerminate(): bool
-        #AbortComputation(ex: Exception?, violation: ConstraintViolation?): void
+        #CreateComputationTerminatedEventArgs(): ComputationTerminatedEventArgs<TState, TSymbol>
+        #CreateComputationAbortedEventArgs(ex: Exception?, violation: ConstraintViolation?): ComputationAbortedEventArgs<TState, TSymbol>
     }
 }
 
