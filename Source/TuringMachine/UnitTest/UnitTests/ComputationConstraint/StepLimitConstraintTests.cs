@@ -1,4 +1,4 @@
-﻿using Moq;
+﻿using NSubstitute;
 using System;
 using TuringMachine.Machine.Computation;
 using TuringMachine.Machine.Computation.Constraint;
@@ -8,6 +8,13 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint;
 
 public class StepLimitConstraintTests
 {
+    private readonly IReadOnlyComputationState computationState;
+    
+    public StepLimitConstraintTests()
+    {
+        computationState = Substitute.For<IReadOnlyComputationState>();
+    }
+    
     [Theory]
     [InlineData(1)]
     [InlineData(2)]
@@ -33,11 +40,9 @@ public class StepLimitConstraintTests
     public void Enforce_LowerThanStepLimit_NotThrowsException(int stepLimit)
     {
         var constraint = new StepLimitConstraint(stepLimit);
+        computationState.StepCount.Returns(stepLimit - 1);
 
-        var computationStateMock = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
-        computationStateMock.Setup(cs => cs.StepCount).Returns(stepLimit - 1);
-
-        constraint.Enforce(computationStateMock.Object);
+        constraint.Enforce(computationState);
     }
 
     [Theory]
@@ -48,12 +53,10 @@ public class StepLimitConstraintTests
     {
         var constraint = new StepLimitConstraint(stepLimit);
 
-        var computationStateMock = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
-        computationStateMock.Setup(cs => cs.StepCount).Returns(stepLimit);
+        computationState.StepCount.Returns(stepLimit);
 
-        constraint.Enforce(computationStateMock.Object);
+        constraint.Enforce(computationState);
     }
-
 
     [Theory]
     [InlineData(1)]
@@ -62,10 +65,9 @@ public class StepLimitConstraintTests
     public void Enforce_StepLimitExceeded_ThrowsException(int stepLimit)
     {
         var constraint = new StepLimitConstraint(stepLimit);
-        var computationStateMock = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
-        computationStateMock.Setup(cs => cs.StepCount).Returns(stepLimit + 1);
+        computationState.StepCount.Returns(stepLimit + 1);
 
-        var violation = constraint.Enforce(computationStateMock.Object) as StepLimitViolation;
+        var violation = constraint.Enforce(computationState) as StepLimitViolation;
 
         Assert.NotNull(violation);
         Assert.Equal(stepLimit, violation!.StepLimit);

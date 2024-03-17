@@ -1,4 +1,4 @@
-﻿using Moq;
+﻿using NSubstitute;
 using System;
 using TuringMachine.Machine.Computation;
 using TuringMachine.Machine.Computation.Constraint;
@@ -8,6 +8,13 @@ namespace TuringMachine.Tests.UnitTests.ComputationConstraint;
 
 public class TimeLimitConstraintTests
 {
+    private readonly IReadOnlyComputationState computationState;
+
+    public TimeLimitConstraintTests()
+    {
+        computationState = Substitute.For<IReadOnlyComputationState>();
+    }
+    
     [Fact]
     public void Constructor_TimeLimitLessThanZero_ThrowsException()
     {
@@ -35,10 +42,9 @@ public class TimeLimitConstraintTests
         TimeSpan timeLimit = duration.Add(TimeSpan.FromSeconds(2));
         var constraint = new TimeLimitConstraint(timeLimit);
 
-        var mockComputationState = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
-        mockComputationState.Setup(ms => ms.Duration).Returns(duration);
+        computationState.Duration.Returns(duration);
 
-        constraint.Enforce(mockComputationState.Object);
+        constraint.Enforce(computationState);
     }
 
     [Fact]
@@ -47,10 +53,9 @@ public class TimeLimitConstraintTests
         TimeSpan timeLimit = TimeSpan.FromSeconds(2);
         var constraint = new TimeLimitConstraint(timeLimit);
 
-        var mockComputationState = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
-        mockComputationState.Setup(ms => ms.Duration).Returns(timeLimit);
+        computationState.Duration.Returns(timeLimit);
 
-        constraint.Enforce(mockComputationState.Object);
+        constraint.Enforce(computationState);
     }
 
     [Fact]
@@ -59,13 +64,12 @@ public class TimeLimitConstraintTests
         TimeSpan timeLimit = TimeSpan.FromSeconds(3);
         TimeSpan duration = timeLimit.Add(TimeSpan.FromSeconds(2));
         var constraint = new TimeLimitConstraint(timeLimit);
-        var mockComputationState = new Mock<IReadOnlyComputationState>(MockBehavior.Strict);
-        mockComputationState.Setup(ms => ms.Duration).Returns(duration);
+        computationState.Duration.Returns(duration);
 
-        var violation = constraint.Enforce(mockComputationState.Object) as TimeLimitViolation;
+        var violation = constraint.Enforce(computationState) as TimeLimitViolation;
 
         Assert.NotNull(violation);
         Assert.Equal(timeLimit, violation!.TimeLimit);
-        Assert.Equal(mockComputationState.Object.Duration, violation!.Duration);
+        Assert.Equal(computationState.Duration, violation!.Duration);
     }
 }
