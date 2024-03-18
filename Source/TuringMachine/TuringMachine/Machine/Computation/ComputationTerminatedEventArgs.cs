@@ -43,24 +43,8 @@ public class ComputationTerminatedEventArgs<TState, TSymbol> : EventArgs
     /// </returns>
     public IEnumerable<Symbol<TSymbol>> TrimResult()
     {
-        int indexFrom = StepThroughBlankSymbols(0, i => i < RawResult.Count, i => ++i);
-        int indexTo = StepThroughBlankSymbols(RawResult.Count - 1, i => i > indexFrom, i => --i);
+        bool BlankSkipper(Symbol<TSymbol> symbol) => symbol == Symbol<TSymbol>.Blank;
 
-        for (int i = indexFrom; i <= indexTo && i < RawResult.Count; i++)
-        {
-            yield return RawResult[i];
-        }
-    }
-
-    private int StepThroughBlankSymbols(int indexFrom, Predicate<int> canStepIndex, Func<int, int> indexStepper)
-    {
-        int i = indexFrom;
-
-        while (canStepIndex(i) && RawResult[i] == Symbol<TSymbol>.Blank)
-        {
-            i = indexStepper(i);
-        }
-
-        return i;
+        return RawResult.Reverse().SkipWhile(BlankSkipper).Reverse().SkipWhile(BlankSkipper);
     }
 }
