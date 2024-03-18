@@ -30,13 +30,9 @@ public abstract class Machine<TState, TSymbol, TTransition> :
 
     public Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input)
     {
-        return Task.Run(() => StartAutomaticComputation(input));
-    }
-
-    public void StartAutomaticComputation(IEnumerable<Symbol<TSymbol>> input)
-    {
         InitializeComputation(ComputationMode.Automatic, input);
-        Compute();
+
+        return Task.Run(Compute);
     }
 
     public void RequestAbortion()

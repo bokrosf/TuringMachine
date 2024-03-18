@@ -124,6 +124,7 @@ public class ManualComputationTests
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
         Task firstStepSynchronizationTask = new Task(() => { });
+        Task abortionSynchronizationTask = new Task(() => { });
         bool hasRaisedAborted = false;
 
         void Machine_Stepped(object? sender, SteppedEventArgs<Transition<int, char>> e)
@@ -136,17 +137,19 @@ public class ManualComputationTests
         {
             machine.Stepped -= Machine_Stepped;
             hasRaisedAborted = true;
+            abortionSynchronizationTask.Start();
         }
 
         machine.Stepped += Machine_Stepped;
         machine.ComputationAborted += Machine_ComputationAborted;
 
         // Thread creation needed because using Task.Run() can cause the infinite computation run forever because scheduling.
-        Thread computationThread = new Thread(() => machine.StartAutomaticComputation(arguments.Input));
+        Thread computationThread = new Thread(async () => await machine.StartAutomaticComputationAsync(arguments.Input));
         computationThread.Priority = ThreadPriority.Lowest;
         computationThread.Start();
         await firstStepSynchronizationTask;
         machine.RequestAbortion();
+        await abortionSynchronizationTask;
         computationThread.Join();
 
         Assert.True(hasRaisedAborted);
