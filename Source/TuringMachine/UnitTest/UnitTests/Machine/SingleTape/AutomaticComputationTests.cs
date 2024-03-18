@@ -97,6 +97,45 @@ public class AutomaticComputationTests
 
     [Theory]
     [ClassData(typeof(InfiniteComputationTestData))]
+    public async Task StartAutomaticAsync_CancellationToken_Aborted(StartComputationArguments<int, char> arguments)
+    {
+        var machine = new Machine<int, char>(arguments.TransitionTable);
+        Task firstStepSynchronizationTask = new Task(() => { });
+        Task abortionSynchronizationTask = new Task(() => { });
+        bool hasRaisedAborted = false;
+
+        void Machine_Stepped(object? sender, SteppedEventArgs<Transition<int, char>> e)
+        {
+            machine.Stepped -= Machine_Stepped;
+            firstStepSynchronizationTask.Start();
+        }
+
+        void Machine_ComputationAborted(object? sender, ComputationAbortedEventArgs<int, char> e)
+        {
+            machine.Stepped -= Machine_Stepped;
+            hasRaisedAborted = true;
+            abortionSynchronizationTask.Start();
+        }
+
+        machine.Stepped += Machine_Stepped;
+        machine.ComputationAborted += Machine_ComputationAborted;
+
+        // Thread creation needed because using Task.Run() can cause the infinite computation run forever because scheduling.
+        CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        CancellationToken cancellationToken = cancellationTokenSource.Token;
+        Thread computationThread = new Thread(async () => await machine.StartAutomaticAsync(arguments.Input, cancellationToken));
+        computationThread.Priority = ThreadPriority.Lowest;
+        computationThread.Start();
+        await firstStepSynchronizationTask;
+        cancellationTokenSource.Cancel();
+        await abortionSynchronizationTask;
+        computationThread.Join();
+
+        Assert.True(hasRaisedAborted);
+    }
+
+    [Theory]
+    [ClassData(typeof(InfiniteComputationTestData))]
     public async Task StartAutomaticAsync_ManualAlreadyStarted_ThrowsException(StartComputationArguments<int, char> arguments)
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);

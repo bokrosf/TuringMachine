@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using TuringMachine.Machine.Computation;
 using TuringMachine.Transition;
@@ -30,9 +31,14 @@ public abstract class Machine<TState, TSymbol, TTransition> :
 
     public Task StartAutomaticAsync(IEnumerable<Symbol<TSymbol>> input)
     {
+        return StartAutomaticAsync(input, CancellationToken.None);
+    }
+
+    public Task StartAutomaticAsync(IEnumerable<Symbol<TSymbol>> input, CancellationToken cancellationToken)
+    {
         InitializeComputation(ComputationMode.Automatic, input);
 
-        return Task.Run(Compute);
+        return Task.Run(() => Compute(cancellationToken));
     }
 
     public void RequestAbortion()
@@ -158,12 +164,15 @@ public abstract class Machine<TState, TSymbol, TTransition> :
         }
     }
 
-    private void Compute()
+    private void Compute(CancellationToken cancellationToken)
     {
-        while (PerformStep())
+        do 
         {
-            ;
-        }
+            if (cancellationToken.IsCancellationRequested)
+            {
+                AbortComputation();
+            }
+        } while (PerformStep());
     }
 
     private void AbortComputation() => AbortComputation(ex: null);

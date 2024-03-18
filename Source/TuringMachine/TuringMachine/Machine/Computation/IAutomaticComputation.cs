@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TuringMachine.Machine.Computation;
@@ -15,9 +16,12 @@ public interface IAutomaticComputation<TSymbol>
     /// <param name="input">Symbols that the tape is initialized with.</param>
     /// <returns><see cref="Task"/> that is the computation process.</returns>
     Task StartAutomaticAsync(IEnumerable<Symbol<TSymbol>> input);
-
+    
     /// <summary>
-    /// Aborts the computation that is in progress.
+    /// Asynchronously starts an automatically stepping computation process with the specified symbols.
     /// </summary>
-    void RequestAbortion();
+    /// <param name="input">Symbols that the tape is initialized with.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other objects and threads to receive notification of cancellation.</param>
+    /// <returns><see cref="Task"/> that is the computation process.</returns>
+    Task StartAutomaticAsync(IEnumerable<Symbol<TSymbol>> input, CancellationToken cancellationToken);
 }
