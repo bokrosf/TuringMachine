@@ -28,7 +28,7 @@ public abstract class Machine<TState, TSymbol, TTransition> :
         state = State<TState>.Initial;
     }
 
-    public Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input)
+    public Task StartAutomaticAsync(IEnumerable<Symbol<TSymbol>> input)
     {
         InitializeComputation(ComputationMode.Automatic, input);
 

@@ -14,7 +14,7 @@ public interface IAutomaticComputation<TSymbol>
     /// </summary>
     /// <param name="input">Symbols that the tape is initialized with.</param>
     /// <returns><see cref="Task"/> that is the computation process.</returns>
-    Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input);
+    Task StartAutomaticAsync(IEnumerable<Symbol<TSymbol>> input);
 
     /// <summary>
     /// Aborts the computation that is in progress.

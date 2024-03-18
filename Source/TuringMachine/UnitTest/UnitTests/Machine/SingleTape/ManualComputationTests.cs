@@ -144,7 +144,7 @@ public class ManualComputationTests
         machine.ComputationAborted += Machine_ComputationAborted;
 
         // Thread creation needed because using Task.Run() can cause the infinite computation run forever because scheduling.
-        Thread computationThread = new Thread(async () => await machine.StartAutomaticComputationAsync(arguments.Input));
+        Thread computationThread = new Thread(async () => await machine.StartAutomaticAsync(arguments.Input));
         computationThread.Priority = ThreadPriority.Lowest;
         computationThread.Start();
         await firstStepSynchronizationTask;
