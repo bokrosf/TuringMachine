@@ -12,7 +12,7 @@ public interface IManualComputation<TSymbol>
     /// Starts a manually steppable computation process with the specified symbols.
     /// </summary>
     /// <param name="input">Symbols that the tape is initialized with.</param>
-    void StartManualComputation(IEnumerable<Symbol<TSymbol>> input);
+    void StartManual(IEnumerable<Symbol<TSymbol>> input);
 
     /// <summary>
     /// Transitions the machine from it's current state to the next.

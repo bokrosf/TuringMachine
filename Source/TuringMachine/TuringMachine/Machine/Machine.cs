@@ -59,7 +59,7 @@ public abstract class Machine<TState, TSymbol, TTransition> :
         }
     }
 
-    public void StartManualComputation(IEnumerable<Symbol<TSymbol>> input)
+    public void StartManual(IEnumerable<Symbol<TSymbol>> input)
     {
         InitializeComputation(ComputationMode.Manual, input);
     }

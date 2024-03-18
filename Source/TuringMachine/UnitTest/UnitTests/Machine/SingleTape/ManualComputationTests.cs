@@ -16,7 +16,7 @@ public class ManualComputationTests
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
-        machine.StartManualComputation(arguments.Input);
+        machine.StartManual(arguments.Input);
         var raisedStepped = Assert.Raises<SteppedEventArgs<Transition<int, char>>>(
             handler => machine.Stepped += handler,
             handler => machine.Stepped -= handler,
@@ -31,7 +31,7 @@ public class ManualComputationTests
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
-        machine.StartManualComputation(arguments.Input);
+        machine.StartManual(arguments.Input);
         var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
             handler => machine.ComputationTerminated -= handler,
@@ -47,7 +47,7 @@ public class ManualComputationTests
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
-        machine.StartManualComputation(arguments.Input);
+        machine.StartManual(arguments.Input);
         var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
             handler => machine.ComputationTerminated -= handler,
@@ -63,7 +63,7 @@ public class ManualComputationTests
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
-        machine.StartManualComputation(arguments.Input);
+        machine.StartManual(arguments.Input);
         var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
             handler => machine.ComputationTerminated -= handler,
@@ -79,9 +79,9 @@ public class ManualComputationTests
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
-        machine.StartManualComputation(arguments.Input);
+        machine.StartManual(arguments.Input);
 
-        Assert.Throws<InvalidOperationException>(() => machine.StartManualComputation(arguments.Input));
+        Assert.Throws<InvalidOperationException>(() => machine.StartManual(arguments.Input));
     }
 
     [Theory]
@@ -90,7 +90,7 @@ public class ManualComputationTests
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
-        machine.StartManualComputation(arguments.Input);
+        machine.StartManual(arguments.Input);
         var raisedAborted = Assert.Raises<ComputationAbortedEventArgs<int, char>>(
             handler => machine.ComputationAborted += handler,
             handler => machine.ComputationAborted -= handler,
@@ -106,7 +106,7 @@ public class ManualComputationTests
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
-        machine.StartManualComputation(arguments.Input);
+        machine.StartManual(arguments.Input);
         machine.Step();
         var raisedAborted = Assert.Raises<ComputationAbortedEventArgs<int, char>>(
             handler => machine.ComputationAborted += handler,

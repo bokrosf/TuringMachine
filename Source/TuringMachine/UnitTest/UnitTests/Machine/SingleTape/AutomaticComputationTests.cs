@@ -101,7 +101,7 @@ public class AutomaticComputationTests
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
-        machine.StartManualComputation(arguments.Input);
+        machine.StartManual(arguments.Input);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => machine.StartAutomaticComputationAsync(arguments.Input));
     }
