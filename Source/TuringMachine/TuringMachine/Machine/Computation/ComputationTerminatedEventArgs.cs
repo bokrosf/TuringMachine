@@ -9,7 +9,7 @@ namespace TuringMachine.Machine.Computation;
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public class ComputationTerminatedEventArgs<TState, TSymbol> : ComputationStateChangedEventArgs
+public class ComputationTerminatedEventArgs<TState, TSymbol> : EventArgs
 {
     /// <summary>
     /// The state that the machine terminated at.
@@ -22,17 +22,12 @@ public class ComputationTerminatedEventArgs<TState, TSymbol> : ComputationStateC
     public IReadOnlyList<Symbol<TSymbol>> RawResult { get; }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="ComputationTerminatedEventArgs{TState, TSymbol}"/> class with the specified computation state, 
-    /// state the machine terminated at and the resulting symbols of the computation.
+    /// Initializes a new instance of <see cref="ComputationTerminatedEventArgs{TState, TSymbol}"/> class with the specified 
+    /// computation state the machine terminated at and the resulting symbols of the computation.
     /// </summary>
-    /// <param name="computationState">State of a computation.</param>
     /// <param name="state">The state that the machine terminated at.</param>
     /// <param name="result">Symbols from the machine's tape after the computation has terminated.</param>
-    public ComputationTerminatedEventArgs(
-        IReadOnlyComputationState computationState, 
-        State<TState> state, 
-        IEnumerable<Symbol<TSymbol>> result)
-        : base(computationState)
+    public ComputationTerminatedEventArgs(State<TState> state, IEnumerable<Symbol<TSymbol>> result)
     {
         State = state;
         RawResult = result.ToList().AsReadOnly();

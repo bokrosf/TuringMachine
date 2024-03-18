@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using TuringMachine.Machine.Computation;
-using TuringMachine.Machine.Computation.Constraint;
-using TuringMachine.Transition;
 using TuringMachine.Transition.MultiTape;
 
 namespace TuringMachine.Machine.MultiTape;
@@ -13,13 +11,7 @@ namespace TuringMachine.Machine.MultiTape;
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public class Machine<TState, TSymbol> : 
-    Machine<
-        TState,
-        TSymbol,
-        Computation.MultiTape.ComputationState<TState, TSymbol>,
-        TransitionDomain<TState, TSymbol>,
-        Transition<TState, TSymbol>>
+public class Machine<TState, TSymbol> : Machine<TState, TSymbol, Transition<TState, TSymbol>>
 {
     private readonly Tape<TSymbol>[] tapes;
     private readonly ITransitionTable<TState, TSymbol> transitionTable;
@@ -40,10 +32,7 @@ public class Machine<TState, TSymbol> :
         this.transitionTable = transitionTable;
     }
 
-    protected override void InitializeComputation(
-        ComputationMode computationMode, 
-        IEnumerable<Symbol<TSymbol>> input, 
-        IComputationConstraint<IReadOnlyComputationState<TransitionDomain<TState, TSymbol>>>? constraint)
+    protected override void InitializeComputation(ComputationMode computationMode, IEnumerable<Symbol<TSymbol>> input)
     {
         lock (computationLock)
         {
@@ -53,31 +42,20 @@ public class Machine<TState, TSymbol> :
             }
 
             tapes[0] = new Tape<TSymbol>(input);
-            computation = new(computationMode, new(tapes.Select(t => t.CurrentSymbol)), constraint, IsAborted: false);
+            computation = new(computationMode, IsAborted: false);
         }
-
-        computation.State.StartDurationWatch();
     }
 
     protected override void TransitToNextState()
     {
-        TransitionDomain<TState, TSymbol> domainBeforeTransition = computation!.State.Configuration;
+        TransitionDomain<TState, TSymbol> domain = new TransitionDomain<TState, TSymbol>(state, tapes.Select(t => t.CurrentSymbol));
+        TransitionRange<TState, TSymbol> range = transitionTable[domain];
+        TransitToNextTapeSymbols(range.Tapes);
+        Transition<TState, TSymbol> transition = new(
+            new StateTransition<TState>(domain.State, range.State),
+            GetTapeTransitions(domain.TapeSymbols, range.Tapes));
 
-        try
-        {
-            TransitionRange<TState, TSymbol> range = transitionTable[domainBeforeTransition];
-            TransitToNextTapeSymbols(range.Tapes);
-            computation.State.UpdateConfiguration(new(range.State, tapes.Select(t => t.CurrentSymbol)));
-            Transition<TState, TSymbol> transition = new(
-                new StateTransition<TState>(domainBeforeTransition.State, range.State),
-                GetTapeTransitions(domainBeforeTransition.TapeSymbols, range.Tapes));
-
-            OnStepped(new(computation.State.AsReadOnly(), transition));
-        }
-        catch (TransitionDomainNotFoundException)
-        {
-            computation.State.UpdateConfiguration(new(State<TState>.Reject, domainBeforeTransition.TapeSymbols));
-        }
+        OnStepped(new SteppedEventArgs<Transition<TState, TSymbol>>(transition));
     }
 
     protected override void CleanupComputation()
@@ -93,29 +71,14 @@ public class Machine<TState, TSymbol> :
         }
     }
 
-    protected override bool CanTerminate()
-    {
-        return computation!.State.Configuration.State.IsFinishState;
-    }
-
     protected override ComputationTerminatedEventArgs<TState, TSymbol> CreateComputationTerminatedEventArgs()
     {
-        return new ComputationTerminatedEventArgs<TState, TSymbol>(
-            computation!.State.AsReadOnly(),
-            computation.State.Configuration.State,
-            tapes.First());
+        return new ComputationTerminatedEventArgs<TState, TSymbol>(state, tapes.First());
     }
 
-    protected override ComputationAbortedEventArgs<TState, TSymbol> CreateComputationAbortedEventArgs(
-        Exception? ex, 
-        ConstraintViolation? violation)
+    protected override ComputationAbortedEventArgs<TState, TSymbol> CreateComputationAbortedEventArgs(Exception? ex)
     {
-        return new ComputationAbortedEventArgs<TState, TSymbol>(
-            computation!.State.AsReadOnly(),
-            computation.State.Configuration.State,
-            tapes.First(),
-            ex,
-            violation);
+        return new ComputationAbortedEventArgs<TState, TSymbol>(state, tapes.First(), ex);
     }
 
     private void TransitToNextTapeSymbols(IReadOnlyList<TapeTransitionRange<TSymbol>> tapeTransitions)

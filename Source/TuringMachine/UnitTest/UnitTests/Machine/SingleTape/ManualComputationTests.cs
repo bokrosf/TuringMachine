@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TuringMachine.Machine;
 using TuringMachine.Machine.Computation;
-using TuringMachine.Machine.Computation.Constraint;
 using TuringMachine.Machine.SingleTape;
 using TuringMachine.Transition.SingleTape;
 using Xunit;
@@ -14,7 +12,7 @@ public class ManualComputationTests
 {
     [Theory]
     [ClassData(typeof(AcceptedInputTestData))]
-    public void Step_WithoutConstraint_SteppedRaised(StartComputationArguments<int, char> arguments)
+    public void Step_SteppedRaised(StartComputationArguments<int, char> arguments)
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
@@ -25,7 +23,6 @@ public class ManualComputationTests
             () => machine.Step());
 
         Assert.Same(machine, raisedStepped.Sender);
-        Assert.True(raisedStepped.Arguments.StepCount > 0);
     }
 
     [Theory]
@@ -78,24 +75,6 @@ public class ManualComputationTests
 
     [Theory]
     [ClassData(typeof(InfiniteComputationTestData))]
-    public void Step_WithConstraint_EnforcementStopsComputation(StartComputationArguments<int, char> arguments)
-    {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
-        var constraint = new StepLimitConstraint(3);
-
-        machine.StartManualComputation(arguments.Input, constraint);
-        var raisedAborted = Assert.Raises<ComputationAbortedEventArgs<int, char>>(
-            handler => machine.ComputationAborted += handler,
-            handler => machine.ComputationAborted -= handler,
-            () => StepUntilTermination(machine));
-
-        Assert.Null(raisedAborted.Arguments.Exception);
-        Assert.NotNull(raisedAborted.Arguments.ConstraintViolation);
-        Assert.IsType<StepLimitViolation>(raisedAborted.Arguments.ConstraintViolation);
-    }
-
-    [Theory]
-    [ClassData(typeof(InfiniteComputationTestData))]
     public void Step_ManualAlreadyStarted_ThrowsExceptionAsync(StartComputationArguments<int, char> arguments)
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
@@ -119,7 +98,6 @@ public class ManualComputationTests
 
         Assert.Same(machine, raisedAborted.Sender);
         Assert.Equal(State<int>.Initial, raisedAborted.Arguments.State);
-        Assert.Equal(0, raisedAborted.Arguments.StepCount);
     }
 
     [Theory]
@@ -138,7 +116,6 @@ public class ManualComputationTests
         Assert.Same(machine, raisedAborted.Sender);
         Assert.NotEqual(State<int>.Initial, raisedAborted.Arguments.State);
         Assert.False(raisedAborted.Arguments.State.IsFinishState);
-        Assert.Equal(1, raisedAborted.Arguments.StepCount);
     }
 
     [Theory]

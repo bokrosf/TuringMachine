@@ -96,24 +96,19 @@ namespace TuringMachine.Transition.SingleTape {
     }
 }
 
-class "Computation<TComputationState, TConfiguration>" as Computation <<record>> {
+class Computation << record >> {
     +{method} Mode: ComputationMode {query}
-    +{method} State: TComputationState {query}
-    +{method} Constraint: IReadOnlyComputationState<TConfiguration>>? {query}
     +{method} IsAborted: bool {query}
 }
 
-interface "IAutomaticComputation<TSymbol, TConfiguration>" as IAutomaticComputation {
+interface "IAutomaticComputation<TSymbol>" as IAutomaticComputation {
     StartAutomaticComputationAsync(input: IEnumerable<Symbol<TSymbol>>): Task
-    StartAutomaticComputationAsync(input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<TConfiguration>): Task
     StartAutomaticComputation(input: IEnumerable<Symbol<TSymbol>>): void
-    StartAutomaticComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<TConfiguration>): void
     RequestAbortion(): void
 }
 
-interface "IManualComputation<TSymbol, TConfiguration>" as IManualComputation {
+interface "IManualComputation<TSymbol>" as IManualComputation {
     StartManualComputation(input: IEnumerable<Symbol<TSymbol>>): void
-    StartManualComputation(input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<TConfiguration>): void
     Step(): bool
     RequestAbortion(): void
 }
@@ -122,11 +117,6 @@ interface "IComputationTracking<TState, TSymbol, TTransition>" as IComputationTr
     Stepped: EventHandler<SteppedEventArgs<TTransition>>?
     ComputationTerminated: EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>?
     ComputationAborted: EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>?
-}
-
-abstract class ComputationStateChangedEventArgs {
-    +{method} StepCount: int {query}
-    +{method} Duration: TimeSpan {query}
 }
 
 class "SteppedEventArgs<TTransition>" as SteppedEventArgs {
@@ -141,7 +131,6 @@ class "ComputationTerminatedEventArgs<TState, TSymbol>" as ComputationTerminated
 
 class "ComputationAbortedEventArgs<TState, TSymbol>" as ComputationAbortedEventArgs {
     +{method} Exception: Exception? {query}
-    +{method} ConstraintViolation: ConstraintViolation? {query}
 }
 
 enum ComputationMode {
@@ -149,17 +138,17 @@ enum ComputationMode {
     Manual
 }
 
-~abstract class "Machine<TState, TSymbol, TComputationState, TConfiguration, TTransition>" as Machine {
+~abstract class "Machine<TState, TSymbol, TTransition>" as Machine {
     #computationLock: object
-    #computation: Computation<TComputationState, TConfiguration>?
+    #computation: Computation?
     -manualComputationLock: object
     #Machine()
-    #{abstract} InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<IReadOnlyComputationState<TConfiguration>>?): void
+    #{abstract} InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
     #{abstract} TransitToNextState(): void
     #{abstract} CleanupComputation(): void
     #{abstract} CanTerminate(): bool
     #{abstract} CreateComputationTerminatedEventArgs(): ComputationTerminatedEventArgs<TState, TSymbol>
-    #{abstract} CreateComputationAbortedEventArgs(ex: Exception?, violation: ConstraintViolation?): ComputationAbortedEventArgs<TState, TSymbol>
+    #{abstract} CreateComputationAbortedEventArgs(ex: Exception?): ComputationAbortedEventArgs<TState, TSymbol>
     #OnStepped(eventArgs: SteppedEventArgs<TTransition>): void
     #OnComputationTerminated(eventArgs: ComputationTerminatedEventArgs<TState, TSymbol>): void
     #OnComputationAborted(eventArgs: ComputationAbortedEventArgs<TState, TSymbol>): void
@@ -169,9 +158,6 @@ enum ComputationMode {
     -Compute(): void
     -AbortComputation(): void
     -AbortComputation(ex: Exception?): void
-    -AbortComputation(violation: ConstraintViolation?): void
-    -AbortComputation(ex: Exception?, violation: ConstraintViolation?): void
-    
 }
 
 namespace TuringMachine.Machine.SingleTape {
@@ -179,13 +165,13 @@ namespace TuringMachine.Machine.SingleTape {
         -tape: Tape<TSymbol>
         -transitionTable: TransitionTable<TState, TSymbol>
         +SingleTapeMachine(transitionTable: TransitionTable<TState, TSymbol>)
-        #InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<IReadOnlyComputationState<TransitionDomain<TState, TSymbol>>>?): void
+        #InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
         #TransitToNextState(): void
         #Terminate(): void
         #CleanupComputation(): void
         #CanTerminate(): bool
         #CreateComputationTerminatedEventArgs(): ComputationTerminatedEventArgs<TState, TSymbol>
-        #CreateComputationAbortedEventArgs(ex: Exception?, violation: ConstraintViolation?): ComputationAbortedEventArgs<TState, TSymbol>
+        #CreateComputationAbortedEventArgs(ex: Exception?): ComputationAbortedEventArgs<TState, TSymbol>
     }
 }
 
@@ -194,78 +180,14 @@ namespace TuringMachine.Machine.MultiTape {
         -tapes: Tape<TSymbol>[]
         -transitionTable: ITransitionTable<TState, TSymbol>
         +SingleTapeMachine(transitionTable: ITransitionTable<TState, TSymbol>)
-        #InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>, constraint: IComputationConstraint<IReadOnlyComputationState<TransitionDomain<TState, TSymbol>>>?): void
+        #InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
         #TransitToNextState(): void
         #Terminate(): void
         #CleanupComputation(): void
         #CanTerminate(): bool
         #CreateComputationTerminatedEventArgs(): ComputationTerminatedEventArgs<TState, TSymbol>
-        #CreateComputationAbortedEventArgs(ex: Exception?, violation: ConstraintViolation?): ComputationAbortedEventArgs<TState, TSymbol>
+        #CreateComputationAbortedEventArgs(ex: Exception?): ComputationAbortedEventArgs<TState, TSymbol>
     }
-}
-
-interface IReadOnlyComputationState {
-    {method} StepCount: int {query}
-    {method} Duration: TimeSpan {query}
-}
-
-interface "IReadOnlyComputationState<TConfiguration>" as IReadOnlyComputationStateWithTStateAndTConfiguration {
-    {method} Configuration: TConfiguration {query}
-}
-
-abstract class "ComputationState<TConfiguration>" as ComputationState {
-    -durationWatch: StopWatch
-    #ComputationState()
-    +UpdateConfiguration(configuration: TConfiguration): void
-    +StartDurationWatch(): void
-    +StopDurationWatch(): void
-    +AsReadOnly(): IReadOnlyComputationState<TConfiguration>
-    +{abstract}{method} Configuration: TConfiguration {query}
-    +{abstract} IsFinishedState(configuration: TConfiguration): bool
-}
-
-~class "ReadOnlyComputationState<TConfiguration>" as ReadOnlyComputationState {
-    -computationState: IReadOnlyComputationState<TConfiguration>
-    +ReadOnlyComputationState(computationState: IReadOnlyComputationState<TConfiguration>)
-}
-
-namespace TuringMachine.Computation.SingleTape {
-    class "ComputationState<TState, TSymbol>" as ComputationState {
-        +ComputationState(symbol: Symbol<TSymbol>)
-        +{method} Configuration: TransitionDomain<TState, TSymbol> {query}
-    }
-}
-
-namespace TuringMachine.Computation.MultiTape {
-    class "ComputationState<TState, TSymbol>" as ComputationState {
-        +ComputationState(symbols: IEnumerable<Symbol<TSymbol>>)
-        +{method} Configuration: TransitionDomain<TState, TSymbol> {query}
-    }
-}
-
-IReadOnlyComputationState <|-- IReadOnlyComputationStateWithTStateAndTConfiguration
-IReadOnlyComputationStateWithTStateAndTConfiguration <|.. ComputationState
-ComputationState <|-- TuringMachine.Computation.SingleTape.ComputationState
-ComputationState <|-- TuringMachine.Computation.MultiTape.ComputationState
-ReadOnlyComputationState o-up- IReadOnlyComputationStateWithTStateAndTConfiguration
-
-interface "IComputationConstraint<TConfiguration>" as IComputationConstraint {
-    Enforce(IReadOnlyComputationState<TConfiguration> computationState): ConstraintViolation?
-}
-
-class StepLimitConstraint {
-    -stepLimit: int
-    +StepLimitConstraint(stepLimit: int)
-}
-
-class TimeLimitConstraint {
-    -timeLimit: TimeSpan
-    +TimeLimitConstraint(timeout: TimeSpan)
-}
-
-class MultiConstraint {
-    -constraints: IReadOnlyCollection<IComputationConstraint<IReadOnlyComputationState>>
-    +MultiConstraint(constraints: IEnumerable<IComputationConstraint<IReadOnlyComputationState>>)
 }
 
 TuringMachine.Transition.SingleTape.TransitionDomain <|-- TuringMachine.Transition.SingleTape.TransitionRange
@@ -276,8 +198,6 @@ TuringMachine.Transition.SingleTape.TransitionTable "*" o-- "1..*" TuringMachine
 TuringMachine.Transition.SingleTape.TransitionTable -up-> "Validate()" TuringMachine.Transition.SingleTape.TransitionCollectionValidator
 Tape -[hidden]right- TuringMachine.Transition.SingleTape.Transition
 
-ComputationStateChangedEventArgs <|-- SteppedEventArgs
-ComputationStateChangedEventArgs <|-- ComputationTerminatedEventArgs
 ComputationTerminatedEventArgs <|-- ComputationAbortedEventArgs
 
 IAutomaticComputation <|.. Machine
@@ -293,34 +213,6 @@ TuringMachine.Machine.MultiTape.Machine "*" o-- "1" TuringMachine.Transition.Mul
 Machine <|-- TuringMachine.Machine.MultiTape.Machine
 
 Computation "1..*" *-- "0..1" ComputationMode   
-
-IComputationConstraint <|.. StepLimitConstraint
-IComputationConstraint <|.. TimeLimitConstraint
-IComputationConstraint <|.. MultiConstraint
-IReadOnlyComputationState <.. IComputationConstraint : parameter
-
-MultiConstraint -[hidden]down- ConstraintViolation
-
-class ConstraintViolation << record >> {
-    +{method} Reason: string
-}
-
-class StepLimitViolation << record >> {
-    +{method} StepLimit: int
-}
-
-class TimeLimitViolation << record >> {
-    +{method} TimeLimit: TimeSpan
-}
-
-class MultiViolation << record >> {
-    +{method} Violations: IEnumerable<Violation>
-}
-
-ConstraintViolation <|-- CancellationViolation
-ConstraintViolation <|-- StepLimitViolation
-ConstraintViolation <|-- TimeLimitViolation
-ConstraintViolation <|-- MultiViolation
 
 namespace TuringMachine.Transition.MultiTape {
     class "StateTransition<TState>" as StateTransition {

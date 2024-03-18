@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using TuringMachine.Machine.Computation;
-using TuringMachine.Machine.Computation.Constraint;
 using TuringMachine.Machine.SingleTape;
 using TuringMachine.Transition.SingleTape;
 using Xunit;
@@ -13,7 +12,7 @@ public class AutomaticComputationTests
 {
     [Theory]
     [ClassData(typeof(AcceptedInputTestData))]
-    public void StartAutomaticComputation_WithoutConstraint_SteppedRaised(StartComputationArguments<int, char> arguments)
+    public void StartAutomaticComputation_SteppedRaised(StartComputationArguments<int, char> arguments)
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
@@ -23,13 +22,12 @@ public class AutomaticComputationTests
             () => machine.StartAutomaticComputation(arguments.Input));
 
         Assert.Same(machine, raisedStepped.Sender);
-        Assert.True(raisedStepped.Arguments.StepCount > 0);
         Assert.Equal(State<int>.Accept, raisedStepped.Arguments.Transition.Range.State);
     }
 
     [Theory]
     [ClassData(typeof(AcceptedInputTestData))]
-    public void StartAutomaticComputation_WithoutConstraint_InputAccepted(StartComputationArguments<int, char> arguments)
+    public void StartAutomaticComputation_InputAccepted(StartComputationArguments<int, char> arguments)
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
@@ -74,23 +72,6 @@ public class AutomaticComputationTests
 
     [Theory]
     [ClassData(typeof(InfiniteComputationTestData))]
-    public void StartAutomaticComputation_WithConstraint_EnforcementStopsComputation(StartComputationArguments<int, char> arguments)
-    {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
-        var constraint = new StepLimitConstraint(3);
-
-        var raisedAborted = Assert.Raises<ComputationAbortedEventArgs<int, char>>(
-            handler => machine.ComputationAborted += handler,
-            handler => machine.ComputationAborted -= handler,
-            () => machine.StartAutomaticComputation(arguments.Input, constraint));
-
-        Assert.Null(raisedAborted.Arguments.Exception);
-        Assert.NotNull(raisedAborted.Arguments.ConstraintViolation);
-        Assert.IsType<StepLimitViolation>(raisedAborted.Arguments.ConstraintViolation);
-    }
-
-    [Theory]
-    [ClassData(typeof(InfiniteComputationTestData))]
     public async Task StartAutomaticComputation_AutomaticAlreadyStarted_ThrowsException(StartComputationArguments<int, char> arguments)
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
@@ -116,7 +97,7 @@ public class AutomaticComputationTests
 
     [Theory]
     [ClassData(typeof(AcceptedInputTestData))]
-    public async Task StartAutomaticComputationAsync_WithoutConstraint_SteppedRaised(StartComputationArguments<int, char> arguments)
+    public async Task StartAutomaticComputationAsync_SteppedRaised(StartComputationArguments<int, char> arguments)
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
@@ -126,13 +107,12 @@ public class AutomaticComputationTests
             () => machine.StartAutomaticComputationAsync(arguments.Input));
 
         Assert.Same(machine, raisedStepped.Sender);
-        Assert.True(raisedStepped.Arguments.StepCount > 0);
         Assert.Equal(State<int>.Accept, raisedStepped.Arguments.Transition.Range.State);
     }
 
     [Theory]
     [ClassData(typeof(AcceptedInputTestData))]
-    public async Task StartAutomaticComputationAsync_WithoutConstraint_InputAccepted(StartComputationArguments<int, char> arguments)
+    public async Task StartAutomaticComputationAsync_InputAccepted(StartComputationArguments<int, char> arguments)
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
@@ -147,7 +127,7 @@ public class AutomaticComputationTests
 
     [Theory]
     [ClassData(typeof(RejectedInputTestData))]
-    public async Task StartAutomaticComputationAsync_WithoutConstraint_InputRejected(StartComputationArguments<int, char> arguments)
+    public async Task StartAutomaticComputationAsync_InputRejected(StartComputationArguments<int, char> arguments)
     {
         var machine = new Machine<int, char>(arguments.TransitionTable);
 
@@ -173,23 +153,6 @@ public class AutomaticComputationTests
 
         Assert.Same(machine, raisedTerminated.Sender);
         Assert.Equal(arguments.ExpectedOutput, raisedTerminated.Arguments.TrimResult());
-    }
-
-    [Theory]
-    [ClassData(typeof(InfiniteComputationTestData))]
-    public async Task StartAutomaticComputationAsync_WithConstraint_EnforcementStopsComputation(StartComputationArguments<int, char> arguments)
-    {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
-        var constraint = new StepLimitConstraint(3);
-
-        var raisedAborted = await Assert.RaisesAsync<ComputationAbortedEventArgs<int, char>>(
-            handler => machine.ComputationAborted += handler,
-            handler => machine.ComputationAborted -= handler,
-            () => machine.StartAutomaticComputationAsync(arguments.Input, constraint));
-
-        Assert.Null(raisedAborted.Arguments.Exception);
-        Assert.NotNull(raisedAborted.Arguments.ConstraintViolation);
-        Assert.IsType<StepLimitViolation>(raisedAborted.Arguments.ConstraintViolation);
     }
 
     [Theory]
