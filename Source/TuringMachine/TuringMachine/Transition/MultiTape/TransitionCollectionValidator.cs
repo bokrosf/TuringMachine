@@ -18,6 +18,7 @@ public class TransitionCollectionValidator<TState, TSymbol>
     /// <exception cref="NonDeterministicTransitionException">Thrown when the collection contains a transition domain more than once.</exception>
     /// <exception cref="InvalidStateInTransitionException">Thrown when the collection contains a transition with an invalid state.</exception>
     /// <exception cref="MissingStateException">Thrown when the collection does not contain an obligatory state.</exception>
+    /// <exception cref="DifferentTransitionTapeCountException">Thrown when a transition has different tape count than other transitions.</exception>
     public void Validate(IEnumerable<Transition<TState, TSymbol>> transitions)
     {
         CheckStates(transitions);
