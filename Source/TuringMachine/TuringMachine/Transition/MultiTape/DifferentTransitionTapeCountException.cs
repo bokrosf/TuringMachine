@@ -3,7 +3,7 @@ using System;
 namespace TuringMachine.Transition.MultiTape;
 
 /// <summary>
-/// Exception that is thrown when a multi-tape transition's has different tape count than other transitions.
+/// Exception that is thrown when a multi-tape transition has different tape count than other transitions.
 /// </summary>
 public class DifferentTransitionTapeCountException : InvalidTransitionCollectionException
 {
