@@ -57,7 +57,7 @@ public class Machine<TState, TSymbol> : Machine<
         TransitToNextTapeSymbols(range.Tapes);
         Transition<TState, TSymbol> transition = new(
             new StateTransition<TState>(domain.State, range.State),
-            GetTapeTransitions(domain.TapeSymbols, range.Tapes));
+            domain.TapeSymbols.Zip(range.Tapes, (domain, range) => new TapeTransition<TSymbol>(domain, range.Symbol, range.TapeHeadDirection)));
 
         OnStepped(new SteppedEventArgs<Transition<TState, TSymbol>>(transition));
     }
@@ -94,16 +94,6 @@ public class Machine<TState, TSymbol> : Machine<
         {
             tapes[i].CurrentSymbol = tapeTransitions[i].Symbol;
             tapes[i].MoveHeadInDirection(tapeTransitions[i].TapeHeadDirection);
-        }
-    }
-
-    private IEnumerable<TapeTransition<TSymbol>> GetTapeTransitions(
-        IReadOnlyList<Symbol<TSymbol>> domains, 
-        IReadOnlyList<TapeTransitionRange<TSymbol>> ranges)
-    {
-        for (int i = 0; i < domains.Count; i++)
-        {
-            yield return (domains[i], ranges[i].Symbol, ranges[i].TapeHeadDirection);
         }
     }
 }
