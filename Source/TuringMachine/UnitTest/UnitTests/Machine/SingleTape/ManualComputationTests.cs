@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using TuringMachine.Machine.Computation;
+using TuringMachine.Machine.Computation.SingleTape;
 using TuringMachine.Machine.SingleTape;
 using TuringMachine.Transition.SingleTape;
 using Xunit;
@@ -14,9 +15,9 @@ public class ManualComputationTests
     [ClassData(typeof(AcceptedInputTestData))]
     public void Step_SteppedRaised(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
 
-        machine.StartManual(arguments.Input);
+        machine.StartManual(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable));
         var raisedStepped = Assert.Raises<SteppedEventArgs<Transition<int, char>>>(
             handler => machine.Stepped += handler,
             handler => machine.Stepped -= handler,
@@ -29,9 +30,9 @@ public class ManualComputationTests
     [ClassData(typeof(AcceptedInputTestData))]
     public void Step_WithoutConstraint_InputAccepted(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
 
-        machine.StartManual(arguments.Input);
+        machine.StartManual(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable));
         var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
             handler => machine.ComputationTerminated -= handler,
@@ -45,9 +46,9 @@ public class ManualComputationTests
     [ClassData(typeof(RejectedInputTestData))]
     public void Step_WithoutConstraint_InputRejected(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
 
-        machine.StartManual(arguments.Input);
+        machine.StartManual(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable));
         var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
             handler => machine.ComputationTerminated -= handler,
@@ -61,9 +62,9 @@ public class ManualComputationTests
     [ClassData(typeof(ExpectedTapeOutputTestData))]
     public void Step_OutputSymbols_SymbolsAsExpected(ExpectedTapeOutputArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
 
-        machine.StartManual(arguments.Input);
+        machine.StartManual(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable));
         var raisedTerminated = Assert.Raises<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
             handler => machine.ComputationTerminated -= handler,
@@ -77,20 +78,21 @@ public class ManualComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public void Step_ManualAlreadyStarted_ThrowsExceptionAsync(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
+        var request = new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable);
 
-        machine.StartManual(arguments.Input);
+        machine.StartManual(request);
 
-        Assert.Throws<InvalidOperationException>(() => machine.StartManual(arguments.Input));
+        Assert.Throws<InvalidOperationException>(() => machine.StartManual(request));
     }
 
     [Theory]
     [ClassData(typeof(InfiniteComputationTestData))]
     public void Abort_NoStepsTaken_Aborted(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
 
-        machine.StartManual(arguments.Input);
+        machine.StartManual(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable));
         var raisedAborted = Assert.Raises<ComputationAbortedEventArgs<int, char>>(
             handler => machine.ComputationAborted += handler,
             handler => machine.ComputationAborted -= handler,
@@ -104,9 +106,9 @@ public class ManualComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public void Abort_StepTaken_Aborted(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
 
-        machine.StartManual(arguments.Input);
+        machine.StartManual(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable));
         machine.Step();
         var raisedAborted = Assert.Raises<ComputationAbortedEventArgs<int, char>>(
             handler => machine.ComputationAborted += handler,
@@ -122,7 +124,7 @@ public class ManualComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public async Task Abort_AutomaticAlreadyStarted_ThrowsExceptionAsync(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
         Task firstStepSynchronizationTask = new Task(() => { });
         Task abortionSynchronizationTask = new Task(() => { });
         bool hasRaisedAborted = false;
@@ -144,7 +146,7 @@ public class ManualComputationTests
         machine.ComputationAborted += Machine_ComputationAborted;
 
         // Thread creation needed because using Task.Run() can cause the infinite computation run forever because scheduling.
-        Thread computationThread = new Thread(async () => await machine.StartAutomaticAsync(arguments.Input));
+        Thread computationThread = new Thread(async () => await machine.StartAutomaticAsync(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable)));
         computationThread.Priority = ThreadPriority.Lowest;
         computationThread.Start();
         await firstStepSynchronizationTask;

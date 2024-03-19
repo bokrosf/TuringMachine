@@ -5,14 +5,14 @@ namespace TuringMachine.Machine.Computation;
 /// <summary>
 /// Defines methods for controlling manual computations.
 /// </summary>
-/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public interface IManualComputation<TSymbol>
+/// <typeparam name="TComputationRequest">Arguments of a computation initiation.</typeparam>
+public interface IManualComputation<TComputationRequest> where TComputationRequest : notnull
 {
     /// <summary>
-    /// Starts a manually steppable computation process with the specified symbols.
+    /// Starts a manually steppable computation process.
     /// </summary>
-    /// <param name="input">Symbols that the tape is initialized with.</param>
-    void StartManual(IEnumerable<Symbol<TSymbol>> input);
+    /// <param name="request">Arguments of a computation initiation.</param>
+    void StartManual(TComputationRequest request);
 
     /// <summary>
     /// Transitions the machine from it's current state to the next.

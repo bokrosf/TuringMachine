@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TuringMachine.Machine.Computation;
@@ -7,11 +6,12 @@ using TuringMachine.Transition;
 
 namespace TuringMachine.Machine;
 
-public abstract class Machine<TState, TSymbol, TTransition> :
-    IAutomaticComputation<TSymbol>,
-    IManualComputation<TSymbol>,
+public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest> :
+    IAutomaticComputation<TComputationRequest>,
+    IManualComputation<TComputationRequest>,
     IComputationTracking<TState, TSymbol, TTransition>
         where TTransition : notnull
+        where TComputationRequest : notnull
 {
     public event EventHandler<SteppedEventArgs<TTransition>>? Stepped;
     public event EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>? ComputationTerminated;
@@ -29,14 +29,14 @@ public abstract class Machine<TState, TSymbol, TTransition> :
         state = State<TState>.Initial;
     }
 
-    public Task StartAutomaticAsync(IEnumerable<Symbol<TSymbol>> input)
+    public Task StartAutomaticAsync(TComputationRequest request)
     {
-        return StartAutomaticAsync(input, CancellationToken.None);
+        return StartAutomaticAsync(request, CancellationToken.None);
     }
 
-    public Task StartAutomaticAsync(IEnumerable<Symbol<TSymbol>> input, CancellationToken cancellationToken)
+    public Task StartAutomaticAsync(TComputationRequest request, CancellationToken cancellationToken)
     {
-        InitializeComputation(ComputationMode.Automatic, input);
+        InitializeComputation(ComputationMode.Automatic, request);
 
         return Task.Run(() => Compute(cancellationToken));
     }
@@ -65,9 +65,9 @@ public abstract class Machine<TState, TSymbol, TTransition> :
         }
     }
 
-    public void StartManual(IEnumerable<Symbol<TSymbol>> input)
+    public void StartManual(TComputationRequest request)
     {
-        InitializeComputation(ComputationMode.Manual, input);
+        InitializeComputation(ComputationMode.Manual, request);
     }
 
     public bool Step()
@@ -91,9 +91,7 @@ public abstract class Machine<TState, TSymbol, TTransition> :
         }
     }
 
-    protected abstract void InitializeComputation(
-        ComputationMode computationMode, 
-        IEnumerable<Symbol<TSymbol>> input);
+    protected abstract void InitializeComputation(ComputationMode computationMode, TComputationRequest request);
 
     protected abstract void TransitToNextState();
     protected abstract void CleanupComputation();

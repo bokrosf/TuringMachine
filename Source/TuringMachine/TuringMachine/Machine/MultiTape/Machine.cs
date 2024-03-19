@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TuringMachine.Machine.Computation;
+using TuringMachine.Machine.Computation.MultiTape;
 using TuringMachine.Transition.MultiTape;
 
 namespace TuringMachine.Machine.MultiTape;
@@ -11,28 +12,24 @@ namespace TuringMachine.Machine.MultiTape;
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public class Machine<TState, TSymbol> : Machine<TState, TSymbol, Transition<TState, TSymbol>>
+public class Machine<TState, TSymbol> : Machine<
+    TState, 
+    TSymbol, 
+    Transition<TState, TSymbol>,
+    ComputationRequest<TState, TSymbol>>
 {
-    private readonly Tape<TSymbol>[] tapes;
-    private readonly ITransitionTable<TState, TSymbol> transitionTable;
+    private Tape<TSymbol>[] tapes;
+    private ITransitionTable<TState, TSymbol>? transitionTable;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="Machine{TState, TSymbol}"/> class with the specified transition table.
+    /// Initializes a new instance of <see cref="Machine{TState, TSymbol}"/> class.
     /// </summary>
-    /// <param name="transitionTable">Table that contains the performable transitions.</param>
-    /// <exception cref="ArgumentException">Tape count is less than one.</exception>
-    public Machine(ITransitionTable<TState, TSymbol> transitionTable)
+    public Machine()
     {
-        if (transitionTable.TapeCount < 1)
-        {
-            throw new ArgumentException("Tape count must be greater than zero.", nameof(transitionTable));
-        }
-
-        tapes = Enumerable.Range(1, transitionTable.TapeCount).Select(i => new Tape<TSymbol>()).ToArray();
-        this.transitionTable = transitionTable;
+        tapes = Array.Empty<Tape<TSymbol>>();
     }
 
-    protected override void InitializeComputation(ComputationMode computationMode, IEnumerable<Symbol<TSymbol>> input)
+    protected override void InitializeComputation(ComputationMode computationMode, ComputationRequest<TState, TSymbol> request)
     {
         lock (computationLock)
         {
@@ -41,7 +38,14 @@ public class Machine<TState, TSymbol> : Machine<TState, TSymbol, Transition<TSta
                 throw new InvalidOperationException($"A(n) {computation.Mode} computation is already in progress.");
             }
 
-            tapes[0] = new Tape<TSymbol>(input);
+            if (request.TransitionTable.TapeCount < 1)
+            {
+                throw new ArgumentException("Tape count must be greater than zero.", nameof(transitionTable));
+            }
+
+            tapes = Enumerable.Range(1, request.TransitionTable.TapeCount).Select(i => new Tape<TSymbol>()).ToArray();
+            tapes[0] = new Tape<TSymbol>(request.Input);
+            transitionTable = request.TransitionTable;
             computation = new(computationMode, IsAborted: false);
         }
     }
@@ -49,7 +53,7 @@ public class Machine<TState, TSymbol> : Machine<TState, TSymbol, Transition<TSta
     protected override void TransitToNextState()
     {
         TransitionDomain<TState, TSymbol> domain = new TransitionDomain<TState, TSymbol>(state, tapes.Select(t => t.CurrentSymbol));
-        TransitionRange<TState, TSymbol> range = transitionTable[domain];
+        TransitionRange<TState, TSymbol> range = transitionTable![domain];
         TransitToNextTapeSymbols(range.Tapes);
         Transition<TState, TSymbol> transition = new(
             new StateTransition<TState>(domain.State, range.State),
@@ -64,6 +68,9 @@ public class Machine<TState, TSymbol> : Machine<TState, TSymbol, Transition<TSta
         {
             t.Clear();
         }
+
+        tapes = Array.Empty<Tape<TSymbol>>();
+        transitionTable = null;
 
         lock (computationLock)
         {

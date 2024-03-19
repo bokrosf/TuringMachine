@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using TuringMachine.Machine.Computation;
+using TuringMachine.Machine.Computation.SingleTape;
 using TuringMachine.Machine.SingleTape;
 using TuringMachine.Transition.SingleTape;
 using Xunit;
@@ -14,12 +15,12 @@ public class AutomaticComputationTests
     [ClassData(typeof(AcceptedInputTestData))]
     public async Task StartAutomaticAsync_SteppedRaised(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
 
         var raisedStepped = await Assert.RaisesAsync<SteppedEventArgs<Transition<int, char>>>(
             handler => machine.Stepped += handler,
             handler => machine.Stepped -= handler,
-            () => machine.StartAutomaticAsync(arguments.Input));
+            () => machine.StartAutomaticAsync(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable)));
 
         Assert.Same(machine, raisedStepped.Sender);
         Assert.Equal(State<int>.Accept, raisedStepped.Arguments.Transition.Range.State);
@@ -29,12 +30,12 @@ public class AutomaticComputationTests
     [ClassData(typeof(AcceptedInputTestData))]
     public async Task StartAutomaticAsync_InputAccepted(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
 
         var raisedTerminated = await Assert.RaisesAsync<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
             handler => machine.ComputationTerminated -= handler,
-            () => machine.StartAutomaticAsync(arguments.Input));
+            () => machine.StartAutomaticAsync(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable)));
 
         Assert.Same(machine, raisedTerminated.Sender);
         Assert.Equal(State<int>.Accept, raisedTerminated.Arguments.State);
@@ -44,12 +45,12 @@ public class AutomaticComputationTests
     [ClassData(typeof(RejectedInputTestData))]
     public async Task StartAutomaticAsync_InputRejected(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
 
         var raisedTerminated = await Assert.RaisesAsync<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
             handler => machine.ComputationTerminated -= handler,
-            () => machine.StartAutomaticAsync(arguments.Input));
+            () => machine.StartAutomaticAsync(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable)));
 
         Assert.Same(machine, raisedTerminated.Sender);
         Assert.Equal(State<int>.Reject, raisedTerminated.Arguments.State);
@@ -59,12 +60,12 @@ public class AutomaticComputationTests
     [ClassData(typeof(ExpectedTapeOutputTestData))]
     public async Task StartAutomaticAsync_OutputSymbols_SymbolsAsExpected(ExpectedTapeOutputArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
 
         var raisedTerminated = await Assert.RaisesAsync<ComputationTerminatedEventArgs<int, char>>(
             handler => machine.ComputationTerminated += handler,
             handler => machine.ComputationTerminated -= handler,
-            () => machine.StartAutomaticAsync(arguments.Input));
+            () => machine.StartAutomaticAsync(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable)));
 
         Assert.Same(machine, raisedTerminated.Sender);
         Assert.Equal(arguments.ExpectedOutput, raisedTerminated.Arguments.TrimResult());
@@ -74,7 +75,7 @@ public class AutomaticComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public async Task StartAutomaticAsync_AutomaticAlreadyStarted_ThrowsException(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
         Task firstStepSynchronizationTask = new Task(() => { });
 
         void HandleMachineStepped(object? sender, SteppedEventArgs<Transition<int, char>> e)
@@ -86,11 +87,11 @@ public class AutomaticComputationTests
         machine.Stepped += HandleMachineStepped;
 
         // Thread creation needed because using Task.Run() can cause the infinite computation run forever because scheduling.
-        Thread computationThread = new Thread(async () => await machine.StartAutomaticAsync(arguments.Input));
+        Thread computationThread = new Thread(async () => await machine.StartAutomaticAsync(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable)));
         computationThread.Priority = ThreadPriority.Lowest;
         computationThread.Start();
         await firstStepSynchronizationTask;
-        await Assert.ThrowsAsync<InvalidOperationException>(() => machine.StartAutomaticAsync(arguments.Input));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => machine.StartAutomaticAsync(new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable)));
         machine.RequestAbortion();
         computationThread.Join();
     }
@@ -99,7 +100,7 @@ public class AutomaticComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public async Task StartAutomaticAsync_CancellationToken_Aborted(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
         Task firstStepSynchronizationTask = new Task(() => { });
         Task abortionSynchronizationTask = new Task(() => { });
         bool hasRaisedAborted = false;
@@ -122,8 +123,8 @@ public class AutomaticComputationTests
 
         // Thread creation needed because using Task.Run() can cause the infinite computation run forever because scheduling.
         CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        CancellationToken cancellationToken = cancellationTokenSource.Token;
-        Thread computationThread = new Thread(async () => await machine.StartAutomaticAsync(arguments.Input, cancellationToken));
+        var request = new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable);
+		Thread computationThread = new Thread(async () => await machine.StartAutomaticAsync(request, cancellationTokenSource.Token));
         computationThread.Priority = ThreadPriority.Lowest;
         computationThread.Start();
         await firstStepSynchronizationTask;
@@ -138,10 +139,10 @@ public class AutomaticComputationTests
     [ClassData(typeof(InfiniteComputationTestData))]
     public async Task StartAutomaticAsync_ManualAlreadyStarted_ThrowsException(StartComputationArguments<int, char> arguments)
     {
-        var machine = new Machine<int, char>(arguments.TransitionTable);
+        var machine = new Machine<int, char>();
+        var request = new ComputationRequest<int, char>(arguments.Input, arguments.TransitionTable);
+        machine.StartManual(request);
 
-        machine.StartManual(arguments.Input);
-
-        await Assert.ThrowsAsync<InvalidOperationException>(() => machine.StartAutomaticAsync(arguments.Input));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => machine.StartAutomaticAsync(request));
     }
 }
