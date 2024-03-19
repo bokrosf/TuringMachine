@@ -18,7 +18,7 @@ internal class AcceptedInputTestData : TestData
     {
         var transitions = new Transition<int, char>[]
         {
-                ((State<int>.Initial, 'a'), (State<int>.Accept, 'b', TapeHeadDirection.Stay))
+            ((State<int>.Initial, 'a'), (State<int>.Accept, 'b', TapeHeadDirection.Stay))
         };
 
         var transitionTable = new TransitionTable<int, char>(transitions);
@@ -31,9 +31,9 @@ internal class AcceptedInputTestData : TestData
     {
         var transitions = new Transition<int, char>[]
         {
-                ((State<int>.Initial, 'a'), (1, 'a', TapeHeadDirection.Right)),
-                ((1, 'a'), (1, 'a', TapeHeadDirection.Right)),
-                ((1, 'b'), (State<int>.Accept, 'b', TapeHeadDirection.Stay)),
+            ((State<int>.Initial, 'a'), (1, 'a', TapeHeadDirection.Right)),
+            ((1, 'a'), (1, 'a', TapeHeadDirection.Right)),
+            ((1, 'b'), (State<int>.Accept, 'b', TapeHeadDirection.Stay)),
         };
 
         var transitionTable = new TransitionTable<int, char>(transitions);
@@ -46,10 +46,10 @@ internal class AcceptedInputTestData : TestData
     {
         var transitions = new Transition<int, char>[]
         {
-                ((State<int>.Initial, 'a'), (1, 'a', TapeHeadDirection.Right)),
-                ((1, 'b'), (2, 'c', TapeHeadDirection.Stay)),
-                ((2, 'c'), (1, 'c', TapeHeadDirection.Right)),
-                ((1, 'd'), (State<int>.Accept, 'e', TapeHeadDirection.Stay)),
+            ((State<int>.Initial, 'a'), (1, 'a', TapeHeadDirection.Right)),
+            ((1, 'b'), (2, 'c', TapeHeadDirection.Stay)),
+            ((2, 'c'), (1, 'c', TapeHeadDirection.Right)),
+            ((1, 'd'), (State<int>.Accept, 'e', TapeHeadDirection.Stay)),
         };
 
         var transitionTable = new TransitionTable<int, char>(transitions);

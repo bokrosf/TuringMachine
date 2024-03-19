@@ -17,9 +17,9 @@ internal class InfiniteComputationTestData : TestData
         var input = "a".Select(c => new Symbol<char>(c));
         var transitions = new Transition<int, char>[]
         {
-                ((State<int>.Initial, input.First()), (1, input.First(), TapeHeadDirection.Stay)),
-                ((1, input.First()), (1, input.First(), TapeHeadDirection.Stay)),
-                ((2, input.First()), (State<int>.Accept, input.First(), TapeHeadDirection.Stay))
+            ((State<int>.Initial, input.First()), (1, input.First(), TapeHeadDirection.Stay)),
+            ((1, input.First()), (1, input.First(), TapeHeadDirection.Stay)),
+            ((2, input.First()), (State<int>.Accept, input.First(), TapeHeadDirection.Stay))
         };
 
         var transitionTable = new TransitionTable<int, char>(transitions);
