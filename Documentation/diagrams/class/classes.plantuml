@@ -1,0 +1,264 @@
+@startuml classes
+hide interface empty members
+hide enum empty members
+skinparam ClassAttributeIconSize 0
+
+class "Symbol<T>" as Symbol {
+    -{static} NullValueHashCode: int = 0 {query}    
+    {static} Symbol()
+    +Symbol(value: T)
+    +ToString(): string
+    +Equals(obj: object?): bool
+    +{static} Equality(left: Symbol<T>?, right: Symbol<T>): bool
+    +{static} Inequality(left: Symbol<T>?, right: Symbol<T>): bool
+    +GetHashCode(): int
+    +{method} {static} Blank: Symbol<T> {query}
+    +{method} Value: T {query}
+}
+
+class "State<T>" as State {
+    -{static} NullValueHashCode: int = 0 {query}
+    -{static} InitialHashCode: int = 100003 {query}
+    -{static} AcceptHashCode: int = 500009 {query}
+    -{static} RejectHashCode: int = 900007 {query}
+    {static} State()
+    +State(value: T)
+    +ToString(): string
+    +Equals(obj: object?): bool
+    +{static} Equality(left: State<T>?, right: State<T>): bool
+    +{static} Inequality(left: State<T>?, right: State<T>): bool
+    +GetHashCode(): int
+    +{method} {static} Initial: T {query}
+    +{method} {static} Accept: T {query}
+    +{method} {static} Reject: T {query}
+    +{method} Value: T {query}
+    +{method} IsFinishState: bool {query}
+}
+
+Symbol -[hidden]- State
+
+enum TapeHeadDirection {
+    Stay
+    Left
+    Right
+}
+
+class "Tape<T>" as Tape {
+    -symbols: LinkedList<Symbol<T>>
+    -head: LinkedListNode<Symbol<T>>
+    +Tape()
+    +Tape(symbols: IEnumerable<Symbol<T>>)
+    +MoveHeadInDirection(direction: TapeHeadDirection): Symbol<T>
+    +Clear(): void
+    +{method} CurrentSymbol: Symbol<T> {query}
+    -MoveHeadToTheLeft(): Symbol<T>
+    -MoveHeadToTheRight(): Symbol<T>
+}
+
+Tape "*" o-left- "1..*" Symbol
+interface "IEnumerable<T>" as IEnumerable
+IEnumerable <|.. Tape
+Tape ..> TapeHeadDirection
+
+namespace TuringMachine.Transition.SingleTape {
+    class "TransitionDomain<TState, TSymbol>" as TransitionDomain << record >> {
+        +{method} State: State<TState> {query}
+        +{method} Symbol: Symbol<TSymbol> {query}
+        +Implicit(state: TState, value: TSymbol): TransitionDomain<TState, TSymbol>
+        +Implicit(state: State<TState>, symbol: Symbol<TSymbol>): TransitionDomain<TState, TSymbol>
+    }
+
+    class "TransitionRange<TState, TSymbol>" as TransitionRange << record >> {
+        +{method} HeadDirection: TapeHeadDirection {query}
+        +Implicit(state: TState, value: TSymbol, headDirection: TapeHeadDirection): TransitionRange<TState, TSymbol>
+        +Implicit(state: State<TState>, symbol: Symbol<TSymbol>, headDirection: TapeHeadDirection): TransitionRange<TState, TSymbol>
+    }
+
+    class "Transition<TState, TSymbol>" as Transition << record >> {
+        +{method} Domain: TransitionDomain<TState, TSymbol> {query}
+        +{method} Range: TransitionRange<TState, TSymbol> {query}
+        +Implicit(domain: TransitionDomain<TState, TSymbol>, range: TransitionRange<TState, TSymbol>): Transition<TState, TSymbol>
+    }
+
+    class "TransitionTable<TState, TSymbol>" as TransitionTable {
+        -transitions: ReadOnlyDictionary<TState, TSymbol>
+        +TransitionTable(transitions: IEnumerable<Transition<TState, TSymbol>>)
+        ~{method} <<indexer>> [domain: TransitionDomain<TState, TSymbol>]: TransitionRange
+    }
+
+    class "TransitionCollectionValidator<TState, TSymbol>" as TransitionCollectionValidator {
+        +Validate(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+        -CheckDuplications(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+        -CheckDeterminism(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+        -CheckStates(transitions: IEnumerable<Transition<TState, TSymbol>>): void
+        -CheckStateOfDomain(transition: Transition<TState, TSymbol>): void
+        -CheckStateOfRange(transition: Transition<TState, TSymbol>): void
+    }
+}
+
+class Computation << record >> {
+    +{method} Mode: ComputationMode {query}
+    +{method} IsAborted: bool {query}
+}
+
+interface "IAutomaticComputation<TSymbol>" as IAutomaticComputation {
+    StartAutomaticComputationAsync(input: IEnumerable<Symbol<TSymbol>>): Task
+    StartAutomaticComputation(input: IEnumerable<Symbol<TSymbol>>): void
+    RequestAbortion(): void
+}
+
+interface "IManualComputation<TSymbol>" as IManualComputation {
+    StartManualComputation(input: IEnumerable<Symbol<TSymbol>>): void
+    Step(): bool
+    RequestAbortion(): void
+}
+
+interface "IComputationTracking<TState, TSymbol, TTransition>" as IComputationTracking {
+    Stepped: EventHandler<SteppedEventArgs<TTransition>>?
+    ComputationTerminated: EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>?
+    ComputationAborted: EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>?
+}
+
+class "SteppedEventArgs<TTransition>" as SteppedEventArgs {
+    +{method} Transition: TTransition {query}
+}
+
+class "ComputationTerminatedEventArgs<TState, TSymbol>" as ComputationTerminatedEventArgs {
+    +{method} State: TState {query}
+    +{method} RawResult: IReadOnlyList<Symbol<TSymbol>> {query}
+    +TrimResult(): IEnumerable<Symbol<TSymbol>> 
+}
+
+class "ComputationAbortedEventArgs<TState, TSymbol>" as ComputationAbortedEventArgs {
+    +{method} Exception: Exception? {query}
+}
+
+enum ComputationMode {
+    Automatic,
+    Manual
+}
+
+~abstract class "Machine<TState, TSymbol, TTransition>" as Machine {
+    #computationLock: object
+    #computation: Computation?
+    -manualComputationLock: object
+    #Machine()
+    #{abstract} InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
+    #{abstract} TransitToNextState(): void
+    #{abstract} CleanupComputation(): void
+    #{abstract} CanTerminate(): bool
+    #{abstract} CreateComputationTerminatedEventArgs(): ComputationTerminatedEventArgs<TState, TSymbol>
+    #{abstract} CreateComputationAbortedEventArgs(ex: Exception?): ComputationAbortedEventArgs<TState, TSymbol>
+    #OnStepped(eventArgs: SteppedEventArgs<TTransition>): void
+    #OnComputationTerminated(eventArgs: ComputationTerminatedEventArgs<TState, TSymbol>): void
+    #OnComputationAborted(eventArgs: ComputationAbortedEventArgs<TState, TSymbol>): void
+    -PerformStep(): bool
+    -Terminate(): void
+    -IsAborted(): bool
+    -Compute(): void
+    -AbortComputation(): void
+    -AbortComputation(ex: Exception?): void
+}
+
+namespace TuringMachine.Machine.SingleTape {
+    class "Machine<TState, TSymbol>" as Machine {
+        -tape: Tape<TSymbol>
+        -transitionTable: TransitionTable<TState, TSymbol>
+        +SingleTapeMachine(transitionTable: TransitionTable<TState, TSymbol>)
+        #InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
+        #TransitToNextState(): void
+        #Terminate(): void
+        #CleanupComputation(): void
+        #CanTerminate(): bool
+        #CreateComputationTerminatedEventArgs(): ComputationTerminatedEventArgs<TState, TSymbol>
+        #CreateComputationAbortedEventArgs(ex: Exception?): ComputationAbortedEventArgs<TState, TSymbol>
+    }
+}
+
+namespace TuringMachine.Machine.MultiTape {
+    class "Machine<TState, TSymbol>" as Machine {
+        -tapes: Tape<TSymbol>[]
+        -transitionTable: ITransitionTable<TState, TSymbol>
+        +SingleTapeMachine(transitionTable: ITransitionTable<TState, TSymbol>)
+        #InitializeComputation(computationMode: ComputationMode, input: IEnumerable<Symbol<TSymbol>>): void
+        #TransitToNextState(): void
+        #Terminate(): void
+        #CleanupComputation(): void
+        #CanTerminate(): bool
+        #CreateComputationTerminatedEventArgs(): ComputationTerminatedEventArgs<TState, TSymbol>
+        #CreateComputationAbortedEventArgs(ex: Exception?): ComputationAbortedEventArgs<TState, TSymbol>
+    }
+}
+
+TuringMachine.Transition.SingleTape.TransitionDomain <|-- TuringMachine.Transition.SingleTape.TransitionRange
+TuringMachine.Transition.SingleTape.Transition "*" o-- "1" TuringMachine.Transition.SingleTape.TransitionDomain
+TuringMachine.Transition.SingleTape.Transition "*" o-- "1" TuringMachine.Transition.SingleTape.TransitionRange
+TuringMachine.Transition.SingleTape.TransitionTable "*" o-- "1..*" TuringMachine.Transition.SingleTape.TransitionDomain
+TuringMachine.Transition.SingleTape.TransitionTable "*" o-- "1..*" TuringMachine.Transition.SingleTape.TransitionRange
+TuringMachine.Transition.SingleTape.TransitionTable -up-> "Validate()" TuringMachine.Transition.SingleTape.TransitionCollectionValidator
+Tape -[hidden]right- TuringMachine.Transition.SingleTape.Transition
+
+ComputationTerminatedEventArgs <|-- ComputationAbortedEventArgs
+
+IAutomaticComputation <|.. Machine
+IManualComputation <|.. Machine
+IComputationTracking <|.. Machine
+Machine *-- Computation
+TuringMachine.Machine.SingleTape.Machine *-- Tape
+TuringMachine.Machine.SingleTape.Machine "*" o-- "1" TuringMachine.Transition.SingleTape.TransitionTable
+Machine <|-- TuringMachine.Machine.SingleTape.Machine
+
+TuringMachine.Machine.MultiTape.Machine *-- "1..*" Tape
+TuringMachine.Machine.MultiTape.Machine "*" o-- "1" TuringMachine.Transition.MultiTape.ITransitionTable
+Machine <|-- TuringMachine.Machine.MultiTape.Machine
+
+Computation "1..*" *-- "0..1" ComputationMode   
+
+namespace TuringMachine.Transition.MultiTape {
+    class "StateTransition<TState>" as StateTransition {
+        +{method} Domain: State<TState>
+        +{method} Range: State<TState>
+    }
+
+    class "TapeTransition<TSymbol>" as TapeTransition {
+        +{method} Domain: Symbol<TSymbol>
+        +{method} Range: Symbol<TSymbol>
+        +{method} TapeHeadDirection: TapeHeadDirection
+    }
+
+    class "Transition<TState, TSymbol>" as Transition {
+        +Transition(state: StateTransition<TState>, tapes: IEnumerable<TapeTransition<TSymbol>>)
+        +{method} State: StateTransition<TState>
+        +{method} Tapes: IReadOnlyList<TapeTransition<TSymbol>>
+    }   
+
+    ~class "TapeTransitionRange<TSymbol>" as TapeTransitionRange << record >> {
+        +{method} Symbol: Symbol<TSymbol>
+        +{method} TapeHeadDirection: TapeHeadDirection
+    }
+
+    ~class "TransitionRange<TState, TSymbol>" as TransitionRange {
+        +TransitionRange(state: State<TState>, tapes: IEnumerable<TapeTransitionRange<TSymbol>>)
+        +{method} State: State<TState>
+        +{method} Tapes: IReadOnlyList<TapeTransitionRange<TSymbol>>
+    }
+
+    class "TransitionDomain<TState, TSymbol>" as TransitionDomain {
+        +TransitionDomain(state: State<TState>, symbols: IEnumerable<Symbol<TSymbol>>)
+        +{method} State: State<TState> {query}
+        +{method} TapeSymbols: IReadOnlyList<Symbol<TSymbol>> {query}
+    }
+
+    interface "ITransitionTable<TState, TSymbol>" as ITransitionTable {
+        +{method} TapeCount: int
+        ~{method} <<indexer>> [domain: TransitionDomain<TState, TSymbol>]: TransitionRange<TState, TSymbol>
+    }
+
+    TuringMachine.Transition.MultiTape.Transition o-- TuringMachine.Transition.MultiTape.StateTransition
+    TuringMachine.Transition.MultiTape.Transition o-- "1..*" TuringMachine.Transition.MultiTape.TapeTransition
+    TuringMachine.Transition.MultiTape.ITransitionTable ..> TuringMachine.Transition.MultiTape.TransitionDomain
+    TuringMachine.Transition.MultiTape.ITransitionTable ..> TuringMachine.Transition.MultiTape.TransitionRange
+    TuringMachine.Transition.MultiTape.TransitionRange o-- "1..*" TuringMachine.Transition.MultiTape.TapeTransitionRange
+}
+
+@enduml

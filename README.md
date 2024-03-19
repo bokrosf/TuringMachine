@@ -1,13 +1,7 @@
 # TuringMachine
 
-A Turing machine library that allows creating machines with user defined state and symbol types. Users can define their own machine types with customized postcondition checks and able to track computation progress.
+A Turing machine library that allows creating machines with user defined state and symbol types. Users can define their own machine types and able to track computation progress.
 
-Setting up the machine happens both declaratively and progmaticcaly. Transitions are defined declaratively while tracking computation progress initialization happens by subscribing to events or examining machine's properties.
+Setting up the machine happens both declaratively and programmatically. Transitions are defined declaratively while computation progress tracking happens by subscribing to events.
 
-The project uses .NET 5 and C# 8.0 for nullable reference types.
-
-### Goals in order:
-- [ ] Single tape machine with tracking computation progress and postconditions
-- [ ] Multi tape machine
-- [ ] Customizable postcondition definitions
-- [ ] Simulating activities by machine, *this may never be implemented if the usage is too complicated to be user friendly*
+Project uses .NET 8 and C# 12.
