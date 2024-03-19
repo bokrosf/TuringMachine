@@ -6,7 +6,7 @@ using TuringMachine.Transition.SingleTape;
 namespace TuringMachine.Machine.SingleTape;
 
 /// <summary>
-/// Represents a single-tape turing machine.
+/// Represents a single-tape Turing machine.
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>

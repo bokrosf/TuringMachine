@@ -6,6 +6,13 @@ using TuringMachine.Transition;
 
 namespace TuringMachine.Machine;
 
+/// <summary>
+/// Represents a Turing machine that can execute computations.
+/// </summary>
+/// <typeparam name="TState">Type of the machine's state.</typeparam>
+/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
+/// <typeparam name="TTransition">Type of the configuration transition.</typeparam>
+/// <typeparam name="TComputationRequest">Arguments of a computation initiation.</typeparam>
 public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest> :
     IAutomaticComputation<TComputationRequest>,
     IManualComputation<TComputationRequest>,
@@ -22,6 +29,9 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
     protected Computation.Computation? computation;
     private readonly object manualComputationLock;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Machine{TState, TSymbol, TTransition, TComputationRequest}"/> class.
+    /// </summary>
     protected Machine()
     {
         computationLock = new object();
@@ -91,24 +101,56 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
         }
     }
 
+    /// <summary>
+    /// Initializes the computation by setting up the state, tapes and other components necessary for the computation.
+    /// </summary>
+    /// <param name="computationMode">Computation execution mode.</param>
+    /// <param name="request">Arguments of a computation initiation.</param>
     protected abstract void InitializeComputation(ComputationMode computationMode, TComputationRequest request);
 
-    protected abstract void TransitToNextState();
+    /// <summary>
+    /// Transits to the next configuration based on the current configuration. Triggers the <see cref="Stepped"/> event.
+    /// </summary>
     protected abstract void TransitToNextConfiguration();
+    
+    /// <summary>
+    /// Cleans up computation details, tapes. Resets the machine to the state where a new computation can be started.
+    /// </summary>
     protected abstract void CleanupComputation();
+    
+    /// <summary>
+    /// Creates the arguments needed for termination event triggering.
+    /// </summary>
     protected abstract ComputationTerminatedEventArgs<TState, TSymbol> CreateComputationTerminatedEventArgs();
+    
+    /// <summary>
+    /// Creates the arguments needed for abortion event triggering.
+    /// </summary>
+    /// <param name="ex"></param>
     protected abstract ComputationAbortedEventArgs<TState, TSymbol> CreateComputationAbortedEventArgs(Exception? ex);
 
+    /// <summary>
+    /// Triggers the <see cref="Stepped"/> event.
+    /// </summary>
+    /// <param name="eventArgs">Event arguments.</param>
     protected void OnStepped(SteppedEventArgs<TTransition> eventArgs)
     {
         Stepped?.Invoke(this, eventArgs);
     }
 
+    /// <summary>
+    /// Triggers the <see cref="ComputationTerminated"/> event.
+    /// </summary>
+    /// <param name="eventArgs">Event arguments</param>
     protected void OnComputationTerminated(ComputationTerminatedEventArgs<TState, TSymbol> eventArgs)
     {
         ComputationTerminated?.Invoke(this, eventArgs);
     }
 
+    /// <summary>
+    /// Triggers the <see cref="ComputationAborted"/> event.
+    /// </summary>
+    /// <param name="eventArgs">Event arguments.</param>
     protected void OnComputationAborted(ComputationAbortedEventArgs<TState, TSymbol> eventArgs)
     {
         ComputationAborted?.Invoke(this, eventArgs);
@@ -133,7 +175,7 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
 
             try
             {
-                TransitToNextState();
+                TransitToNextConfiguration();
             }
             catch (TransitionDomainNotFoundException)
             {

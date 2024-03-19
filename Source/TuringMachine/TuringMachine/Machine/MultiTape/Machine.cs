@@ -8,7 +8,7 @@ using TuringMachine.Transition.MultiTape;
 namespace TuringMachine.Machine.MultiTape;
 
 /// <summary>
-/// Represents a multi-tape turing machine.
+/// Represents a multi-tape Turing machine.
 /// </summary>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
