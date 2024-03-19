@@ -1,11 +1,12 @@
-﻿namespace TuringMachine.Machine.Computation;
+﻿using System;
+
+namespace TuringMachine.Machine.Computation;
 
 /// <summary>
 /// Provides data for the event that is raised when a turing machine transitioned from one state to another.
 /// </summary>
 /// <typeparam name="TTransition">Type of a machine transition.</typeparam>
-public class SteppedEventArgs<TTransition> : ComputationStateChangedEventArgs
-    where TTransition : notnull
+public class SteppedEventArgs<TTransition> : EventArgs where TTransition : notnull
 {
     /// <summary>
     /// The applied transition during the step.
@@ -18,8 +19,7 @@ public class SteppedEventArgs<TTransition> : ComputationStateChangedEventArgs
     /// </summary>
     /// <param name="computationState">State of the computation.</param>
     /// <param name="transition">The applied transition during the step.</param>
-    public SteppedEventArgs(IReadOnlyComputationState computationState, TTransition tranition)
-        : base(computationState)
+    public SteppedEventArgs(TTransition tranition)
     {
         Transition = tranition;
     }

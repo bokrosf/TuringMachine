@@ -1,30 +1,18 @@
 ﻿using System.Collections.Generic;
-using TuringMachine.Machine.Computation.Constraint;
 
 namespace TuringMachine.Machine.Computation;
 
 /// <summary>
 /// Defines methods for controlling manual computations.
 /// </summary>
-/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-/// <typeparam name="TConfiguration">Type of the machine's configuration.</typeparam>
-public interface IManualComputation<TSymbol, TConfiguration>
-    where TConfiguration : notnull
+/// <typeparam name="TComputationRequest">Arguments of a computation initiation.</typeparam>
+public interface IManualComputation<TComputationRequest> where TComputationRequest : notnull
 {
     /// <summary>
-    /// Starts a manually steppable computation process with the specified symbols.
+    /// Starts a manually steppable computation process.
     /// </summary>
-    /// <param name="input">Symbols that the tape is initialized with.</param>
-    void StartManualComputation(IEnumerable<Symbol<TSymbol>> input);
-
-    /// <summary>
-    /// Starts a manually steppable computation process, with the specified symbols and a constraint.
-    /// </summary>
-    /// <param name="input">Symbols that the tape is initialized with.</param>
-    /// <param name="constraint">A constraint that must be enforced during the computation process.</param>
-    void StartManualComputation(
-        IEnumerable<Symbol<TSymbol>> input,
-        IComputationConstraint<IReadOnlyComputationState<TConfiguration>> constraint);
+    /// <param name="request">Arguments of a computation initiation.</param>
+    void StartManual(TComputationRequest request);
 
     /// <summary>
     /// Transitions the machine from it's current state to the next.

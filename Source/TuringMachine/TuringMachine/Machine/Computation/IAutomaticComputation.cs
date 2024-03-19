@@ -1,51 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using TuringMachine.Machine.Computation.Constraint;
 
 namespace TuringMachine.Machine.Computation;
 
 /// <summary>
 /// Defines methods for starting automatic computations.
 /// </summary>
-/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-/// <typeparam name="TConfiguration">Type of the machine's configuration.</typeparam>
-public interface IAutomaticComputation<TSymbol, TConfiguration>
-    where TConfiguration : notnull
+/// <typeparam name="TComputationRequest">Arguments of a computation initiation.</typeparam>
+public interface IAutomaticComputation<TComputationRequest> where TComputationRequest : notnull
 {
     /// <summary>
-    /// Asynchronously starts an automatically stepping computation process with the specified symbols.
+    /// Asynchronously starts an automatically stepping computation process.
     /// </summary>
-    /// <param name="input">Symbols that the tape is initialized with.</param>
+    /// <param name="request">Arguments of a computation initiation.</param>
     /// <returns><see cref="Task"/> that is the computation process.</returns>
-    Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input);
-
+    Task StartAutomaticAsync(TComputationRequest request);
+    
     /// <summary>
-    /// Asynchronously starts an automatically stepping computation process with the specified symbols and a constraint.
+    /// Asynchronously starts an automatically stepping computation process that can be cancelled.
     /// </summary>
-    /// <param name="input">Symbols that the tape is initialized with.</param>
-    /// <param name="constraint">A constraint that must be enforced during the computation process.</param>
+    /// <param name="request">Arguments of a computation initiation.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used by other objects and threads to receive notification of cancellation.</param>
     /// <returns><see cref="Task"/> that is the computation process.</returns>
-    Task StartAutomaticComputationAsync(
-        IEnumerable<Symbol<TSymbol>> input,
-        IComputationConstraint<IReadOnlyComputationState<TConfiguration>> constraint);
-
-    /// <summary>
-    /// Starts an automatically stepping computation process with the specified symbols.
-    /// </summary>
-    /// <param name="input">Symbols that the tape is initialized with.</param>
-    void StartAutomaticComputation(IEnumerable<Symbol<TSymbol>> input);
-
-    /// <summary>
-    /// Starts an automatically stepping computation process, with the specified symbols and constraint.
-    /// </summary>
-    /// <param name="input">Symbols that the tape is initialized with.</param>
-    /// <param name="constraint">A constraint that must be enforced during the computation process.</param>
-    void StartAutomaticComputation(
-        IEnumerable<Symbol<TSymbol>> input,
-        IComputationConstraint<IReadOnlyComputationState<TConfiguration>> constraint);
-
-    /// <summary>
-    /// Aborts the computation that is in progress.
-    /// </summary>
-    void RequestAbortion();
+    Task StartAutomaticAsync(TComputationRequest request, CancellationToken cancellationToken);
 }

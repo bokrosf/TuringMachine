@@ -1,57 +1,54 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using TuringMachine.Machine.Computation;
-using TuringMachine.Machine.Computation.Constraint;
+using TuringMachine.Transition;
 
 namespace TuringMachine.Machine;
 
-public abstract class Machine<TState, TSymbol, TComputationState, TConfiguration, TTransition> :
-    IAutomaticComputation<TSymbol, TConfiguration>,
-    IManualComputation<TSymbol, TConfiguration>,
+/// <summary>
+/// Represents a Turing machine that can execute computations.
+/// </summary>
+/// <typeparam name="TState">Type of the machine's state.</typeparam>
+/// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
+/// <typeparam name="TTransition">Type of the configuration transition.</typeparam>
+/// <typeparam name="TComputationRequest">Arguments of a computation initiation.</typeparam>
+public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest> :
+    IAutomaticComputation<TComputationRequest>,
+    IManualComputation<TComputationRequest>,
     IComputationTracking<TState, TSymbol, TTransition>
-        where TComputationState : ComputationState<TConfiguration>
-        where TConfiguration : notnull
         where TTransition : notnull
+        where TComputationRequest : notnull
 {
     public event EventHandler<SteppedEventArgs<TTransition>>? Stepped;
     public event EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>? ComputationTerminated;
     public event EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>? ComputationAborted;
 
+    protected State<TState> state;
     protected readonly object computationLock;
-    protected Computation<TComputationState, TConfiguration>? computation;
+    protected Computation.Computation? computation;
     private readonly object manualComputationLock;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Machine{TState, TSymbol, TTransition, TComputationRequest}"/> class.
+    /// </summary>
     protected Machine()
     {
         computationLock = new object();
         manualComputationLock = new object();
+        state = State<TState>.Initial;
     }
 
-    public Task StartAutomaticComputationAsync(IEnumerable<Symbol<TSymbol>> input)
+    public Task StartAutomaticAsync(TComputationRequest request)
     {
-        return Task.Run(() => StartAutomaticComputation(input));
+        return StartAutomaticAsync(request, CancellationToken.None);
     }
 
-    public Task StartAutomaticComputationAsync(
-        IEnumerable<Symbol<TSymbol>> input,
-        IComputationConstraint<IReadOnlyComputationState<TConfiguration>> constraint)
+    public Task StartAutomaticAsync(TComputationRequest request, CancellationToken cancellationToken)
     {
-        return Task.Run(() => StartAutomaticComputation(input, constraint));
-    }
+        InitializeComputation(ComputationMode.Automatic, request);
 
-    public void StartAutomaticComputation(IEnumerable<Symbol<TSymbol>> input)
-    {
-        InitializeComputation(ComputationMode.Automatic, input, constraint: null);
-        Compute();
-    }
-
-    public void StartAutomaticComputation(
-        IEnumerable<Symbol<TSymbol>> input,
-        IComputationConstraint<IReadOnlyComputationState<TConfiguration>> constraint)
-    {
-        InitializeComputation(ComputationMode.Automatic, input, constraint);
-        Compute();
+        return Task.Run(() => Compute(cancellationToken));
     }
 
     public void RequestAbortion()
@@ -78,16 +75,9 @@ public abstract class Machine<TState, TSymbol, TComputationState, TConfiguration
         }
     }
 
-    public void StartManualComputation(IEnumerable<Symbol<TSymbol>> input)
+    public void StartManual(TComputationRequest request)
     {
-        InitializeComputation(ComputationMode.Manual, input, constraint: null);
-    }
-
-    public void StartManualComputation(
-        IEnumerable<Symbol<TSymbol>> input,
-        IComputationConstraint<IReadOnlyComputationState<TConfiguration>> constraint)
-    {
-        InitializeComputation(ComputationMode.Manual, input, constraint);
+        InitializeComputation(ComputationMode.Manual, request);
     }
 
     public bool Step()
@@ -111,29 +101,56 @@ public abstract class Machine<TState, TSymbol, TComputationState, TConfiguration
         }
     }
 
-    protected abstract void InitializeComputation(
-        ComputationMode computationMode, 
-        IEnumerable<Symbol<TSymbol>> input,
-        IComputationConstraint<IReadOnlyComputationState<TConfiguration>>? constraint);
+    /// <summary>
+    /// Initializes the computation by setting up the state, tapes and other components necessary for the computation.
+    /// </summary>
+    /// <param name="computationMode">Computation execution mode.</param>
+    /// <param name="request">Arguments of a computation initiation.</param>
+    protected abstract void InitializeComputation(ComputationMode computationMode, TComputationRequest request);
 
-    protected abstract void TransitToNextState();
+    /// <summary>
+    /// Transits to the next configuration based on the current configuration. Triggers the <see cref="Stepped"/> event.
+    /// </summary>
+    protected abstract void TransitToNextConfiguration();
+    
+    /// <summary>
+    /// Cleans up computation details, tapes. Resets the machine to the state where a new computation can be started.
+    /// </summary>
     protected abstract void CleanupComputation();
-    protected abstract bool CanTerminate();
+    
+    /// <summary>
+    /// Creates the arguments needed for termination event triggering.
+    /// </summary>
     protected abstract ComputationTerminatedEventArgs<TState, TSymbol> CreateComputationTerminatedEventArgs();
-    protected abstract ComputationAbortedEventArgs<TState, TSymbol> CreateComputationAbortedEventArgs(
-        Exception? ex, 
-        ConstraintViolation? violation);
+    
+    /// <summary>
+    /// Creates the arguments needed for abortion event triggering.
+    /// </summary>
+    /// <param name="ex"></param>
+    protected abstract ComputationAbortedEventArgs<TState, TSymbol> CreateComputationAbortedEventArgs(Exception? ex);
 
+    /// <summary>
+    /// Triggers the <see cref="Stepped"/> event.
+    /// </summary>
+    /// <param name="eventArgs">Event arguments.</param>
     protected void OnStepped(SteppedEventArgs<TTransition> eventArgs)
     {
         Stepped?.Invoke(this, eventArgs);
     }
 
+    /// <summary>
+    /// Triggers the <see cref="ComputationTerminated"/> event.
+    /// </summary>
+    /// <param name="eventArgs">Event arguments</param>
     protected void OnComputationTerminated(ComputationTerminatedEventArgs<TState, TSymbol> eventArgs)
     {
         ComputationTerminated?.Invoke(this, eventArgs);
     }
 
+    /// <summary>
+    /// Triggers the <see cref="ComputationAborted"/> event.
+    /// </summary>
+    /// <param name="eventArgs">Event arguments.</param>
     protected void OnComputationAborted(ComputationAbortedEventArgs<TState, TSymbol> eventArgs)
     {
         ComputationAborted?.Invoke(this, eventArgs);
@@ -141,7 +158,6 @@ public abstract class Machine<TState, TSymbol, TComputationState, TConfiguration
 
     private void Terminate()
     {
-        computation!.State.StopDurationWatch();
         ComputationTerminatedEventArgs<TState, TSymbol> eventArgs = CreateComputationTerminatedEventArgs();
         CleanupComputation();
         OnComputationTerminated(eventArgs);
@@ -157,17 +173,18 @@ public abstract class Machine<TState, TSymbol, TComputationState, TConfiguration
                 return false;
             }
 
-            TransitToNextState();
-
-            if (CanTerminate())
+            try
             {
-                Terminate();
-                return false;
+                TransitToNextConfiguration();
+            }
+            catch (TransitionDomainNotFoundException)
+            {
+                state = State<TState>.Reject;
             }
 
-            if (computation!.Constraint?.Enforce(computation.State.AsReadOnly()) is ConstraintViolation violation)
+            if (state.IsFinishState)
             {
-                AbortComputation(violation);
+                Terminate();
                 return false;
             }
 
@@ -188,22 +205,22 @@ public abstract class Machine<TState, TSymbol, TComputationState, TConfiguration
         }
     }
 
-    private void Compute()
+    private void Compute(CancellationToken cancellationToken)
     {
-        while (PerformStep())
+        do 
         {
-            ;
-        }
+            if (cancellationToken.IsCancellationRequested)
+            {
+                AbortComputation();
+            }
+        } while (PerformStep());
     }
 
-    private void AbortComputation() => AbortComputation(ex: null, violation: null);
-    private void AbortComputation(Exception? ex) => AbortComputation(ex, violation: null);
-    private void AbortComputation(ConstraintViolation? violation) => AbortComputation(ex: null, violation);
+    private void AbortComputation() => AbortComputation(ex: null);
 
-    private void AbortComputation(Exception? ex, ConstraintViolation? violation)
+    private void AbortComputation(Exception? ex)
     {
-        computation!.State.StopDurationWatch();
-        ComputationAbortedEventArgs<TState, TSymbol> eventArgs = CreateComputationAbortedEventArgs(ex, violation);
+        ComputationAbortedEventArgs<TState, TSymbol> eventArgs = CreateComputationAbortedEventArgs(ex);
         CleanupComputation();
         OnComputationAborted(eventArgs);
     }
