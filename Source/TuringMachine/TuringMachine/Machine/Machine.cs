@@ -94,6 +94,7 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
     protected abstract void InitializeComputation(ComputationMode computationMode, TComputationRequest request);
 
     protected abstract void TransitToNextState();
+    protected abstract void TransitToNextConfiguration();
     protected abstract void CleanupComputation();
     protected abstract ComputationTerminatedEventArgs<TState, TSymbol> CreateComputationTerminatedEventArgs();
     protected abstract ComputationAbortedEventArgs<TState, TSymbol> CreateComputationAbortedEventArgs(Exception? ex);

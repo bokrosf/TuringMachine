@@ -42,7 +42,7 @@ public class Machine<TState, TSymbol> : Machine<
         }
     }
 
-    protected override void TransitToNextState()
+    protected override void TransitToNextConfiguration()
     {
         TransitionDomain<TState, TSymbol> domain = (state, tape.CurrentSymbol);
         TransitionRange<TState, TSymbol> range = transitionTable![domain];

@@ -50,7 +50,7 @@ public class Machine<TState, TSymbol> : Machine<
         }
     }
 
-    protected override void TransitToNextState()
+    protected override void TransitToNextConfiguration()
     {
         TransitionDomain<TState, TSymbol> domain = new TransitionDomain<TState, TSymbol>(state, tapes.Select(t => t.CurrentSymbol));
         TransitionRange<TState, TSymbol> range = transitionTable![domain];
