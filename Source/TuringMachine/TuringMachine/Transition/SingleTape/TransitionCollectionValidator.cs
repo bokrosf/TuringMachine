@@ -14,14 +14,13 @@ internal class TransitionCollectionValidator<TState, TSymbol>
     /// Validates the given transition collection.
     /// </summary>
     /// <param name="transitions">Transition collection to be validated.</param>
-    /// <exception cref="DuplicateTransitionException">Thrown when the collection contains a duplicate transition.</exception>
     /// <exception cref="NonDeterministicTransitionException">Thrown when the collection contains a transition domain more than once.</exception>
     /// <exception cref="InvalidStateInTransitionException">Thrown when the collection contains a transition with an invalid state.</exception>
     /// <exception cref="MissingStateException">Thrown when the collection does not contain an obligatory state.</exception>
     public void Validate(IEnumerable<Transition<TState, TSymbol>> transitions)
     {
-        CheckDeterminism(transitions);
         CheckStates(transitions);
+        CheckDeterminism(transitions);
     }
 
     private void CheckDeterminism(IEnumerable<Transition<TState, TSymbol>> transitions)
