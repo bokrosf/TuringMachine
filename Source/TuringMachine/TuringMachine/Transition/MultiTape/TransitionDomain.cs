@@ -37,4 +37,23 @@ public class TransitionDomain<TState, TSymbol>
     /// Symbols per tape of the domain.
     /// </summary>
     public IReadOnlyList<Symbol<TSymbol>> TapeSymbols { get; }
+
+    /// <summary>
+    /// Returns the hashcode for this instance.
+    /// </summary>
+    /// <returns><see cref="int"/> hash code.</returns>
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            int hash = 0;
+
+            for (int i = 0; i < TapeSymbols.Count; ++i)
+            {
+                hash += (i + 1) * TapeSymbols[i].GetHashCode();
+            }
+
+            return hash * State.GetHashCode();
+        }
+    }
 }
