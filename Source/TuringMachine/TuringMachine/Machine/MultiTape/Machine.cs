@@ -19,7 +19,7 @@ public class Machine<TState, TSymbol> : Machine<
     ComputationRequest<TState, TSymbol>>
 {
     private Tape<TSymbol>[] tapes;
-    private ITransitionTable<TState, TSymbol>? transitionTable;
+    private TransitionTable<TState, TSymbol>? transitionTable;
 
     /// <summary>
     /// Initializes a new instance of <see cref="Machine{TState, TSymbol}"/> class.
