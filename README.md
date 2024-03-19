@@ -4,4 +4,4 @@ A Turing machine library that allows creating machines with user defined state a
 
 Setting up the machine happens both declaratively and programmatically. Transitions are defined declaratively while computation progress tracking happens by subscribing to events.
 
-The project uses .NET 8 and C# 12.0.
+Project uses .NET 8 and C# 12.0.
