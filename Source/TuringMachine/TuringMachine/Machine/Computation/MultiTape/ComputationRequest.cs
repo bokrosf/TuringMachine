@@ -10,5 +10,5 @@ namespace TuringMachine.Machine.Computation.MultiTape;
 /// <param name="TransitionTable">Table that contains the performable transitions.</param>
 /// <typeparam name="TState">Type of the machine's state.</typeparam>
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
-public record ComputationRequest<TState, TSymbol>(IEnumerable<Symbol<TSymbol>> Input, ITransitionTable<TState, TSymbol> TransitionTable)
+public record ComputationRequest<TState, TSymbol>(IEnumerable<Symbol<TSymbol>> Input, TransitionTable<TState, TSymbol> TransitionTable)
     : ComputationRequest<TSymbol>(Input);
