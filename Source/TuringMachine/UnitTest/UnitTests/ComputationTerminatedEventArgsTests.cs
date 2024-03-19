@@ -1,7 +1,5 @@
-﻿using NSubstitute;
-using System.Linq;
+﻿using System.Linq;
 using TuringMachine.Machine.Computation;
-using TuringMachine.Transition.SingleTape;
 using Xunit;
 
 namespace TuringMachine.Tests.UnitTests;
