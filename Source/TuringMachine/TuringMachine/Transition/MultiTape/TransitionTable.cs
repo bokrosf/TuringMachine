@@ -38,8 +38,14 @@ public class TransitionTable<TState, TSymbol>
     /// Initializes a new instance of the <see cref="TransitionTable{TState, TSymbol}"/> class with the given collection of transitions.
     /// </summary>
     /// <param name="transitions">Transitions.</param>
+    /// <exception cref="NonDeterministicTransitionException">Thrown when the collection contains a transition domain more than once.</exception>
+    /// <exception cref="InvalidStateInTransitionException">Thrown when the collection contains a transition with an invalid state.</exception>
+    /// <exception cref="MissingStateException">Thrown when the collection does not contain an obligatory state.</exception>
+    /// <exception cref="DifferentTransitionTapeCountException">Thrown when a transition has different tape count than other transitions.</exception>
     public TransitionTable(IEnumerable<Transition<TState, TSymbol>> transitions)
     {
+        new TransitionCollectionValidator<TState, TSymbol>().Validate(transitions);
+
         this.transitions = transitions.ToDictionary(
             t => new TransitionDomain<TState, TSymbol>(t.State.Domain, t.Tapes.Select(tape => tape.Domain)),
             t => new TransitionRange<TState, TSymbol>(t.State.Range, t.Tapes.Select(tape => new TapeTransitionRange<TSymbol>(tape.Range, tape.TapeHeadDirection))));
