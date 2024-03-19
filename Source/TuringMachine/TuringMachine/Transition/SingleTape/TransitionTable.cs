@@ -34,7 +34,6 @@ public sealed class TransitionTable<TState, TSymbol>
     /// Initializes a new instance of <see cref="TransitionTable{TState, TSymbol}"/> class with the given collection of transitions.
     /// </summary>
     /// <param name="transitions">Transitions.</param>
-    /// <exception cref="DuplicateTransitionException">Thrown when the collection contains a duplicate transition.</exception>
     /// <exception cref="NonDeterministicTransitionException">Thrown when the collection contains a transition domain more than once.</exception>
     /// <exception cref="InvalidStateInTransitionException">Thrown when the collection contains a transition with an invalid state.</exception>
     /// <exception cref="MissingStateException">Thrown when the collection does not contain an obligatory state.</exception>
