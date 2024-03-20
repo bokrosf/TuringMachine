@@ -43,12 +43,11 @@ public sealed class Symbol<T>
     /// <inheritdoc/>
     public override bool Equals(object? obj)
     {
-        if (obj == null || GetType() != obj.GetType())
+        if (obj is not Symbol<T> other)
         {
             return false;
         }
 
-        Symbol<T> other = (Symbol<T>)obj;
         bool otherIsBlank = ReferenceEquals(other, Blank);
         bool thisIsBlank = ReferenceEquals(this, Blank);
 
