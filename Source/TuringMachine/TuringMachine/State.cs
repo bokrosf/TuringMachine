@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
 
 namespace TuringMachine;
 
@@ -107,7 +106,10 @@ public class State<T> : IEquatable<State<T>>
     /// <param name="left">The first state to compare.</param>
     /// <param name="right">The second state to compare.</param>
     /// <returns>true if the value of left is different from the value of right; otherwise, false.</returns>
-    public static bool operator !=(State<T>? left, State<T>? right) => !(left == right);
+    public static bool operator !=(State<T>? left, State<T>? right)
+    {
+        return !(left == right);
+    }
 
     /// <summary>
     /// Converts the value of this instance to a <see cref="string"/>.
