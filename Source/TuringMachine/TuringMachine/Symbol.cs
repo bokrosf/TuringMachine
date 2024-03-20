@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace TuringMachine;
 
@@ -6,7 +7,7 @@ namespace TuringMachine;
 /// Represents a Turing machine tape symbol.
 /// </summary>
 /// <typeparam name="T">Typeof of the symbolised data.</typeparam>
-public sealed class Symbol<T>
+public sealed class Symbol<T> : IEquatable<Symbol<T>>
 {
     private const int NullValueHashCode = 0;
 
@@ -40,15 +41,13 @@ public sealed class Symbol<T>
         return ReferenceEquals(this, Blank) ? "<BLANK>" : $"<{Value}>";
     }
 
-    /// <inheritdoc/>
-    public override bool Equals(object? obj)
+    public bool Equals(Symbol<T>? other)
     {
-        if (obj == null || GetType() != obj.GetType())
+        if (other is null)
         {
             return false;
         }
 
-        Symbol<T> other = (Symbol<T>)obj;
         bool otherIsBlank = ReferenceEquals(other, Blank);
         bool thisIsBlank = ReferenceEquals(this, Blank);
 
@@ -60,6 +59,12 @@ public sealed class Symbol<T>
         return !otherIsBlank && !thisIsBlank && EqualityComparer<T>.Default.Equals(other.Value, Value);
     }
 
+    /// <inheritdoc/>
+    public override bool Equals(object? obj)
+    {
+        return obj is Symbol<T> other ? Equals(other) : false;
+    }
+
     /// <summary>
     /// Determines whether two specified symbols have the same value.
     /// </summary>
@@ -68,12 +73,7 @@ public sealed class Symbol<T>
     /// <returns>true if the value of left is the same as the value of right; otherwise, false.</returns>
     public static bool operator ==(Symbol<T>? left, Symbol<T>? right)
     {
-        return (left, right) switch
-        {
-            (null, null) => true,
-            (null, _) => false,
-            _ => left.Equals(right)
-        };
+        return EqualityComparer<Symbol<T>>.Default.Equals(left, right);
     }
 
     /// <summary>
@@ -82,7 +82,10 @@ public sealed class Symbol<T>
     /// <param name="left">The first symbol to compare.</param>
     /// <param name="right">The second symbol to compare.</param>
     /// <returns>true if the value of left is different from the value of right; otherwise, false.</returns>
-    public static bool operator !=(Symbol<T>? left, Symbol<T>? right) => !(left == right);
+    public static bool operator !=(Symbol<T>? left, Symbol<T>? right)
+    {
+        return !(left == right);
+    }
 
     /// <summary>
     /// Returns the hash code for this symbol.
