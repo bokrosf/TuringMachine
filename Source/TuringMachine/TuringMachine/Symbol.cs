@@ -82,7 +82,10 @@ public sealed class Symbol<T> : IEquatable<Symbol<T>>
     /// <param name="left">The first symbol to compare.</param>
     /// <param name="right">The second symbol to compare.</param>
     /// <returns>true if the value of left is different from the value of right; otherwise, false.</returns>
-    public static bool operator !=(Symbol<T>? left, Symbol<T>? right) => !(left == right);
+    public static bool operator !=(Symbol<T>? left, Symbol<T>? right)
+    {
+        return !(left == right);
+    }
 
     /// <summary>
     /// Returns the hash code for this symbol.
