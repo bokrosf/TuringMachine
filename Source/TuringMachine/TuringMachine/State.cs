@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace TuringMachine;
@@ -7,7 +8,7 @@ namespace TuringMachine;
 /// Represents a Turing machine state.
 /// </summary>
 /// <typeparam name="T">Type of the state.</typeparam>
-public class State<T>
+public class State<T> : IEquatable<State<T>>
 {
     private const int NullValueHashCode = 0;
     private const int InitialHashCode = 100003;
@@ -52,15 +53,12 @@ public class State<T>
     /// <param name="value">The value that represents a state.</param>
     public State(T value) => Value = value;
 
-    /// <inheritdoc/>
-    public override bool Equals(object? obj)
+    public bool Equals(State<T>? other)
     {
-        if (obj == null || obj.GetType() != GetType())
+        if (other is null)
         {
             return false;
         }
-
-        State<T> other = (State<T>)obj;
 
         if (AreSameSpecialStates(other, this))
         {
@@ -68,6 +66,12 @@ public class State<T>
         }
 
         return !IsAnyOfThemSpecialState(other, this) && EqualityComparer<T>.Default.Equals(other.Value, Value);
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj)
+    {
+        return obj is State<T> other ? Equals(other) : false;
     }
 
     /// <summary>
