@@ -76,12 +76,12 @@ public class TransitionCollectionValidatorTests
     [Fact]
     public void Validate_NonDeterministic_Invalid()
     {
-        var domain = ("q0", 1);
+        var domain = (State<string>.Initial, 1);
 
         var transitions = new Transition<string, int>[]
         {
-                (domain, ("q1", 2, TapeHeadDirection.Right)),
-                (domain, ("q2", 4, TapeHeadDirection.Stay)),
+            (domain, ("q1", 2, TapeHeadDirection.Right)),
+            (domain, (State<string>.Accept, 4, TapeHeadDirection.Stay)),
         };
 
         Assert.Throws<NonDeterministicTransitionException>(() => validator.Validate(transitions));
