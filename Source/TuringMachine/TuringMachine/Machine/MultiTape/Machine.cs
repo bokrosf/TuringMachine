@@ -54,6 +54,7 @@ public class Machine<TState, TSymbol> : Machine<
     {
         TransitionDomain<TState, TSymbol> domain = new TransitionDomain<TState, TSymbol>(state, tapes.Select(t => t.CurrentSymbol));
         TransitionRange<TState, TSymbol> range = transitionTable![domain];
+        state = range.State;
         TransitToNextTapeSymbols(range.Tapes);
         Transition<TState, TSymbol> transition = new(
             new StateTransition<TState>(domain.State, range.State),
