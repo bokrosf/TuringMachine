@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 
 namespace TuringMachine;
 
@@ -97,12 +98,7 @@ public class State<T> : IEquatable<State<T>>
     /// <returns>true if the value of left is the same as the value of right; otherwise, false.</returns>
     public static bool operator ==(State<T>? left, State<T>? right)
     {
-        return (left, right) switch
-        {
-            (null, null) => true,
-            (null, _) => false,
-            _ => left.Equals(right)
-        };
+        return EqualityComparer<State<T>>.Default.Equals(left, right);
     }
 
     /// <summary>
