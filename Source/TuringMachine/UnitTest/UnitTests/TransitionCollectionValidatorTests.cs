@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using TuringMachine.Machine;
+using TuringMachine.Tests.UnitTests.Transition;
 using TuringMachine.Transition;
 using TuringMachine.Transition.SingleTape;
 using Xunit;
@@ -91,14 +90,14 @@ public class TransitionCollectionValidatorTests
     [ClassData(typeof(InvalidDomainStateTestData<string>))]
     public void Validate_InvalidDomainState_Invalid(State<string> invalidDomainState)
     {
-        var transition = new Transition<string, int>(
+        var invalidTransition = new Transition<string, int>(
             (invalidDomainState, new Symbol<int>(2)),
             ("q1", 2, TapeHeadDirection.Right));
 
         var transitions = new Transition<string, int>[]
         {
             ((State<string>.Initial, 1), ("q1", 3, TapeHeadDirection.Left)),
-            transition,
+            invalidTransition,
             (("qEnd", 2), (State<string>.Accept, 3, TapeHeadDirection.Left)),
         };
 
@@ -122,25 +121,4 @@ public class TransitionCollectionValidatorTests
 
         Assert.Throws<InvalidStateInTransitionException>(() => validator.Validate(transitions));
     }
-}
-
-class InvalidDomainStateTestData<TState> : IEnumerable<object[]>
-{
-    public IEnumerator<object[]> GetEnumerator()
-    {
-        yield return new object[] { State<TState>.Accept };
-        yield return new object[] { State<TState>.Reject };
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-}
-
-class InvalidRangeStateTestData<TState> : IEnumerable<object[]>
-{
-    public IEnumerator<object[]> GetEnumerator()
-    {
-        yield return new object[] { State<TState>.Initial };
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
