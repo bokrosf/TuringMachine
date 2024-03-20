@@ -38,7 +38,30 @@ public class TransitionDomain<TState, TSymbol> : IEquatable<TransitionDomain<TSt
     /// </summary>
     public IReadOnlyList<Symbol<TSymbol>> TapeSymbols { get; }
 
-    public override bool Equals(object? obj)
+	public bool Equals(TransitionDomain<TState, TSymbol>? other)
+	{
+		if (other is null)
+		{
+			return false;
+		}
+
+		if (!State.Equals(other.State) || TapeSymbols.Count != other.TapeSymbols.Count)
+		{
+			return false;
+		}
+
+		for (int i = 0; i < TapeSymbols.Count; ++i)
+		{
+			if (!TapeSymbols[i].Equals(other.TapeSymbols[i]))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public override bool Equals(object? obj)
     {
         if (obj is not TransitionDomain<TState, TSymbol> other)
         {
@@ -46,29 +69,6 @@ public class TransitionDomain<TState, TSymbol> : IEquatable<TransitionDomain<TSt
         }
 
         return Equals(other);
-    }
-
-    public bool Equals(TransitionDomain<TState, TSymbol>? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
-        if (!State.Equals(other.State) || TapeSymbols.Count != other.TapeSymbols.Count)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < TapeSymbols.Count; ++i)
-        {
-            if (!TapeSymbols[i].Equals(other.TapeSymbols[i]))
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /// <summary>
