@@ -10,7 +10,7 @@ namespace TuringMachine;
 /// <typeparam name="T">Type of the state.</typeparam>
 public class State<T> : IEquatable<State<T>>
 {
-    private const int NullValueHashCode = 0;
+    private const int NullValueHashCode = 7919;
     private const int InitialHashCode = 100003;
     private const int AcceptHashCode = 500009;
     private const int RejectHashCode = 900007;
