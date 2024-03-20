@@ -63,12 +63,7 @@ public class TransitionDomain<TState, TSymbol> : IEquatable<TransitionDomain<TSt
 
 	public override bool Equals(object? obj)
     {
-        if (obj is not TransitionDomain<TState, TSymbol> other)
-        {
-            return false;
-        }
-
-        return Equals(other);
+        return obj is TransitionDomain<TState, TSymbol> other ? Equals(other) : false;
     }
 
     /// <summary>
