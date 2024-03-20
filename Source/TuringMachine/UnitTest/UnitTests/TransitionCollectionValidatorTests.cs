@@ -22,9 +22,9 @@ public class TransitionCollectionValidatorTests
     {
         var transitions = new Transition<string, int>[]
         {
-                ((State<string>.Initial, new Symbol<int>(1)), ("q1", 2, TapeHeadDirection.Right)),
-                (("q1", 2), ("q1", 3, TapeHeadDirection.Stay)),
-                (("q1", 3), (State<string>.Accept, new Symbol<int>(4), TapeHeadDirection.Stay)),
+            ((State<string>.Initial, new Symbol<int>(1)), ("q1", 2, TapeHeadDirection.Right)),
+            (("q1", 2), ("q1", 3, TapeHeadDirection.Stay)),
+            (("q1", 3), (State<string>.Accept, new Symbol<int>(4), TapeHeadDirection.Stay)),
         };
 
         validator.Validate(transitions);
@@ -43,8 +43,8 @@ public class TransitionCollectionValidatorTests
     {
         var transitions = new Transition<string, int>[]
         {
-                (("q1", 2), ("q2", 3, TapeHeadDirection.Stay)),
-                (("q2", 3), (State<string>.Accept, 3, TapeHeadDirection.Stay))
+            (("q1", 2), ("q2", 3, TapeHeadDirection.Stay)),
+            (("q2", 3), (State<string>.Accept, 3, TapeHeadDirection.Stay))
         };
 
         Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
@@ -55,8 +55,8 @@ public class TransitionCollectionValidatorTests
     {
         var transitions = new Transition<string, int>[]
         {
-                ((State<string>.Initial, 3), ("q2", 3, TapeHeadDirection.Stay)),
-                (("q2", 3), ("q2", 3, TapeHeadDirection.Stay))
+            ((State<string>.Initial, 3), ("q2", 3, TapeHeadDirection.Stay)),
+            (("q2", 3), ("q2", 3, TapeHeadDirection.Stay))
         };
 
         Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
@@ -67,7 +67,7 @@ public class TransitionCollectionValidatorTests
     {
         var transitions = new Transition<string, int>[]
         {
-                (("q2", 3), ("q2", 3, TapeHeadDirection.Stay))
+            (("q2", 3), ("q2", 3, TapeHeadDirection.Stay))
         };
 
         Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
@@ -97,9 +97,9 @@ public class TransitionCollectionValidatorTests
 
         var transitions = new Transition<string, int>[]
         {
-                ((State<string>.Initial, 1), ("q1", 3, TapeHeadDirection.Left)),
-                transition,
-                (("qEnd", 2), (State<string>.Accept, 3, TapeHeadDirection.Left)),
+            ((State<string>.Initial, 1), ("q1", 3, TapeHeadDirection.Left)),
+            transition,
+            (("qEnd", 2), (State<string>.Accept, 3, TapeHeadDirection.Left)),
         };
 
         Assert.Throws<InvalidStateInTransitionException>(() => validator.Validate(transitions));
@@ -115,9 +115,9 @@ public class TransitionCollectionValidatorTests
 
         var transitions = new Transition<string, int>[]
         {
-                ((State<string>.Initial, 1), ("q1", 3, TapeHeadDirection.Left)),
-                transition,
-                (("qEnd", 2), (State<string>.Accept, 3, TapeHeadDirection.Left)),
+            ((State<string>.Initial, 1), ("q1", 3, TapeHeadDirection.Left)),
+            transition,
+            (("qEnd", 2), (State<string>.Accept, 3, TapeHeadDirection.Left)),
         };
 
         Assert.Throws<InvalidStateInTransitionException>(() => validator.Validate(transitions));
