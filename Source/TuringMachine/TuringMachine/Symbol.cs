@@ -9,7 +9,7 @@ namespace TuringMachine;
 /// <typeparam name="T">Typeof of the symbolised data.</typeparam>
 public sealed class Symbol<T> : IEquatable<Symbol<T>>
 {
-    private const int NullValueHashCode = 0;
+    private const int NullValueHashCode = 7723;
 
     /// <summary>
     /// Gets the blank symbol.
