@@ -6,11 +6,11 @@ using Xunit;
 
 namespace TuringMachine.Tests.UnitTests.Transition.MultiTape;
 
-public class TransitionCollectionValidator
+public class TransitionCollectionValidatorTests
 {
 	private readonly TransitionCollectionValidator<string, int> validator;
 
-    public TransitionCollectionValidator()
+    public TransitionCollectionValidatorTests()
     {
         validator = new TransitionCollectionValidator<string, int>();
     }
