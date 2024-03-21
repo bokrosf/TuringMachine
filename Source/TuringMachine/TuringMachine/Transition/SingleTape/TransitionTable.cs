@@ -34,7 +34,7 @@ public sealed class TransitionTable<TState, TSymbol>
     /// Initializes a new instance of <see cref="TransitionTable{TState, TSymbol}"/> class with the given collection of transitions.
     /// </summary>
     /// <param name="transitions">Transitions.</param>
-    /// <exception cref="InvalidTransitionCollectionException">The transition collection is not valid.</exception>
+    /// <exception cref="InvalidTransitionCollectionException">The transition collection is invalid.</exception>
     public TransitionTable(IEnumerable<Transition<TState, TSymbol>> transitions)
     {
         ValidationResult validationResult = new TransitionCollectionValidator<TState, TSymbol>().Validate(transitions);
