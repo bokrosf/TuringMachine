@@ -46,7 +46,7 @@ public class Machine<TState, TSymbol> : Machine<
             tapes = Enumerable.Range(1, request.TransitionTable.TapeCount).Select(i => new Tape<TSymbol>()).ToArray();
             tapes[0] = new Tape<TSymbol>(request.Input);
             transitionTable = request.TransitionTable;
-            computation = new(computationMode, IsAborted: false);
+            computation = new(computationMode, Aborted: false);
         }
     }
 

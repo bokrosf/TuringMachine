@@ -51,7 +51,7 @@ public class State<T> : IEquatable<State<T>>
     /// <summary>
     /// Gets whether the current instance is a finished computation state.
     /// </summary>
-    public bool IsFinishState => this == Accept || this == Reject;
+    public bool Finish => this == Accept || this == Reject;
 
     public bool Equals(State<T>? other)
     {
@@ -60,12 +60,12 @@ public class State<T> : IEquatable<State<T>>
             return false;
         }
 
-        if (AreSameSpecialStates(other, this))
+        if (SameSpecialStates(other, this))
         {
             return true;
         }
 
-        return !IsAnyOfThemSpecialState(other, this) && EqualityComparer<T>.Default.Equals(other.Value, Value);
+        return !AnyOfThemSpecialState(other, this) && EqualityComparer<T>.Default.Equals(other.Value, Value);
     }
 
     /// <inheritdoc/>
@@ -129,12 +129,12 @@ public class State<T> : IEquatable<State<T>>
         };
     }
 
-    private bool AreSameSpecialStates(object first, object second)
+    private bool SameSpecialStates(object first, object second)
     {
         return GetSpecialStates().Any(special => ReferenceEquals(first, special) && ReferenceEquals(second, special));
     }
 
-    private bool IsAnyOfThemSpecialState(object first, object second)
+    private bool AnyOfThemSpecialState(object first, object second)
     {
         return GetSpecialStates().Any(special => ReferenceEquals(first, special) || ReferenceEquals(second, special));
     }
