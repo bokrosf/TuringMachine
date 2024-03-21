@@ -16,7 +16,7 @@ public class TransitionCollectionValidatorTests
     }
 
     [Fact]
-    public void Validate_ValidCollection()
+    public void Validate_ValidCollection_Valid()
     {
         var transitions = new Transition<string, int>[]
         {
@@ -25,7 +25,10 @@ public class TransitionCollectionValidatorTests
             (("q1", 3), (State<string>.Accept, new Symbol<int>(4), TapeHeadDirection.Stay)),
         };
 
-        validator.Validate(transitions);
+        ValidationResult validationResult = validator.Validate(transitions);
+
+        Assert.True(validationResult.Valid);
+        Assert.Empty(validationResult.Errors);
     }
 
     [Fact]
@@ -33,7 +36,10 @@ public class TransitionCollectionValidatorTests
     {
         var transitions = Enumerable.Empty<Transition<string, int>>();
 
-        Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
+        ValidationResult validationResult = validator.Validate(transitions);
+
+        Assert.False(validationResult.Valid);
+        Assert.NotEmpty(validationResult.Errors);
     }
 
     [Fact]
@@ -45,8 +51,11 @@ public class TransitionCollectionValidatorTests
             (("q2", 3), (State<string>.Accept, 3, TapeHeadDirection.Stay))
         };
 
-        Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
-    }
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
+	}
 
     [Fact]
     public void Validate_MissingAcceptState_Invalid()
@@ -57,8 +66,11 @@ public class TransitionCollectionValidatorTests
             (("q2", 3), ("q2", 3, TapeHeadDirection.Stay))
         };
 
-        Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
-    }
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
+	}
 
     [Fact]
     public void Validate_MissingAllSpecialStates_Invalid()
@@ -68,8 +80,11 @@ public class TransitionCollectionValidatorTests
             (("q2", 3), ("q2", 3, TapeHeadDirection.Stay))
         };
 
-        Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
-    }
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
+	}
 
     [Fact]
     public void Validate_NonDeterministic_Invalid()
@@ -82,8 +97,11 @@ public class TransitionCollectionValidatorTests
             (domain, (State<string>.Accept, 4, TapeHeadDirection.Stay)),
         };
 
-        Assert.Throws<NonDeterministicTransitionException>(() => validator.Validate(transitions));
-    }
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
+	}
 
     [Theory]
     [ClassData(typeof(InvalidDomainStateTestData<string>))]
@@ -100,8 +118,11 @@ public class TransitionCollectionValidatorTests
             (("qEnd", 2), (State<string>.Accept, 3, TapeHeadDirection.Left)),
         };
 
-        Assert.Throws<InvalidStateInTransitionException>(() => validator.Validate(transitions));
-    }
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
+	}
 
     [Theory]
     [ClassData(typeof(InvalidRangeStateTestData<string>))]
@@ -118,6 +139,9 @@ public class TransitionCollectionValidatorTests
             (("qEnd", 2), (State<string>.Accept, 3, TapeHeadDirection.Left)),
         };
 
-        Assert.Throws<InvalidStateInTransitionException>(() => validator.Validate(transitions));
-    }
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
+	}
 }
