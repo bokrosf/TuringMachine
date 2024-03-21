@@ -314,7 +314,7 @@ public class SymbolTests
     [InlineData(56)]
     [InlineData(54)]
     [InlineData(678)]
-    public void EqualityOperator_SameValue_ReturnsFalse(int sameValue)
+    public void EqualityOperator_SameValue_ReturnsTrue(int sameValue)
     {
         Symbol<int> left = new Symbol<int>(sameValue);
         Symbol<int> right = new Symbol<int>(sameValue);

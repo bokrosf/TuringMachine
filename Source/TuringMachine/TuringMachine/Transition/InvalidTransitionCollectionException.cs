@@ -3,7 +3,7 @@
 namespace TuringMachine.Transition;
 
 /// <summary>
-/// Exception that is thrown when a machine transition collection contains an invalid transition.
+/// Exception that is thrown when a machine transition collection can not be used to create a transition table.
 /// </summary>
 public class InvalidTransitionCollectionException : Exception
 {

@@ -19,7 +19,7 @@ public class Machine<TState, TSymbol> : Machine<
     ComputationRequest<TState, TSymbol>>
 {
     private Tape<TSymbol>[] tapes;
-    private ITransitionTable<TState, TSymbol>? transitionTable;
+    private TransitionTable<TState, TSymbol>? transitionTable;
 
     /// <summary>
     /// Initializes a new instance of <see cref="Machine{TState, TSymbol}"/> class.
@@ -54,7 +54,9 @@ public class Machine<TState, TSymbol> : Machine<
     {
         TransitionDomain<TState, TSymbol> domain = new TransitionDomain<TState, TSymbol>(state, tapes.Select(t => t.CurrentSymbol));
         TransitionRange<TState, TSymbol> range = transitionTable![domain];
-        TransitToNextTapeSymbols(range.Tapes);
+        state = range.State;
+        ApplyTapeTransitions(range.Tapes);
+        
         Transition<TState, TSymbol> transition = new(
             new StateTransition<TState>(domain.State, range.State),
             domain.TapeSymbols.Zip(range.Tapes, (domain, range) => new TapeTransition<TSymbol>(domain, range.Symbol, range.TapeHeadDirection)));
@@ -88,7 +90,7 @@ public class Machine<TState, TSymbol> : Machine<
         return new ComputationAbortedEventArgs<TState, TSymbol>(state, tapes.First(), ex);
     }
 
-    private void TransitToNextTapeSymbols(IReadOnlyList<TapeTransitionRange<TSymbol>> tapeTransitions)
+    private void ApplyTapeTransitions(IReadOnlyList<TapeTransitionRange<TSymbol>> tapeTransitions)
     {
         for (int i = 0; i < tapeTransitions.Count; i++)
         {

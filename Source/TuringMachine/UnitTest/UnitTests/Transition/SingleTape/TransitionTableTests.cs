@@ -3,7 +3,7 @@ using TuringMachine.Transition;
 using TuringMachine.Transition.SingleTape;
 using Xunit;
 
-namespace TuringMachine.Tests.UnitTests;
+namespace TuringMachine.Tests.UnitTests.Transition.SingleTape;
 
 public class TransitionTableTests
 {
