@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using TuringMachine.Machine;
 using TuringMachine.Transition;
 using TuringMachine.Transition.MultiTape;
@@ -16,7 +17,7 @@ public class TransitionCollectionValidatorTests
     }
 
 	[Fact]
-	public void Validate_ValidCollection()
+	public void Validate_ValidCollection_Valid()
     {
         Transition<string, int>[] transitions =
         {
@@ -31,7 +32,10 @@ public class TransitionCollectionValidatorTests
 				new TapeTransition<int>[] { (2, 3, TapeHeadDirection.Right), (3, 3, TapeHeadDirection.Stay), (4, 6, TapeHeadDirection.Left) })
 		};
 
-        validator.Validate(transitions);
+        ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.True(validationResult.Valid);
+		Assert.Empty(validationResult.Errors);
     }
 
 	[Fact]
@@ -39,8 +43,11 @@ public class TransitionCollectionValidatorTests
     {
         var transitions = Enumerable.Empty<Transition<string, int>>();
 
-        Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
-    }
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
+	}
 
 	[Fact]
 	public void Validate_MissingInitialState_Invalid()
@@ -55,7 +62,10 @@ public class TransitionCollectionValidatorTests
 				new TapeTransition<int>[] { (2, 3, TapeHeadDirection.Right), (3, 3, TapeHeadDirection.Stay), (4, 6, TapeHeadDirection.Left) })
 		};
 
-		Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
 	}
 
 	[Fact]
@@ -71,7 +81,10 @@ public class TransitionCollectionValidatorTests
 				new TapeTransition<int>[] { (2, 3, TapeHeadDirection.Right), (3, 3, TapeHeadDirection.Stay), (4, 6, TapeHeadDirection.Left) })
 		};
 
-		Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
 	}
 
 	[Fact]
@@ -84,7 +97,10 @@ public class TransitionCollectionValidatorTests
 				new TapeTransition<int>[] { (2, 3, TapeHeadDirection.Right), (3, 3, TapeHeadDirection.Stay), (4, 6, TapeHeadDirection.Left) })
 		};
 
-		Assert.Throws<MissingStateException>(() => validator.Validate(transitions));
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
 	}
 
 	[Fact]
@@ -109,7 +125,10 @@ public class TransitionCollectionValidatorTests
 				new TapeTransition<int>[] { (2, 3, TapeHeadDirection.Right), (3, 3, TapeHeadDirection.Stay), (4, 6, TapeHeadDirection.Left) })
 		};
 
-		Assert.Throws<NonDeterministicTransitionException>(() => validator.Validate(transitions));
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
 	}
 
 	[Theory]
@@ -131,7 +150,10 @@ public class TransitionCollectionValidatorTests
 				new TapeTransition<int>[] { (2, 3, TapeHeadDirection.Right), (3, 3, TapeHeadDirection.Stay), (4, 6, TapeHeadDirection.Left) })
 		};
 
-		Assert.Throws<InvalidStateInTransitionException>(() => validator.Validate(transitions));
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
 	}
 
 	[Theory]
@@ -153,7 +175,10 @@ public class TransitionCollectionValidatorTests
 				new TapeTransition<int>[] { (2, 3, TapeHeadDirection.Right), (3, 3, TapeHeadDirection.Stay), (4, 6, TapeHeadDirection.Left) })
 		};
 
-		Assert.Throws<InvalidStateInTransitionException>(() => validator.Validate(transitions));
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
 	}
 
 	[Fact]
@@ -172,6 +197,9 @@ public class TransitionCollectionValidatorTests
 				new TapeTransition<int>[] { (2, 3, TapeHeadDirection.Right) })
 		};
 
-		Assert.Throws<DifferentTransitionTapeCountException>(() => validator.Validate(transitions));
+		ValidationResult validationResult = validator.Validate(transitions);
+
+		Assert.False(validationResult.Valid);
+		Assert.NotEmpty(validationResult.Errors);
 	}
 }

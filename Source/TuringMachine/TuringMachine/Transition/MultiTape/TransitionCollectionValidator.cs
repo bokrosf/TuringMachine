@@ -4,6 +4,8 @@ using System.Linq;
 
 namespace TuringMachine.Transition.MultiTape;
 
+using ErrorCollection = ICollection<string>;
+
 /// <summary>
 /// Check validity of multi-tape transaction collections.
 /// </summary>
@@ -15,18 +17,18 @@ public class TransitionCollectionValidator<TState, TSymbol>
     /// Validates the given transition collection.
     /// </summary>
     /// <param name="transitions">Transition collection to be validated.</param>
-    /// <exception cref="NonDeterministicTransitionException">Thrown when the collection contains a transition domain more than once.</exception>
-    /// <exception cref="InvalidStateInTransitionException">Thrown when the collection contains a transition with an invalid state.</exception>
-    /// <exception cref="MissingStateException">Thrown when the collection does not contain an obligatory state.</exception>
-    /// <exception cref="DifferentTransitionTapeCountException">Thrown when a transition has different tape count than other transitions.</exception>
-    public void Validate(IEnumerable<Transition<TState, TSymbol>> transitions)
+    /// <returns><see cref="ValidationResult"/> that contains whether it was successful and errors if validation failed.</returns>            
+    public ValidationResult Validate(IEnumerable<Transition<TState, TSymbol>> transitions)
     {
-        CheckStates(transitions);
-        CheckDeterminism(transitions);
-        CheckTapeCount(transitions);
+        ValidationResult result = new ValidationResult();
+        CheckStates(transitions, result.Errors);
+        CheckDeterminism(transitions, result.Errors);
+        CheckTapeCount(transitions, result.Errors);
+
+        return result;
     }
     
-    private void CheckDeterminism(IEnumerable<Transition<TState, TSymbol>> transitions)
+    private void CheckDeterminism(IEnumerable<Transition<TState, TSymbol>> transitions, ErrorCollection errors)
     {
         var distinctDomains = new HashSet<TransitionDomain<TState, TSymbol>>();
 
@@ -36,71 +38,70 @@ public class TransitionCollectionValidator<TState, TSymbol>
             
             if (distinctDomains.Contains(domain))
             {
-                throw new NonDeterministicTransitionException($"Transition domains must be unique. Transition={t}.");
+                errors.Add($"Transition domains must be unique. Transition={t}.");
             }
 
             distinctDomains.Add(domain);
         }
     }
 
-    private void CheckStates(IEnumerable<Transition<TState, TSymbol>> transitions)
+    private void CheckStates(IEnumerable<Transition<TState, TSymbol>> transitions, ErrorCollection errors)
     {
-        CheckInitialStatePresence(transitions);
-        CheckAcceptStatePresence(transitions);
+        CheckInitialStatePresence(transitions, errors);
+        CheckAcceptStatePresence(transitions, errors);
 
         foreach (var t in transitions)
         {
-            CheckStateOfDomain(t);
-            CheckStateOfRange(t);
+            CheckStateOfDomain(t, errors);
+            CheckStateOfRange(t, errors);
         }
     }
 
-    private void CheckTapeCount(IEnumerable<Transition<TState, TSymbol>> transitions)
+    private void CheckTapeCount(IEnumerable<Transition<TState, TSymbol>> transitions, ErrorCollection errors)
     {
         if (!transitions.Any())
         {
-            throw new ArgumentException("At least one transition");
+            errors.Add("The collection must contain at least one transition.");
+            return;
         }
-
+        
         int tapeCount = transitions.First().Tapes.Count;
 
         if (transitions.Skip(1).Any(t => t.Tapes.Count != tapeCount))
         {
-            throw new DifferentTransitionTapeCountException($"All transitions must have the same tape count. TapeCount={tapeCount}.");
+            errors.Add($"All transitions must have the same tape count. TapeCount={tapeCount}.");
         }
     }
 
-    private void CheckInitialStatePresence(IEnumerable<Transition<TState, TSymbol>> transitions)
+    private void CheckInitialStatePresence(IEnumerable<Transition<TState, TSymbol>> transitions, ErrorCollection errors)
     {
         if (!transitions.Any(t => t.State.Domain == State<TState>.Initial))
         {
-            throw new MissingStateException($"At least one transition domain must contain {nameof(State<TState>.Initial)} state.");
+            errors.Add($"At least one transition domain must contain {nameof(State<TState>.Initial)} state.");
         }
     }
 
-    private void CheckAcceptStatePresence(IEnumerable<Transition<TState, TSymbol>> transitions)
+    private void CheckAcceptStatePresence(IEnumerable<Transition<TState, TSymbol>> transitions, ErrorCollection errors)
     {
         if (!transitions.Any(t => t.State.Range == State<TState>.Accept))
         {
-            throw new MissingStateException($"At least one transition range must contain {nameof(State<TState>.Accept)} state.");
+            errors.Add($"At least one transition range must contain {nameof(State<TState>.Accept)} state.");
         }
     }
 
-    private void CheckStateOfDomain(Transition<TState, TSymbol> transition)
+    private void CheckStateOfDomain(Transition<TState, TSymbol> transition, ErrorCollection errors)
     {
         if (GetInvalidStatesOfDomain().Contains(transition.State.Domain))
         {
-            throw new InvalidStateInTransitionException(
-                $"Only {nameof(State<TState>.Initial)} special state can appear in transition domain. Transition={transition}.");
+            errors.Add($"Only {nameof(State<TState>.Initial)} special state can appear in transition domain. Transition={transition}.");
         }
     }
 
-    private void CheckStateOfRange(Transition<TState, TSymbol> transition)
+    private void CheckStateOfRange(Transition<TState, TSymbol> transition, ErrorCollection errors)
     {
         if (transition.State.Range == State<TState>.Initial)
         {
-            throw new InvalidStateInTransitionException(
-                $"{nameof(State<TState>.Initial)} state must not appear in transition range. Transition={transition}.");
+            errors.Add($"{nameof(State<TState>.Initial)} state must not appear in transition range. Transition={transition}.");
         }
     }
 
