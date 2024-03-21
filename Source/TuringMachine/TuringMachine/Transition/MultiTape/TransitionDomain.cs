@@ -12,7 +12,7 @@ namespace TuringMachine.Transition.MultiTape;
 public class TransitionDomain<TState, TSymbol> : IEquatable<TransitionDomain<TState, TSymbol>>
 {
     /// <summary>
-    /// Initializes a new instance of <see cref="TransitionDomain{TState, TSymbol}"/> class with the specified state and tape symbols.
+    /// Initializes a new instance of the <see cref="TransitionDomain{TState, TSymbol}"/> class with the specified state and tape symbols.
     /// </summary>
     /// <param name="state">State of the domain.</param>
     /// <param name="tapeSymbols">Symbols per tape of the domain.</param>

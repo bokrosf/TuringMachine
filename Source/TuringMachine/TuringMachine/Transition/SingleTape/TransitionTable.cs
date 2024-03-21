@@ -14,13 +14,30 @@ public sealed class TransitionTable<TState, TSymbol>
 {
     private readonly ReadOnlyDictionary<TransitionDomain<TState, TSymbol>, TransitionRange<TState, TSymbol>> transitions;
 
-    /// <summary>
-    /// Gets the range that belongs to the given transition domain.
-    /// </summary>
-    /// <param name="domain">Domain of a transition.</param>
-    /// <returns><see cref="TransitionRange{TState, TSymbol}"/> that belongs to the given transition domain.</returns>
-    /// <exception cref="TransitionDomainNotFoundException">Thrown when the table does not contain any range belonging the given domain.</exception>
-    internal TransitionRange<TState, TSymbol> this[TransitionDomain<TState, TSymbol> domain]
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TransitionTable{TState, TSymbol}"/> class with the given collection of transitions.
+	/// </summary>
+	/// <param name="transitions">Transitions.</param>
+	/// <exception cref="InvalidTransitionCollectionException">The transition collection is invalid.</exception>
+	public TransitionTable(IEnumerable<Transition<TState, TSymbol>> transitions)
+	{
+		ValidationResult validationResult = new TransitionCollectionValidator<TState, TSymbol>().Validate(transitions);
+
+		if (!validationResult.Valid)
+		{
+			throw new InvalidTransitionCollectionException("The transition collection is invalid.");
+		}
+
+		this.transitions = new(transitions.ToDictionary(t => t.Domain, t => t.Range));
+	}
+
+	/// <summary>
+	/// Gets the range that belongs to the given transition domain.
+	/// </summary>
+	/// <param name="domain">Domain of a transition.</param>
+	/// <returns><see cref="TransitionRange{TState, TSymbol}"/> that belongs to the given transition domain.</returns>
+	/// <exception cref="TransitionDomainNotFoundException">Thrown when the table does not contain any range belonging the given domain.</exception>
+	internal TransitionRange<TState, TSymbol> this[TransitionDomain<TState, TSymbol> domain]
     {
         get
         {
@@ -28,22 +45,5 @@ public sealed class TransitionTable<TState, TSymbol>
                 ? range
                 : throw new TransitionDomainNotFoundException($"Not found domain={domain}.");
         }
-    }
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="TransitionTable{TState, TSymbol}"/> class with the given collection of transitions.
-    /// </summary>
-    /// <param name="transitions">Transitions.</param>
-    /// <exception cref="InvalidTransitionCollectionException">The transition collection is invalid.</exception>
-    public TransitionTable(IEnumerable<Transition<TState, TSymbol>> transitions)
-    {
-        ValidationResult validationResult = new TransitionCollectionValidator<TState, TSymbol>().Validate(transitions);
-
-        if (!validationResult.Valid)
-        {
-            throw new InvalidTransitionCollectionException("The transition collection is invalid.");
-        }
-
-        this.transitions = new(transitions.ToDictionary(t => t.Domain, t => t.Range));
     }
 }

@@ -8,10 +8,10 @@ namespace TuringMachine.Transition;
 /// </summary>
 public class ValidationResult
 {
-    /// <summary>
-    /// Initializes a new instance of <see cref="ValidationResult"/> class that is valid without any errors.
-    /// </summary>
-    public ValidationResult()
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ValidationResult"/> class that is valid without any errors.
+	/// </summary>
+	public ValidationResult()
     {
         Errors = new List<string>();
     }

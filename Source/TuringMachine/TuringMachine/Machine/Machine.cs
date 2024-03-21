@@ -19,11 +19,7 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
     IComputationTracking<TState, TSymbol, TTransition>
         where TTransition : notnull
         where TComputationRequest : notnull
-{
-    public event EventHandler<SteppedEventArgs<TTransition>>? Stepped;
-    public event EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>? ComputationTerminated;
-    public event EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>? ComputationAborted;
-
+{    
     protected State<TState> state;
     protected readonly object computationLock;
     protected Computation.Computation? computation;
@@ -39,7 +35,11 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
         state = State<TState>.Initial;
     }
 
-    public Task StartAutomaticAsync(TComputationRequest request)
+	public event EventHandler<SteppedEventArgs<TTransition>>? Stepped;
+	public event EventHandler<ComputationTerminatedEventArgs<TState, TSymbol>>? ComputationTerminated;
+	public event EventHandler<ComputationAbortedEventArgs<TState, TSymbol>>? ComputationAborted;
+
+	public Task StartAutomaticAsync(TComputationRequest request)
     {
         return StartAutomaticAsync(request, CancellationToken.None);
     }

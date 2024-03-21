@@ -11,27 +11,27 @@ namespace TuringMachine.Machine.Computation;
 /// <typeparam name="TSymbol">Type of the symbolised data.</typeparam>
 public class ComputationTerminatedEventArgs<TState, TSymbol> : EventArgs
 {
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ComputationTerminatedEventArgs{TState, TSymbol}"/> class with the specified 
+	/// computation state the machine terminated at and the resulting symbols of the computation.
+	/// </summary>
+	/// <param name="state">The state that the machine terminated at.</param>
+	/// <param name="result">Symbols from the machine's tape after the computation has terminated.</param>
+	public ComputationTerminatedEventArgs(State<TState> state, IEnumerable<Symbol<TSymbol>> result)
+	{
+		State = state;
+		RawResult = result.ToList().AsReadOnly();
+	}
+	
     /// <summary>
-    /// The state that the machine terminated at.
-    /// </summary>
-    public State<TState> State { get; }
+	/// The state that the machine terminated at.
+	/// </summary>
+	public State<TState> State { get; }
 
     /// <summary>
     /// Symbols from the machine's tape after the computation has terminated. It can contain <see cref="Symbol{T}.Blank"/> symbols.
     /// </summary>
     public IReadOnlyList<Symbol<TSymbol>> RawResult { get; }
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="ComputationTerminatedEventArgs{TState, TSymbol}"/> class with the specified 
-    /// computation state the machine terminated at and the resulting symbols of the computation.
-    /// </summary>
-    /// <param name="state">The state that the machine terminated at.</param>
-    /// <param name="result">Symbols from the machine's tape after the computation has terminated.</param>
-    public ComputationTerminatedEventArgs(State<TState> state, IEnumerable<Symbol<TSymbol>> result)
-    {
-        State = state;
-        RawResult = result.ToList().AsReadOnly();
-    }
 
     /// <summary>
     /// Enumerates the result sequence without all leading and trailing <see cref="Symbol{TSymbol}.Blank"/> symbols.
