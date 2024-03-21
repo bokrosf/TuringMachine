@@ -56,6 +56,7 @@ public class Machine<TState, TSymbol> : Machine<
         TransitionRange<TState, TSymbol> range = transitionTable![domain];
         state = range.State;
         ApplyTapeTransitions(range.Tapes);
+        
         Transition<TState, TSymbol> transition = new(
             new StateTransition<TState>(domain.State, range.State),
             domain.TapeSymbols.Zip(range.Tapes, (domain, range) => new TapeTransition<TSymbol>(domain, range.Symbol, range.TapeHeadDirection)));
