@@ -38,7 +38,7 @@ public class Machine<TState, TSymbol> : Machine<
 
             tape = new Tape<TSymbol>(request.Input);
             transitionTable = request.TransitionTable;
-            computation = new(computationMode, IsAborted: false);
+            computation = new(computationMode, Aborted: false);
         }
     }
 

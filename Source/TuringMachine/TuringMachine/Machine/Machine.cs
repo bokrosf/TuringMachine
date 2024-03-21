@@ -59,12 +59,12 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
 
             lock (computationLock)
             {
-                if (computation == null || computation.IsAborted)
+                if (computation == null || computation.Aborted)
                 {
                     return;
                 }
 
-                computation = computation with { IsAborted = true };
+                computation = computation with { Aborted = true };
                 mode = computation.Mode;
             }
 
@@ -91,7 +91,7 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
                     throw new InvalidOperationException($"{(computation?.Mode)?.ToString() ?? "<null>"} computation mode can not be stepped manually.");
                 }
 
-                if (computation.IsAborted)
+                if (computation.Aborted)
                 {
                     return false;
                 }
@@ -167,7 +167,7 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
     {
         try
         {
-            if (IsAborted())
+            if (Aborted())
             {
                 AbortComputation();
                 return false;
@@ -182,7 +182,7 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
                 state = State<TState>.Reject;
             }
 
-            if (state.IsFinishState)
+            if (state.Finish)
             {
                 Terminate();
                 return false;
@@ -197,11 +197,11 @@ public abstract class Machine<TState, TSymbol, TTransition, TComputationRequest>
         }
     }
 
-    private bool IsAborted()
+    private bool Aborted()
     {
         lock (computationLock)
         {
-            return computation?.IsAborted ?? true;
+            return computation?.Aborted ?? true;
         }
     }
 

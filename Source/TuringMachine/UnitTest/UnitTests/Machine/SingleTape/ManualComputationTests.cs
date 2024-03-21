@@ -117,7 +117,7 @@ public class ManualComputationTests
 
         Assert.Same(machine, raisedAborted.Sender);
         Assert.NotEqual(State<int>.Initial, raisedAborted.Arguments.State);
-        Assert.False(raisedAborted.Arguments.State.IsFinishState);
+        Assert.False(raisedAborted.Arguments.State.Finish);
     }
 
     [Theory]
