@@ -20,7 +20,7 @@ public class Machine<TState, TSymbol> : Machine<
     private TransitionTable<TState, TSymbol>? transitionTable;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SingleTapeMachine{TState, TSymbol}"/> class.
+    /// Initializes a new instance of the <see cref="Machine{TState, TSymbol}"/> class.
     /// </summary>
     public Machine()
     {
