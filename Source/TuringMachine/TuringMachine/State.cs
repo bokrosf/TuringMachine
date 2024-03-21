@@ -15,10 +15,23 @@ public class State<T> : IEquatable<State<T>>
     private const int AcceptHashCode = 500009;
     private const int RejectHashCode = 900007;
 
-    /// <summary>
-    /// Initial state of the machine, from where the first symbol is read.
-    /// </summary>
-    public static State<T> Initial { get; }
+	static State()
+	{
+		Initial = new State<T>(default!);
+		Accept = new State<T>(default!);
+		Reject = new State<T>(default!);
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="State{T}"/> class with the given value.
+	/// </summary>
+	/// <param name="value">The value that represents a state.</param>
+	public State(T value) => Value = value;
+
+	/// <summary>
+	/// Initial state of the machine, from where the first symbol is read.
+	/// </summary>
+	public static State<T> Initial { get; }
 
     /// <summary>
     /// Accept state of the machine, when computation terminated by accepting the input.
@@ -39,19 +52,6 @@ public class State<T> : IEquatable<State<T>>
     /// Gets whether the current instance is a finished computation state.
     /// </summary>
     public bool IsFinishState => this == Accept || this == Reject;
-
-    static State()
-    {
-        Initial = new State<T>(default!);
-        Accept = new State<T>(default!);
-        Reject = new State<T>(default!);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="State{T}"/> class with the given value.
-    /// </summary>
-    /// <param name="value">The value that represents a state.</param>
-    public State(T value) => Value = value;
 
     public bool Equals(State<T>? other)
     {

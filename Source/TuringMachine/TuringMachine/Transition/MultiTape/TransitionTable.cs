@@ -12,11 +12,32 @@ namespace TuringMachine.Transition.MultiTape;
 public class TransitionTable<TState, TSymbol>
 {
     private readonly Dictionary<TransitionDomain<TState, TSymbol>, TransitionRange<TState, TSymbol>> transitions;
-    
-    /// <summary>
-    /// Gets the number of tapes.
-    /// </summary>
-    public int TapeCount { get; }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TransitionTable{TState, TSymbol}"/> class with the given collection of transitions.
+	/// </summary>
+	/// <param name="transitions">Transitions.</param>
+	/// <exception cref="InvalidTransitionCollectionException">The transition collection is invalid.</exception>
+	public TransitionTable(IEnumerable<Transition<TState, TSymbol>> transitions)
+	{
+		ValidationResult validationResult = new TransitionCollectionValidator<TState, TSymbol>().Validate(transitions);
+
+		if (!validationResult.Valid)
+		{
+			throw new InvalidTransitionCollectionException("The validation collection is invalid.");
+		}
+
+		this.transitions = transitions.ToDictionary(
+			t => new TransitionDomain<TState, TSymbol>(t.State.Domain, t.Tapes.Select(tape => tape.Domain)),
+			t => new TransitionRange<TState, TSymbol>(t.State.Range, t.Tapes.Select(tape => new TapeTransitionRange<TSymbol>(tape.Range, tape.TapeHeadDirection))));
+
+		TapeCount = transitions.First().Tapes.Count;
+	}
+
+	/// <summary>
+	/// Gets the number of tapes.
+	/// </summary>
+	public int TapeCount { get; }
     
     /// <summary>
     ///  Gets the range that belongs to the given transition domain.
@@ -32,26 +53,5 @@ public class TransitionTable<TState, TSymbol>
                 ? range
                 : throw new TransitionDomainNotFoundException($"Not found domain={domain}.");
         } 
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TransitionTable{TState, TSymbol}"/> class with the given collection of transitions.
-    /// </summary>
-    /// <param name="transitions">Transitions.</param>
-    /// <exception cref="InvalidTransitionCollectionException">The transition collection is invalid.</exception>
-    public TransitionTable(IEnumerable<Transition<TState, TSymbol>> transitions)
-    {
-        ValidationResult validationResult = new TransitionCollectionValidator<TState, TSymbol>().Validate(transitions);
-
-        if (!validationResult.Valid)
-        {
-            throw new InvalidTransitionCollectionException("The validation collection is invalid.");
-        }
-
-        this.transitions = transitions.ToDictionary(
-            t => new TransitionDomain<TState, TSymbol>(t.State.Domain, t.Tapes.Select(tape => tape.Domain)),
-            t => new TransitionRange<TState, TSymbol>(t.State.Range, t.Tapes.Select(tape => new TapeTransitionRange<TSymbol>(tape.Range, tape.TapeHeadDirection))));
-
-        TapeCount = transitions.First().Tapes.Count;
     }
 }

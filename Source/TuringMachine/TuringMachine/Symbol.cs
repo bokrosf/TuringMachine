@@ -11,23 +11,23 @@ public sealed class Symbol<T> : IEquatable<Symbol<T>>
 {
     private const int NullValueHashCode = 7723;
 
-    /// <summary>
-    /// Gets the blank symbol.
-    /// </summary>
-    public static Symbol<T> Blank { get; }
+	static Symbol() => Blank = new Symbol<T>(default!);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="Symbol{T}"/> class with the given value.
+	/// </summary>
+	/// <param name="value">The value to be stored on the tape.</param>
+	public Symbol(T value) => Value = value;
+
+	/// <summary>
+	/// Gets the blank symbol.
+	/// </summary>
+	public static Symbol<T> Blank { get; }
 
     /// <summary>
     /// Gets the symbolised value.
     /// </summary>
     public T Value { get; }
-
-    static Symbol() => Blank = new Symbol<T>(default!);
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="Symbol{T}"/> class with the given value.
-    /// </summary>
-    /// <param name="value">The value to be stored on the tape.</param>
-    public Symbol(T value) => Value = value;
 
     /// <summary>
     /// Converts the value of this instance to a <see cref="string"/>.
