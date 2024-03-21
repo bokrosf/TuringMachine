@@ -16,6 +16,7 @@ public class InvalidTransitionCollectionException : Exception
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InvalidTransitionCollectionException"/> class with a specified error message.
+	/// </summary>
 	/// <param name="message">The message that describes the error.</param>
 	public InvalidTransitionCollectionException(string? message)
         : base(message)
